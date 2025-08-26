@@ -57,21 +57,21 @@ const CardProduct = ({ data }) => {
                 </div>
 
                 {/* Giá + Button */}
-                <div className="flex items-center justify-between h-6 mt-2 lg:mt-4 gap-3 sm:gap-2">
+                <div className="flex items-center justify-between h-6 mt-2 lg:mt-4 gap-2">
                     <div className="flex flex-col">
                         {Boolean(data.discount) && (
                             <span className="text-gray-400 line-through text-xs sm:text-sm">
                                 {DisplayPriceInVND(data.price)}
                             </span>
                         )}
-                        <span className="text-secondary-200 font-bold text-sm sm:text-md lg:text-base">
+                        <span className="text-secondary-200 font-bold text-xs sm:text-md lg:text-base">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}
                         </span>
                     </div>
 
-                    <div className=''>
+                    <div className="">
                         {data.stock === 0 ? (
                             <p className="text-secondary-200 text-xs sm:text-base font-bold sm:font-semibold text-center">
                                 Out of stock
