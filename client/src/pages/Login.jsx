@@ -76,12 +76,12 @@ const Login = () => {
     return (
         <section className="mx-auto my-12 max-w-4xl">
             <div
-                className="grid grid-flow-col grid-cols-[2fr_1.5fr] mx-5 rounded-md shadow-md
+                className="grid grid-flow-col lg:grid-cols-[2fr_1.5fr] mx-5 rounded-md shadow-md
             shadow-secondary-100"
             >
                 {/* Banner */}
                 <div
-                    className="rounded-s-md opacity-80 flex flex-col justify-center gap-3"
+                    className="hidden rounded-s-md opacity-80 lg:flex flex-col justify-center gap-3"
                     style={{
                         backgroundImage: `url(${banner})`,
                         backgroundSize: 'cover',

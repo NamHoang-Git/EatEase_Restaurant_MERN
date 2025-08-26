@@ -16,7 +16,7 @@ const CardProduct = ({ data }) => {
         hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
             {/* Image */}
-            <div className="relative w-full h-60 lg:h-52 overflow-hidden">
+            <div className="relative w-full h-52 overflow-hidden">
                 <img
                     src={data.image[0]}
                     alt={data.name}
@@ -34,15 +34,15 @@ const CardProduct = ({ data }) => {
             </div>
 
             {/* Info */}
-            <div className="p-4 flex flex-col gap-4 lg:gap-2">
+            <div className="px-2 py-3 sm:p-4 flex flex-col gap-4 lg:gap-2">
                 {/* Tên sản phẩm */}
-                <h2 className="font-semibold line-clamp-2 h-10 sm:h-11 md:h-10 lg:h-12">
+                <h2 className="font-semibold line-clamp-2 text-sm sm:text-base h-9 sm:h-11 md:h-10 lg:h-12">
                     {data.name}
                 </h2>
 
                 {/* Đơn vị + discount */}
-                <div className="flex gap-4 items-center h-[14px]">
-                    <div className="whitespace-nowrap lg:text-sm line-clamp-1">
+                <div className="flex gap-4 items-center h-[10px] sm:h-[14px]">
+                    <div className="whitespace-nowrap text-sm line-clamp-1">
                         {data.unit}
                     </div>
                     {/* Badge discount */}
@@ -57,14 +57,14 @@ const CardProduct = ({ data }) => {
                 </div>
 
                 {/* Giá + Button */}
-                <div className="flex items-center justify-between h-6 mt-2 lg:mt-4 gap-2">
+                <div className="flex items-center justify-between h-6 mt-2 lg:mt-4 gap-3 sm:gap-2">
                     <div className="flex flex-col">
                         {Boolean(data.discount) && (
-                            <span className="text-gray-400 line-through text-sm">
+                            <span className="text-gray-400 line-through text-xs sm:text-sm">
                                 {DisplayPriceInVND(data.price)}
                             </span>
                         )}
-                        <span className="text-secondary-200 font-bold text-md lg:text-base">
+                        <span className="text-secondary-200 font-bold text-sm sm:text-md lg:text-base">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}
@@ -73,7 +73,7 @@ const CardProduct = ({ data }) => {
 
                     <div className=''>
                         {data.stock === 0 ? (
-                            <p className="text-secondary-200 un font-semibold text-center">
+                            <p className="text-secondary-200 text-xs sm:text-base font-bold sm:font-semibold text-center">
                                 Out of stock
                             </p>
                         ) : (

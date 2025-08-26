@@ -124,35 +124,38 @@ const AddToCartButton = ({ data }) => {
                 <div className="flex items-center w-full h-full bg-primary-100">
                     <button
                         onClick={decreaseQty}
-                        className="bg-primary hover:opacity-80 text-white flex-1 w-full p-[6px] rounded flex items-center justify-center"
+                        className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
                         disabled={loading}
                     >
-                        <FaMinus size={14} />
+                        <FaMinus className="sm:hidden" size={10} />
+                        <FaMinus className="hidden sm:block" size={14} />
                     </button>
 
-                    <p className="flex-1 text-base text-secondary-200 font-semibold w-9 flex items-center justify-center">
+                    <p className="flex-1 text-sm sm:text-base text-secondary-200 font-semibold w-9 flex items-center justify-center">
                         {qty}
                     </p>
 
                     <button
                         onClick={increaseQty}
-                        className="bg-primary hover:opacity-80 text-white flex-1 w-full p-[6px] rounded flex items-center justify-center"
+                        className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
                         disabled={loading}
                     >
-                        <FaPlus size={14} />
+                        <FaPlus className="sm:hidden" size={10} />
+                        <FaPlus className="hidden sm:block" size={14} />
                     </button>
                 </div>
             ) : (
                 <button
                     onClick={handleADDTocart}
-                    className="bg-primary hover:opacity-80 text-secondary-200 shadow-md p-[6px] rounded-full"
+                    className="bg-primary hover:opacity-80 text-secondary-200 shadow-md p-1 px-2 sm:px-2 sm:p-[6px]
+                rounded-md sm:rounded-full"
                     disabled={loading || !data?._id}
                 >
                     {loading ? (
                         <Loading />
                     ) : (
-                        <span className="flex items-center gap-1 text-sm">
-                            <FaPlus />
+                        <span className="flex items-center gap-1 text-xs sm:text-sm">
+                            <FaPlus size={12} />
                             <p className="leading-[14px] mt-[2px]">Cart</p>
                         </span>
                     )}

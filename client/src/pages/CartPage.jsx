@@ -30,7 +30,7 @@ const CartPage = () => {
             // Không gọi API nếu user chưa đăng nhập
             const accessToken = localStorage.getItem('accesstoken');
             if (!accessToken) return;
-            
+
             try {
                 const response = await Axios({
                     url: SummaryApi.get_cart_item.url,

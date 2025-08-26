@@ -58,8 +58,8 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
             className="container mx-auto px-12 py-6 bg-primary-100 shadow-md shadow-secondary-100
         rounded-[50px]"
         >
-            <div className="container mx-auto pb-1 flex items-center justify-between gap-4">
-                <h3 className="font-bold text-lg md:text-xl">{name}</h3>
+            <div className="container mx-auto pb-1 flex items-center justify-between gap-4 text-sm sm:text-lg">
+                <h3 className="font-bold underline">{name}</h3>
                 <Link
                     to={redirectURL}
                     className="flex items-center gap-1 text-secondary-200 hover:text-secondary-100 font-bold"
@@ -74,8 +74,8 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
                 <div className="relative flex items-center ">
                     <div
                         ref={containerRef}
-                        className="grid grid-flow-col auto-cols-[minmax(14rem,14rem)] gap-4 md:gap-6
-                    lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
+                        className="grid grid-flow-col auto-cols-[minmax(11rem,11rem)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
+                    lg:auto-cols-[minmax(14rem,14rem)] gap-4 md:gap-6 lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
                     >
                         {loading &&
                             loadingCardNumber.map((_, index) => {

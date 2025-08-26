@@ -81,7 +81,7 @@ const ProductDisplayPage = () => {
     const fetchCart = async () => {
         // Không gọi API nếu user chưa đăng nhập
         if (!user?._id) return;
-        
+
         try {
             const res = await Axios({ ...SummaryApi.get_cart_item });
             if (res.data.success) {
@@ -175,7 +175,7 @@ const ProductDisplayPage = () => {
                 <div>
                     <div
                         className="bg-primary-100 rounded-lg shadow-md p-2 flex justify-center items-center
-                    h-[400px]"
+                    h-[300px] sm:h-[400px]"
                     >
                         <img
                             src={data.image[image]}
@@ -242,6 +242,7 @@ const ProductDisplayPage = () => {
                         </div>
                     </div>
 
+                    {/* PC / Tablet */}
                     <div className="lg:flex flex-col gap-6 hidden">
                         <section className="container mt-8 bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-6 border-b border-gray-300">
@@ -281,10 +282,10 @@ const ProductDisplayPage = () => {
                                 {tab === 'detail' && (
                                     <div className="text-gray-700 leading-relaxed break-words flex flex-col gap-3">
                                         <div className="flex gap-4">
-                                            <span className="font-semibold">
+                                            <span className="font-semibold text-nowrap">
                                                 Danh mục:{' '}
                                             </span>
-                                            <div className="flex flex-wrap gap-5">
+                                            <div className="flex flex-wrap gap-2">
                                                 {data?.category &&
                                                 data.category.length > 0 ? (
                                                     data.category.map(
@@ -303,7 +304,7 @@ const ProductDisplayPage = () => {
                                                                         cat.name
                                                                     )
                                                                 }
-                                                                className="hover:underline text-blue-600 font-semibold"
+                                                                className="hover:underline text-blue-600 font-semibold px-4"
                                                             >
                                                                 {cat.name}
                                                             </Link>
@@ -489,6 +490,7 @@ const ProductDisplayPage = () => {
                 </div>
             </div>
 
+            {/* Mobile */}
             <div className="flex flex-col gap-6 lg:hidden">
                 <section className="mt-8 bg-white p-4 rounded-lg">
                     <div className="flex items-center gap-6 border-b border-gray-300">
@@ -528,10 +530,10 @@ const ProductDisplayPage = () => {
                         {tab === 'detail' && (
                             <div className="text-gray-700 leading-relaxed break-words flex flex-col gap-3">
                                 <div className="flex gap-4">
-                                    <span className="font-semibold">
+                                    <span className="font-semibold text-nowrap">
                                         Danh mục:{' '}
                                     </span>
-                                    <div className="flex flex-wrap gap-5">
+                                    <div className="flex flex-wrap">
                                         {data?.category &&
                                         data.category.length > 0 ? (
                                             data.category.map((cat, index) => (
@@ -544,7 +546,7 @@ const ProductDisplayPage = () => {
                                                             cat.name
                                                         )
                                                     }
-                                                    className="hover:underline text-blue-600 font-semibold"
+                                                    className="hover:underline text-blue-600 font-semibold px-2"
                                                 >
                                                     {cat.name}
                                                 </Link>
