@@ -26,7 +26,10 @@ const DisplayTableCart = ({ data, column }) => {
                             {headerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
-                                    className="border p-2 border-b-4 border-b-secondary-100"
+                                    className={`border p-2 border-b-4 border-b-secondary-100 ${
+                                        header.column.columnDef.meta
+                                            ?.className || ''
+                                    }`}
                                 >
                                     {header.isPlaceholder
                                         ? null

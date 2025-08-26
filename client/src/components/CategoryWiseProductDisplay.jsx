@@ -59,7 +59,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
         rounded-[50px]"
         >
             <div className="container mx-auto pb-1 flex items-center justify-between gap-4 text-sm sm:text-lg">
-                <h3 className="font-bold underline">{name}</h3>
+                <h3 className="font-bold">{name}</h3>
                 <Link
                     to={redirectURL}
                     className="flex items-center gap-1 text-secondary-200 hover:text-secondary-100 font-bold"

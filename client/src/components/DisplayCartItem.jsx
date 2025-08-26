@@ -139,11 +139,13 @@ const DisplayCartItem = ({ close }) => {
                                     <div className="flex gap-4 justify-between">
                                         <p>Tổng giá trị các mặt hàng</p>
                                         <p className="flex items-center gap-2">
-                                            <span className="line-through text-gray-400">
-                                                {DisplayPriceInVND(
-                                                    notDiscountTotalPrice
-                                                )}
-                                            </span>
+                                            {cartItem.some(item => item.productId?.discount > 0) && (
+                                                <span className="line-through text-gray-400">
+                                                    {DisplayPriceInVND(
+                                                        notDiscountTotalPrice
+                                                    )}
+                                                </span>
+                                            )}
                                             <span className="text-secondary-200 font-bold">
                                                 {DisplayPriceInVND(totalPrice)}
                                             </span>

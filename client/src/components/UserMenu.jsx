@@ -31,12 +31,12 @@ const UserMenu = ({ close }) => {
                 dispatch(logout());
                 dispatch(clearCart()); // Clear cart from Redux store
                 setIsLoggingOut(true); // đánh dấu đang logout
-                
+
                 // Clear localStorage
                 localStorage.removeItem('accesstoken');
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('checkoutSelectedItems'); // Clear checkout data
-                
+
                 toast.success(response.data.message);
                 navigate('/');
             }
@@ -89,7 +89,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/category'}
-                        className="px-2 py-1 hover:bg-white rounded-md"
+                        className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                     >
                         Category
                     </Link>
@@ -99,7 +99,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/upload-product'}
-                        className="px-2 py-1 hover:bg-white rounded-md"
+                        className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                     >
                         Upload Product
                     </Link>
@@ -109,7 +109,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/product'}
-                        className="px-2 py-1 hover:bg-white rounded-md"
+                        className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                     >
                         Product
                     </Link>
@@ -118,7 +118,7 @@ const UserMenu = ({ close }) => {
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/my-orders'}
-                    className="px-2 py-1 hover:bg-white rounded-md"
+                    className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                 >
                     My Orders
                 </Link>
@@ -126,14 +126,14 @@ const UserMenu = ({ close }) => {
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/address'}
-                    className="px-2 py-1 hover:bg-white rounded-md"
+                    className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                 >
                     Save Address
                 </Link>
                 <Divider />
                 <button
                     onClick={handleLogout}
-                    className="text-left px-2 py-1 hover:bg-white rounded-md"
+                    className="text-left px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                 >
                     Log Out
                 </button>

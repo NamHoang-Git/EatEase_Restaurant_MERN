@@ -80,7 +80,7 @@ const Header = () => {
                     : 'bg-opacity-45 bg-black border-b-[3px] border-b-black'
             }`}
         >
-            <div className="h-52 lg:h-28 flex flex-col justify-center gap-2 shadow-lg">
+            <div className="lg:h-28 p-4 flex flex-col justify-center gap-2 shadow-lg">
                 {!(isSearchPage && isMobile) && (
                     <div className="container mx-auto flex items-center gap-4 px-2 justify-between">
                         {/* Search */}
@@ -97,15 +97,21 @@ const Header = () => {
                             >
                                 <img
                                     src={logo}
-                                    width={125}
+                                    width={120}
                                     alt="logo"
                                     className="hidden lg:block"
                                 />
                                 <img
                                     src={logo}
-                                    width={110}
+                                    width={120}
                                     alt="logo"
-                                    className="lg:hidden"
+                                    className="hidden lg:hidden sm:block"
+                                />
+                                <img
+                                    src={logo}
+                                    width={80}
+                                    alt="logo"
+                                    className="lg:hidden sm:hidden"
                                 />
                             </Link>
                         </div>

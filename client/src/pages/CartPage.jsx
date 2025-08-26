@@ -6,6 +6,7 @@ import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import AddToCartButton from '../components/AddToCartButton';
 import DisplayTableCart from '../components/DisplayTableCart';
 import { IoClose } from 'react-icons/io5';
+import { FaLongArrowAltLeft, FaRegArrowAltCircleLeft } from 'react-icons/fa';
 import NoData from '../components/NoData';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -187,7 +188,7 @@ const CartPage = () => {
                     {row.original.productId?.unit || ''}
                 </p>
             ),
-            meta: { className: 'text-center max-w-24' },
+            meta: { className: 'text-center max-w-24 hidden sm:table-cell' },
         },
         {
             header: 'Số lượng',
@@ -235,19 +236,20 @@ const CartPage = () => {
                     <IoClose size={16} />
                 </button>
             ),
-            meta: { className: 'text-center' },
+            meta: { className: 'text-center hidden sm:table-cell' },
         },
     ];
 
     return (
-        <section className="container mx-auto mt-6">
+        <section className="container mx-auto min-h-[80vh] px-2 py-6">
             <div
                 className="p-4 lg:p-3 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
-            flex items-center justify-between gap-4"
+                font-bold text-secondary-200 text-lg uppercase flex items-center gap-3"
             >
-                <h2 className="font-bold text-secondary-200 text-lg">
-                    Giỏ hàng của bạn
-                </h2>
+                <span onClick={() => navigate('/')} className="cursor-pointer hover:text-secondary-100 sm:hidden block">
+                    <FaRegArrowAltCircleLeft size={25} />
+                </span>
+                <p className="leading-3 mt-1">Giỏ hàng</p>
             </div>
 
             {cart.length === 0 ? (
@@ -301,7 +303,8 @@ const CartPage = () => {
                         <div className="flex gap-4">
                             <button
                                 className="px-4 py-2 border-2 border-inset border-secondary-100 text-secondary-100
-                            bg-white hover:bg-secondary-100 hover:text-white rounded-lg font-semibold shadow-lg"
+                            bg-white hover:bg-secondary-100 hover:text-white rounded-lg font-semibold shadow-lg
+                            sm:block hidden"
                                 onClick={() => navigate('/')}
                             >
                                 Tiếp tục mua sắm

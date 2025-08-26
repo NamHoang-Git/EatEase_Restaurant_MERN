@@ -139,6 +139,7 @@ const CheckoutPage = () => {
         cartItemsList.length,
         location.state,
     ]);
+
     const filteredTotalPrice = filteredItems.reduce(
         (acc, item) =>
             acc +
@@ -147,11 +148,13 @@ const CheckoutPage = () => {
                 (1 - (item.productId?.discount || 0) / 100),
         0
     );
+
     const filteredNotDiscountTotalPrice = filteredItems.reduce(
         (acc, item) =>
             acc + (item.productId?.price || 0) * (item.quantity || 1),
         0
     );
+
     const filteredTotalQty = filteredItems.reduce(
         (acc, item) => acc + (item.quantity || 1),
         0
@@ -256,76 +259,102 @@ const CheckoutPage = () => {
         }
     };
 
+    const hasDiscount = cartItemsList
+        .filter((item) => selectedItems.includes(item._id))
+        .some((item) => item.productId?.discount > 0);
+
     return (
-        <section className="bg-base-100 p-4 min-h-[80vh]">
-            <div className="container h-full mx-auto p-4 flex flex-col lg:flex-row w-full gap-5">
-                <div className="w-full">
-                    <h3 className="text-lg font-semibold">
+        <section className="container mx-auto bg-base-100 min-h-[80vh] px-2 py-6">
+            <div
+                className="p-4 lg:p-3 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
+                font-bold text-secondary-200 text-lg uppercase"
+            >
+                Thanh toán
+            </div>
+            <div className="h-full flex flex-col lg:flex-row w-full gap-5 bg-white shadow rounded-lg p-5">
+                <div className="w-full flex flex-col gap-3">
+                    <h3 className="text-lg font-bold shadow-md px-2 py-3">
                         Chọn địa chỉ giao hàng
                     </h3>
 
-                    <div className="bg-white p-2 grid gap-4 overflow-auto max-h-[60vh]">
+                    <div
+                        className="bg-white grid gap-4 overflow-auto max-h-[50vh] sm:max-h-[55vh]
+                    md:max-h-[60vh] lg:max-h-[65vh]"
+                    >
                         {sortedAddressList.map((address, index) => (
                             <label
                                 key={index}
                                 htmlFor={'address' + index}
                                 className={!address.status && 'hidden'}
                             >
-                                <div className="border rounded p-3 flex gap-3 hover:bg-blue-50">
-                                    <div>
-                                        <input
-                                            id={'address' + index}
-                                            type="radio"
-                                            checked={
-                                                selectAddress ===
-                                                addressList.findIndex(
-                                                    (addr) =>
-                                                        addr._id === address._id
-                                                )
-                                            }
-                                            onChange={() =>
-                                                setSelectAddress(
+                                <div className="border border-secondary-100 rounded-md px-4 py-3 hover:bg-base-100 shadow-md">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <div className="flex items-baseline gap-3">
+                                            <input
+                                                id={'address' + index}
+                                                type="radio"
+                                                checked={
+                                                    selectAddress ===
                                                     addressList.findIndex(
                                                         (addr) =>
                                                             addr._id ===
                                                             address._id
                                                     )
-                                                )
-                                            }
-                                            name="address"
-                                        />
-                                    </div>
-                                    <div className="flex justify-between items-start gap-2">
-                                        <div>
-                                            <p>{address.address_line}</p>
-                                            <p>{address.city}</p>
-                                            <p>{address.state}</p>
-                                            <p>{address.country}</p>
-                                            <p>{address.mobile}</p>
+                                                }
+                                                onChange={() =>
+                                                    setSelectAddress(
+                                                        addressList.findIndex(
+                                                            (addr) =>
+                                                                addr._id ===
+                                                                address._id
+                                                        )
+                                                    )
+                                                }
+                                                name="address"
+                                            />
+                                            <div className="flex flex-col gap-1 text-base">
+                                                <p>
+                                                    Địa chỉ:{' '}
+                                                    {address.address_line}
+                                                </p>
+                                                <p>Thành phố: {address.city}</p>
+                                                <p>
+                                                    Quận / Huyện:{' '}
+                                                    {address.state}
+                                                </p>
+                                                <p>
+                                                    Quốc gia: {address.country}
+                                                </p>
+                                                <p>
+                                                    Số điện thoại:{' '}
+                                                    {address.mobile}
+                                                </p>
+                                            </div>
                                             {address.isDefault && (
-                                                <span className="text-green-600 text-sm font-semibold">
+                                                <span className="text-secondary-200 text-md font-bold">
                                                     (Mặc định)
                                                 </span>
                                             )}
                                         </div>
 
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => {
                                                     setOpenEdit(true);
                                                     setEditData(address);
                                                 }}
-                                                className="bg-green-200 p-2 rounded hover:text-white hover:bg-green-600"
+                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[3px] text-primary-200"
                                             >
                                                 <MdEdit size={18} />
                                             </button>
+                                            <div className="w-[2px] h-4 bg-secondary-100"></div>
                                             <button
                                                 onClick={() =>
                                                     handleDisableAddress(
                                                         address._id
                                                     )
                                                 }
-                                                className="bg-red-200 p-2 rounded hover:text-white hover:bg-red-600"
+                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[3px] text-secondary-200"
                                             >
                                                 <MdDelete size={18} />
                                             </button>
@@ -334,110 +363,137 @@ const CheckoutPage = () => {
                                 </div>
                             </label>
                         ))}
-                        <div
-                            onClick={() => setOpenAddress(true)}
-                            className="h-16 bg-blue-50 border-2 border-dashed flex justify-center items-center cursor-pointer"
-                        >
-                            Thêm địa chỉ
-                        </div>
+                    </div>
+                    <div
+                        onClick={() => setOpenAddress(true)}
+                        className="h-14 bg-base-100 border-[3px] border-dashed border-gray-300 text-gray-400
+                    flex justify-center items-center cursor-pointer hover:bg-primary-100 hover:text-gray-500 transition-all"
+                    >
+                        Thêm địa chỉ
                     </div>
                 </div>
 
-                <div className="w-full lg:max-w-md bg-white py-4 px-2">
-                    <h3 className="text-lg font-semibold">Tóm tắt đơn hàng</h3>
-                    <div className="bg-white p-4">
-                        <h3 className="font-semibold">Danh sách sản phẩm</h3>
-                        {filteredItems.length === 0 ? (
-                            <p className="text-gray-500">Giỏ hàng trống</p>
-                        ) : (
-                            filteredItems.map((item) => {
-                                const product = item.productId || {};
-                                const name =
-                                    product.name || 'Sản phẩm không xác định';
-                                const image =
-                                    product.image || '/placeholder-image.jpg';
-                                const price = product.price || 0;
-                                const discount = product.discount || 0;
-                                const quantity = item.quantity || 1;
-                                const finalPrice =
-                                    price * quantity * (1 - discount / 100);
+                <div className="w-full lg:max-w-2xl bg-white flex flex-col gap-3 shadow-md px-2">
+                    <h3 className="text-lg font-bold shadow-md px-2 py-3">
+                        Đơn hàng
+                    </h3>
+                    <div className="bg-white px-4 grid gap-3">
+                        <div>
+                            <h3 className="font-semibold text-red-darker py-2">
+                                Danh sách sản phẩm
+                            </h3>
+                            {filteredItems.length === 0 ? (
+                                <p className="text-gray-500">Giỏ hàng trống</p>
+                            ) : (
+                                filteredItems.map((item) => {
+                                    const product = item.productId || {};
+                                    const name =
+                                        product.name ||
+                                        'Sản phẩm không xác định';
+                                    const image =
+                                        product.image ||
+                                        '/placeholder-image.jpg';
+                                    const price = product.price || 0;
+                                    const discount = product.discount || 0;
+                                    const quantity = item.quantity || 1;
+                                    const finalPrice =
+                                        price * quantity * (1 - discount / 100);
 
-                                return (
-                                    <div
-                                        key={item._id}
-                                        className="flex gap-4 items-center mb-4"
-                                    >
-                                        <img
-                                            src={image}
-                                            alt={name}
-                                            className="w-16 h-16 object-cover rounded"
-                                            onError={(e) => {
-                                                e.target.src =
-                                                    '/placeholder-image.jpg';
-                                            }}
-                                        />
-                                        <div className="flex-1">
-                                            <p className="font-medium">
-                                                {name}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Số lượng: {quantity}
-                                            </p>
-                                            <p className="text-sm">
-                                                Giá:{' '}
-                                                {DisplayPriceInVND(finalPrice)}
-                                                {discount > 0 && (
-                                                    <span className="line-through text-gray-400 ml-2">
-                                                        {DisplayPriceInVND(
-                                                            price * quantity
-                                                        )}
-                                                    </span>
-                                                )}
-                                            </p>
+                                    return (
+                                        <div
+                                            key={item._id}
+                                            className="flex gap-4 items-center mb-4 shadow-lg p-2"
+                                        >
+                                            <img
+                                                src={image}
+                                                alt={name}
+                                                className="w-16 h-16 object-cover rounded border border-inset border-primary-200"
+                                                onError={(e) => {
+                                                    e.target.src =
+                                                        '/placeholder-image.jpg';
+                                                }}
+                                            />
+                                            <div className="flex-1">
+                                                <p className="font-medium">
+                                                    {name}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    Số lượng: {quantity}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Giá:{' '}
+                                                    {DisplayPriceInVND(
+                                                        finalPrice
+                                                    )}
+                                                    {discount > 0 && (
+                                                        <span className="line-through text-gray-400 ml-2">
+                                                            {DisplayPriceInVND(
+                                                                price * quantity
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })
-                        )}
-                        <h3 className="font-semibold mt-4">Chi tiết hóa đơn</h3>
-                        <div className="flex gap-4 justify-between ml-1">
-                            <p>Tổng sản phẩm</p>
-                            <p className="flex items-center gap-2">
-                                <span className="line-through text-neutral-400">
-                                    {DisplayPriceInVND(
-                                        filteredNotDiscountTotalPrice
-                                    )}
-                                </span>
-                                <span>
+                                    );
+                                })
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <h3 className="font-semibold text-red-darker">
+                                Chi tiết hóa đơn
+                            </h3>
+                            <div className="px-4 text-[15px] flex flex-col gap-1">
+                                <div className="flex gap-4 justify-between">
+                                    <p>Tổng sản phẩm</p>
+                                    <p className="flex items-center gap-2">
+                                        {hasDiscount > 0 && (
+                                            <span className="line-through text-neutral-400">
+                                                {DisplayPriceInVND(
+                                                    filteredNotDiscountTotalPrice
+                                                )}
+                                            </span>
+                                        )}
+                                        <span className="text-red-darker font-bold">
+                                            {DisplayPriceInVND(
+                                                filteredTotalPrice
+                                            )}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div className="flex gap-4 justify-between">
+                                    <p>Số lượng</p>
+                                    <p className="flex items-center gap-2">
+                                        {filteredTotalQty} sản phẩm
+                                    </p>
+                                </div>
+                                <div className="flex gap-4 justify-between">
+                                    <p>Phí vận chuyển</p>
+                                    <p className="flex items-center gap-2 italic">
+                                        Miễn phí
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="font-semibold flex items-center justify-between gap-4">
+                                <p>Tổng cộng</p>
+                                <p className="text-secondary-200 font-bold">
                                     {DisplayPriceInVND(filteredTotalPrice)}
-                                </span>
-                            </p>
-                        </div>
-                        <div className="flex gap-4 justify-between ml-1">
-                            <p>Số lượng</p>
-                            <p className="flex items-center gap-2">
-                                {filteredTotalQty} sản phẩm
-                            </p>
-                        </div>
-                        <div className="flex gap-4 justify-between ml-1">
-                            <p>Phí vận chuyển</p>
-                            <p className="flex items-center gap-2">Miễn phí</p>
-                        </div>
-                        <div className="font-semibold flex items-center justify-between gap-4">
-                            <p>Tổng cộng</p>
-                            <p>{DisplayPriceInVND(filteredTotalPrice)}</p>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <div className="w-full flex flex-col gap-4">
+                    <div className="w-full flex flex-col gap-4 py-4">
                         <button
-                            className="py-2 px-4 bg-green-600 hover:bg-green-700 rounded text-white font-semibold"
+                            className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
+                        cursor-pointer text-secondary-200 font-semibold"
                             onClick={handleOnlinePayment}
                             disabled={loading}
                         >
                             {loading ? <Loading /> : 'Thanh toán online'}
                         </button>
                         <button
-                            className="py-2 px-4 border-2 border-green-600 font-semibold text-green-600 hover:bg-green-600 hover:text-white"
+                            className="py-2 px-4 border-[3px] border-red-darker font-semibold text-red-darker hover:bg-red-darker
+                        hover:text-white rounded cursor-pointer transition-all"
                             onClick={handleCashOnDelivery}
                             disabled={loading}
                         >
@@ -459,7 +515,7 @@ const CheckoutPage = () => {
             {/* Modal xác nhận cho cả hai phương thức thanh toán */}
             {showConfirmModal.show && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                         <h3 className="text-lg font-semibold mb-4">
                             Xác nhận đặt hàng
                         </h3>
@@ -472,7 +528,8 @@ const CheckoutPage = () => {
                         </p>
                         <div className="flex justify-end gap-4">
                             <button
-                                className="py-2 px-4 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                                className="py-2 px-6 bg-white text-secondary-200 border-[3px] hover:bg-secondary-200
+                            hover:text-white border-secondary-200 rounded-md font-bold cursor-pointer"
                                 onClick={() =>
                                     setShowConfirmModal({
                                         show: false,
@@ -483,7 +540,8 @@ const CheckoutPage = () => {
                                 Hủy
                             </button>
                             <button
-                                className="py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700"
+                                className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded-md text-secondary-200 font-bold cursor-pointer
+                            border-[3px] border-inset border-secondary-200"
                                 onClick={
                                     showConfirmModal.type === 'cash'
                                         ? confirmCashOnDelivery

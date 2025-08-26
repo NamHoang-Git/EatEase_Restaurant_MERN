@@ -69,7 +69,7 @@ const SearchPage = () => {
 
     return (
         <section className="bg-primary-100 mt-4">
-            <div className="container mx-auto p-4">
+            <div className="container mx-auto p-4 min-h-[80vh]">
                 <p className="font-bold text-secondary-200">
                     Kết quả tìm kiếm: {data.length}
                 </p>

@@ -279,7 +279,7 @@ export async function webhookStripe(request, response) {
                             createdAt: { $gte: new Date(Date.now() - 10 * 60 * 1000) }, // 10 phút
                             payment_status: { $in: ['paid', session.payment_status] }
                         });
-                        
+
                         if (recentOrders.length > 0) {
                             // Nhóm theo userId
                             const userProductMap = {};
@@ -290,26 +290,26 @@ export async function webhookStripe(request, response) {
                                 }
                                 userProductMap[userId].push(order.productId.toString());
                             });
-                            
+
                             // Xóa selective cho từng user
                             for (const [userId, productIds] of Object.entries(userProductMap)) {
                                 const cartItemsToDelete = await CartProductModel.find({
                                     userId: new mongoose.Types.ObjectId(userId),
                                     productId: { $in: productIds.map(id => new mongoose.Types.ObjectId(id)) }
                                 });
-                                
+
                                 if (cartItemsToDelete.length > 0) {
                                     const cartItemIds = cartItemsToDelete.map(item => item._id);
-                                    
+
                                     await CartProductModel.deleteMany({
                                         _id: { $in: cartItemIds }
                                     });
-                                    
+
                                     await UserModel.updateOne(
                                         { _id: new mongoose.Types.ObjectId(userId) },
                                         { $pull: { shopping_cart: { $in: cartItemIds } } }
                                     );
-                                    
+
                                     console.log(`✅ Selective fallback cleanup for user ${userId}: ${cartItemsToDelete.length} items`);
                                 }
                             }

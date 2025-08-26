@@ -15,6 +15,11 @@ export default {
         "secondary-200": "#d0011b", // Đỏ Đồng Chính
         "secondary-100": "#C66B6B", // Đỏ Đồng Nhạt
         "base-100": "#f8f5f0",
+        "red-lighter": "#FFEBEE",
+        "red-light": "#FFCDD2",
+        "red-normal": "#EF4444",
+        "red-dark": "#DC2626",
+        "red-darker": "#B91C1C",
       }
     },
   },
