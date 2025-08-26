@@ -25,12 +25,22 @@ app.use(
 
 // Middleware để lưu raw body cho webhook
 app.use((req, res, next) => {
-    if (req.originalUrl === '/api/order/webhook') {
-        req.rawBody = Buffer.from('');
+    if (req.originalUrl === '/api/order/webhook' || req.originalUrl === '/api/stripe/webhook') {
+        let data = '';
+        req.setEncoding('utf8');
         req.on('data', chunk => {
-            req.rawBody = Buffer.concat([req.rawBody, chunk]);
+            data += chunk;
         });
-        req.on('end', () => next());
+        req.on('end', () => {
+            req.rawBody = data;
+            try {
+                req.body = JSON.parse(data);
+            } catch (error) {
+                console.error('Error parsing webhook JSON:', error);
+                req.body = {};
+            }
+            next();
+        });
     } else {
         express.json()(req, res, next);
     }
@@ -59,6 +69,7 @@ app.use('/api/product', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/address', addressRouter);
 app.use('/api/order', orderRouter);
+app.use('/api/stripe', orderRouter); // Thêm route cho Stripe webhook
 
 connectDB().then(() => {
     app.listen(PORT, () => {

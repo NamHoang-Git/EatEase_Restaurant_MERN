@@ -29,7 +29,7 @@ export async function CashOnDeliveryOrderController(request, response) {
                     image: el.productId.image
                 },
                 paymentId: "",
-                payment_status: "CASH ON DELIVERY",
+                payment_status: "Thanh toán khi giao hàng",
                 delivery_address: addressId,
                 subTotalAmt: subTotalAmt,
                 totalAmt: totalAmt,
@@ -119,7 +119,7 @@ export async function paymentController(request, response) {
                     image: el.productId.image
                 },
                 paymentId: '',
-                payment_status: 'pending',
+                payment_status: 'Đang chờ thanh toán',
                 delivery_address: addressId,
                 subTotalAmt,
                 totalAmt,
@@ -226,6 +226,9 @@ const getOrderProductItems = async ({
 }
 
 export async function webhookStripe(request, response) {
+    console.log('🚀 WEBHOOK FUNCTION CALLED - START');
+    console.log('🚀 Current time:', new Date().toISOString());
+    
     try {
         console.log('=== WEBHOOK CALLED ===');
         console.log('Headers:', request.headers);
@@ -242,7 +245,7 @@ export async function webhookStripe(request, response) {
             console.log('No event data found');
         }
 
-        // Tạm thời bỏ qua signature verification để debug
+        // Tạm thởi bỏ qua signature verification để debug
         // if (endPointSecret) {
         //     const signature = request.headers['stripe-signature'];
         //     try {
@@ -262,66 +265,21 @@ export async function webhookStripe(request, response) {
             return response.status(200).json({ received: true, message: 'Invalid event' });
         }
 
+        console.log('🔍 Received event type:', event.type);
+
         switch (event.type) {
             case 'checkout.session.completed':
+                console.log('🎯 WEBHOOK: checkout.session.completed received');
                 const session = event.data.object;
+                console.log('Session ID:', session.id);
+                console.log('Session payment_status:', session.payment_status);
                 console.log('Session metadata:', session.metadata);
 
                 const { userId, addressId, tempOrderIds } = session.metadata || {};
                 if (!userId || !addressId || !tempOrderIds) {
                     console.error('Missing metadata:', session.metadata);
-
-                    // Nếu thiếu metadata, chỉ xóa cart items có trong recent orders
-                    console.log('Attempting selective fallback cart cleanup...');
-                    try {
-                        // Tìm orders gần đây (trong 10 phút) để lấy productIds
-                        const recentOrders = await OrderModel.find({
-                            createdAt: { $gte: new Date(Date.now() - 10 * 60 * 1000) }, // 10 phút
-                            payment_status: { $in: ['paid', session.payment_status] }
-                        });
-
-                        if (recentOrders.length > 0) {
-                            // Nhóm theo userId
-                            const userProductMap = {};
-                            recentOrders.forEach(order => {
-                                const userId = order.userId.toString();
-                                if (!userProductMap[userId]) {
-                                    userProductMap[userId] = [];
-                                }
-                                userProductMap[userId].push(order.productId.toString());
-                            });
-
-                            // Xóa selective cho từng user
-                            for (const [userId, productIds] of Object.entries(userProductMap)) {
-                                const cartItemsToDelete = await CartProductModel.find({
-                                    userId: new mongoose.Types.ObjectId(userId),
-                                    productId: { $in: productIds.map(id => new mongoose.Types.ObjectId(id)) }
-                                });
-
-                                if (cartItemsToDelete.length > 0) {
-                                    const cartItemIds = cartItemsToDelete.map(item => item._id);
-
-                                    await CartProductModel.deleteMany({
-                                        _id: { $in: cartItemIds }
-                                    });
-
-                                    await UserModel.updateOne(
-                                        { _id: new mongoose.Types.ObjectId(userId) },
-                                        { $pull: { shopping_cart: { $in: cartItemIds } } }
-                                    );
-
-                                    console.log(`✅ Selective fallback cleanup for user ${userId}: ${cartItemsToDelete.length} items`);
-                                }
-                            }
-                        } else {
-                            console.log('No recent orders found for fallback cleanup');
-                        }
-                    } catch (error) {
-                        console.error('Fallback cleanup error:', error);
-                    }
-
                     return response.status(200).json({
-                        message: 'Missing metadata - performed fallback cleanup',
+                        message: 'Missing metadata',
                         received: true
                     });
                 }
@@ -330,11 +288,16 @@ export async function webhookStripe(request, response) {
                 console.log('Parsed orderIds:', orderIds);
 
                 try {
+                    console.log('🔄 Updating orders with IDs:', orderIds);
                     const updatedOrders = await OrderModel.updateMany(
                         { _id: { $in: orderIds.map(id => new mongoose.Types.ObjectId(id)) } },
-                        { paymentId: session.payment_intent, payment_status: session.payment_status }
+                        {
+                            paymentId: session.payment_intent,
+                            payment_status: 'Đã thanh toán' // Đặt thành 'paid' khi checkout.session.completed
+                        }
                     );
-                    console.log('Updated orders result:', updatedOrders);
+                    console.log('✅ Updated orders result:', updatedOrders);
+                    console.log('✅ Orders updated successfully to PAID status');
                 } catch (error) {
                     console.error('Error updating orders:', error);
                     return response.status(500).json({
@@ -343,114 +306,13 @@ export async function webhookStripe(request, response) {
                         success: false
                     });
                 }
-
-                try {
-                    const lineItems = await Stripe.checkout.sessions.listLineItems(session.id, {
-                        expand: ['data.price.product']
-                    });
-                    console.log('Line items:', JSON.stringify(lineItems.data, null, 2));
-
-                    let productIdsToRemove = [];
-
-                    // Lấy productId từ expanded product metadata
-                    for (const item of lineItems.data) {
-                        if (item.price?.product?.metadata?.productId) {
-                            productIdsToRemove.push(item.price.product.metadata.productId);
-                        }
-                    }
-
-                    console.log('Product IDs to remove from line items:', productIdsToRemove);
-
-                    if (productIdsToRemove.length === 0 && orderIds.length > 0) {
-                        const orders = await OrderModel.find({ _id: { $in: orderIds.map(id => new mongoose.Types.ObjectId(id)) } });
-                        const fallbackProductIds = orders.map(order => order.productId.toString()).filter(id => id);
-                        if (fallbackProductIds.length > 0) {
-                            productIdsToRemove.push(...fallbackProductIds);
-                            console.log('Fallback product IDs to remove:', fallbackProductIds);
-                        } else {
-                            console.error('No fallback product IDs found in orders:', orders);
-                        }
-                    }
-
-                    if (productIdsToRemove.length > 0) {
-                        console.log('=== STARTING CART CLEANUP ===');
-                        console.log('UserId:', userId);
-                        console.log('ProductIds to remove:', productIdsToRemove);
-
-                        // Kiểm tra tất cả cart items của user trước khi xóa
-                        const allUserCartItems = await CartProductModel.find({
-                            userId: new mongoose.Types.ObjectId(userId)
-                        });
-                        console.log('All user cart items before deletion:', allUserCartItems);
-
-                        // Tìm các CartProduct cần xóa để lấy _id của chúng
-                        const cartItemsToDelete = await CartProductModel.find({
-                            userId: new mongoose.Types.ObjectId(userId),
-                            productId: { $in: productIdsToRemove.map(id => new mongoose.Types.ObjectId(id)) }
-                        });
-                        console.log('Cart items found to delete:', cartItemsToDelete);
-
-                        if (cartItemsToDelete.length > 0) {
-                            const cartItemIds = cartItemsToDelete.map(item => item._id);
-                            console.log('Cart item IDs to delete:', cartItemIds);
-
-                            // Xóa các CartProduct documents
-                            const cartDeleteResult = await CartProductModel.deleteMany({
-                                _id: { $in: cartItemIds }
-                            });
-                            console.log('Cart delete result:', cartDeleteResult);
-
-                            // Kiểm tra User trước khi update
-                            const userBefore = await UserModel.findById(userId);
-                            console.log('User shopping_cart before update:', userBefore.shopping_cart);
-
-                            // Xóa references từ User.shopping_cart
-                            const userUpdateResult = await UserModel.updateOne(
-                                { _id: new mongoose.Types.ObjectId(userId) },
-                                { $pull: { shopping_cart: { $in: cartItemIds } } }
-                            );
-                            console.log('User update result:', userUpdateResult);
-
-                            // Kiểm tra User sau khi update
-                            const userAfter = await UserModel.findById(userId);
-                            console.log('User shopping_cart after update:', userAfter.shopping_cart);
-
-                            // Kiểm tra cart items còn lại
-                            const remainingCartItems = await CartProductModel.find({
-                                userId: new mongoose.Types.ObjectId(userId)
-                            });
-                            console.log('Remaining cart items after deletion:', remainingCartItems);
-
-                        } else {
-                            console.log('No cart items found to delete for these products');
-                            console.log('Checking if productIds match existing cart items...');
-
-                            // Debug: So sánh productIds
-                            allUserCartItems.forEach(item => {
-                                console.log(`Cart item productId: ${item.productId}, type: ${typeof item.productId}`);
-                                productIdsToRemove.forEach(pid => {
-                                    console.log(`Product to remove: ${pid}, type: ${typeof pid}, match: ${item.productId.toString() === pid.toString()}`);
-                                });
-                            });
-                        }
-                        console.log('=== CART CLEANUP COMPLETED ===');
-                    } else {
-                        console.error('No product IDs to remove from cart');
-                    }
-                } catch (error) {
-                    console.error('Error processing line items or cart:', error);
-                    return response.status(500).json({
-                        message: 'Error processing line items or cart',
-                        error: true,
-                        success: false
-                    });
-                }
                 break;
             default:
-                console.log(`Unhandled event type ${event.type}`);
-                return response.status(200).json({ received: true });
+                console.log(`❌ Unhandled event type: ${event.type}`);
+                break;
         }
 
+        console.log('✅ Webhook processing completed');
         response.json({ received: true });
     } catch (error) {
         console.error('webhookStripe Error:', error);
