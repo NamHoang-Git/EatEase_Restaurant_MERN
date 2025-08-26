@@ -391,8 +391,8 @@ const ProductDisplayPage = () => {
                     </p>
                     <Divider />
 
-                    <div className="flex items-center gap-8">
-                        <p className="text-3xl lg:text-4xl font-bold text-secondary-200">
+                    <div className="flex items-center gap-6 sm:gap-8">
+                        <p className="text-2xl sm:text-3xl font-bold text-secondary-200">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}
@@ -418,12 +418,12 @@ const ProductDisplayPage = () => {
                                 Out of Stock
                             </p>
                         ) : (
-                            <div className="flex items-center gap-14 mt-2">
+                            <div className="flex items-center gap-10 sm:gap-14 mt-2">
                                 <AddToCartButton data={data} />
                                 <button
                                     onClick={redirectToCartPage}
-                                    className="bg-primary-3 hover:opacity-80 text-secondary-200 lg:px-6 px-7 py-3
-                                rounded-lg font-bold shadow-md shadow-secondary-100"
+                                    className="bg-primary-3 hover:opacity-80 text-secondary-200 px-5 sm:px-6 py-3
+                                rounded-lg font-bold shadow-md shadow-secondary-100 text-nowrap"
                                 >
                                     Mua ngay
                                 </button>

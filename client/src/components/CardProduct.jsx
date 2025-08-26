@@ -8,10 +8,14 @@ import { MdAccessTime } from 'react-icons/md';
 
 const CardProduct = ({ data }) => {
     const url = `/product/${valideURLConvert(data.name)}-${data._id}`;
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <Link
             to={url}
+            onClick={scrollToTop}
             className="group bg-white rounded-xl shadow-md shadow-secondary-100
         hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
@@ -42,7 +46,7 @@ const CardProduct = ({ data }) => {
 
                 {/* Đơn vị + discount */}
                 <div className="flex gap-4 items-center h-[10px] sm:h-[14px]">
-                    <div className="whitespace-nowrap text-sm line-clamp-1">
+                    <div className="whitespace-nowrap font-semibold text-sm line-clamp-1">
                         {data.unit}
                     </div>
                     {/* Badge discount */}
