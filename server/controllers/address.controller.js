@@ -4,7 +4,7 @@ import AddressModel from "./../models/address.model.js";
 export const addAddressController = async (request, response) => {
     try {
         const userId = request.userId;
-        const { address_line, city, state, country, mobile, isDefault } = request.body;
+        const { address_line, city, district, ward, country, mobile, isDefault } = request.body;
 
         if (isDefault) {
             await AddressModel.updateMany(
@@ -16,7 +16,8 @@ export const addAddressController = async (request, response) => {
         const createAddress = new AddressModel({
             address_line,
             city,
-            state,
+            district,
+            ward,
             country,
             mobile,
             userId: userId,
@@ -69,7 +70,7 @@ export const getAddressController = async (request, response) => {
 export const updateAddressController = async (request, response) => {
     try {
         const userId = request.userId;
-        const { _id, address_line, city, state, country, mobile, isDefault } = request.body;
+        const { _id, address_line, city, district, ward, country, mobile, isDefault } = request.body;
 
         if (isDefault) {
             await AddressModel.updateMany(
@@ -83,7 +84,8 @@ export const updateAddressController = async (request, response) => {
             {
                 address_line,
                 city,
-                state,
+                district,
+                ward,
                 country,
                 mobile,
                 isDefault: !!isDefault

@@ -9,7 +9,11 @@ const addressSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
-    state: {
+    district: {
+        type: String,
+        default: "",
+    },
+    ward: {
         type: String,
         default: "",
     },

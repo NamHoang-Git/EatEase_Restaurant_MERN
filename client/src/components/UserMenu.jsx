@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Divider from './Divider';
 import Axios, { setIsLoggingOut } from './../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -15,7 +15,17 @@ const UserMenu = ({ close }) => {
     const user = useSelector((state) => state.user);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const menuRef = useRef();
+
+    // Function to check if a path is active
+    const isActive = (path) => {
+        // Exact match for root path
+        if (path === '/dashboard' && location.pathname === '/dashboard')
+            return true;
+        // Check if current path starts with the given path (for nested routes)
+        return location.pathname.startsWith(path) && path !== '/dashboard';
+    };
 
     const handleLogout = async () => {
         try {
@@ -89,7 +99,11 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/category'}
-                        className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                            isActive('/dashboard/category')
+                                ? 'bg-primary-100 text-secondary-200'
+                                : ''
+                        }`}
                     >
                         Danh mục
                     </Link>
@@ -99,7 +113,11 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/upload-product'}
-                        className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                            isActive('/dashboard/upload-product')
+                                ? 'bg-primary-100 text-secondary-200'
+                                : ''
+                        }`}
                     >
                         Đăng sản phẩm
                     </Link>
@@ -109,7 +127,11 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/product'}
-                        className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                            isActive('/dashboard/product')
+                                ? 'bg-primary-100 text-secondary-200'
+                                : ''
+                        }`}
                     >
                         Sản phẩm
                     </Link>
@@ -118,7 +140,11 @@ const UserMenu = ({ close }) => {
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/address'}
-                    className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                    className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        isActive('/dashboard/address')
+                            ? 'bg-primary-100 text-secondary-200'
+                            : ''
+                    }`}
                 >
                     Địa chỉ
                 </Link>
@@ -126,7 +152,11 @@ const UserMenu = ({ close }) => {
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/my-orders'}
-                    className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                    className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        isActive('/dashboard/my-orders')
+                            ? 'bg-primary-100 text-secondary-200'
+                            : ''
+                    }`}
                 >
                     Đơn hàng
                 </Link>

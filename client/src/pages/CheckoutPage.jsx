@@ -287,7 +287,10 @@ const CheckoutPage = () => {
                                 htmlFor={'address' + index}
                                 className={!address.status && 'hidden'}
                             >
-                                <div className="border border-secondary-100 rounded-md px-2 sm:px-4 py-3 hover:bg-base-100 shadow-md">
+                                <div
+                                    className="border border-secondary-100 rounded-md px-2 sm:px-4 py-3 hover:bg-base-100
+                                shadow-md cursor-pointer"
+                                >
                                     <div className="flex justify-between sm:items-start items-end gap-4">
                                         <div className="flex items-baseline gap-2 sm:gap-3">
                                             <input
@@ -320,7 +323,10 @@ const CheckoutPage = () => {
                                                 <p>Thành phố: {address.city}</p>
                                                 <p>
                                                     Quận / Huyện:{' '}
-                                                    {address.state}
+                                                    {address.district}
+                                                </p>
+                                                <p>
+                                                    Phường / Xã: {address.ward}
                                                 </p>
                                                 <p>
                                                     Quốc gia: {address.country}
@@ -348,19 +354,24 @@ const CheckoutPage = () => {
                                             >
                                                 <MdEdit size={18} />
                                             </button>
-                                            <div className="w-[2px] h-4 bg-secondary-100"></div>
-                                            <button
-                                                onClick={() =>
-                                                    handleDisableAddress(
-                                                        address._id
-                                                    )
-                                                }
-                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[3px] text-secondary-200"
-                                            >
-                                                <MdDelete size={18} />
-                                            </button>
+                                            {!address.isDefault && (
+                                                <>
+                                                    <div className="w-[2px] h-4 bg-secondary-100"></div>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDisableAddress(
+                                                                address._id
+                                                            )
+                                                        }
+                                                        className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[3px] text-secondary-200"
+                                                    >
+                                                        <MdDelete size={18} />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
 
+                                        {/* Mobile */}
                                         <div className="flex sm:hidden items-center gap-2">
                                             <button
                                                 onClick={() => {
@@ -371,17 +382,21 @@ const CheckoutPage = () => {
                                             >
                                                 <MdEdit size={15} />
                                             </button>
-                                            <div className="w-[2px] h-4 bg-secondary-100"></div>
-                                            <button
-                                                onClick={() =>
-                                                    handleDisableAddress(
-                                                        address._id
-                                                    )
-                                                }
-                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[1px] text-secondary-200"
-                                            >
-                                                <MdDelete size={15} />
-                                            </button>
+                                            {!address.isDefault && (
+                                                <>
+                                                    <div className="w-[2px] h-4 bg-secondary-100"></div>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDisableAddress(
+                                                                address._id
+                                                            )
+                                                        }
+                                                        className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[1px] text-secondary-200"
+                                                    >
+                                                        <MdDelete size={15} />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
