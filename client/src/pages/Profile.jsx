@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { BiSolidUserAccount } from 'react-icons/bi';
 import UserProfileAvatarEdit from './../components/UserProfileAvatarEdit';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -8,6 +7,7 @@ import AxiosToastError from '../utils/AxiosToastError';
 import toast from 'react-hot-toast';
 import fetchUserDetails from './../utils/fetchUserDetails';
 import { setUserDetails } from '../store/userSlice';
+import defaultAvatar from '../assets/defaultAvatar.png';
 
 const Profile = () => {
     const user = useSelector((state) => state.user);
@@ -72,15 +72,11 @@ const Profile = () => {
                 className="w-20 h-20 bg-red-400 flex items-center justify-center
             rounded-full overflow-hidden drop-shadow-sm "
             >
-                {user.avatar ? (
-                    <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-full h-full"
-                    />
-                ) : (
-                    <BiSolidUserAccount size={60} />
-                )}
+                <img
+                    src={user.avatar || defaultAvatar}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                />
             </div>
             <button
                 onClick={() => setOpenProfileAvatarEdit(true)}
@@ -103,7 +99,7 @@ const Profile = () => {
                     <input
                         type="text"
                         placeholder="Enter your name"
-                        className="bg-blue-50 p-2 border rounded outline-none 
+                        className="bg-blue-50 p-2 border rounded outline-none
                         focus-within:border-primary-200"
                         value={userData.name}
                         name="name"
@@ -117,7 +113,7 @@ const Profile = () => {
                         type="email"
                         id="email"
                         placeholder="Enter your email"
-                        className="bg-blue-50 p-2 border rounded outline-none 
+                        className="bg-blue-50 p-2 border rounded outline-none
                         focus-within:border-primary-200"
                         value={userData.email}
                         name="email"
@@ -131,7 +127,7 @@ const Profile = () => {
                         type="text"
                         id="mobile"
                         placeholder="Enter your mobile"
-                        className="bg-blue-50 p-2 border rounded outline-none 
+                        className="bg-blue-50 p-2 border rounded outline-none
                         focus-within:border-primary-200"
                         value={userData.mobile}
                         name="mobile"

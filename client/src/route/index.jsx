@@ -115,12 +115,12 @@ const router = createBrowserRouter([
                         ),
                     },
                     {
-                        path: 'my-orders',
-                        element: <MyOrders />,
-                    },
-                    {
                         path: 'address',
                         element: <Address />,
+                    },
+                    {
+                        path: 'my-orders',
+                        element: <MyOrders />,
                     },
                 ],
             },

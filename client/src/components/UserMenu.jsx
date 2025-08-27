@@ -67,9 +67,9 @@ const UserMenu = ({ close }) => {
 
     return (
         <div ref={menuRef}>
-            <div className="font-semibold">My Account</div>
-            <div className="text-sm flex items-start gap-2 p-2">
-                <span className="max-w-60 text-ellipsis line-clamp-1 flex gap-2">
+            <div className="font-semibold">Tài khoản</div>
+            <div className="text-sm flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
+                <span className="max-w-96 md:max-w-60 text-ellipsis line-clamp-1 flex gap-2">
                     {user.name || user.mobile}
                     <span className="text-secondary-200 font-bold">
                         {user.role === 'ADMIN' ? '(Admin)' : ''}
@@ -84,14 +84,14 @@ const UserMenu = ({ close }) => {
                 </span>
             </div>
             <Divider />
-            <div className="text-sm grid gap-2">
+            <div className="text-sm grid gap-2 font-semibold">
                 {isAdmin(user.role) && (
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/category'}
-                        className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                        className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                     >
-                        Category
+                        Danh mục
                     </Link>
                 )}
 
@@ -99,9 +99,9 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/upload-product'}
-                        className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                        className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                     >
-                        Upload Product
+                        Đăng sản phẩm
                     </Link>
                 )}
 
@@ -109,33 +109,34 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/product'}
-                        className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                        className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                     >
-                        Product
+                        Sản phẩm
                     </Link>
                 )}
 
                 <Link
                     onClick={handleClose}
-                    to={'/dashboard/my-orders'}
-                    className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                    to={'/dashboard/address'}
+                    className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                 >
-                    My Orders
+                    Địa chỉ
                 </Link>
 
                 <Link
                     onClick={handleClose}
-                    to={'/dashboard/address'}
-                    className="px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                    to={'/dashboard/my-orders'}
+                    className="px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                 >
-                    Save Address
+                    Đơn hàng
                 </Link>
+
                 <Divider />
                 <button
                     onClick={handleLogout}
-                    className="text-left px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                    className="text-left px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
                 >
-                    Log Out
+                    Đăng xuất
                 </button>
             </div>
         </div>

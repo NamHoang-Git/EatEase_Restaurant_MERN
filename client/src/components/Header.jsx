@@ -16,6 +16,7 @@ import UserMenu from './UserMenu';
 import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import { useGlobalContext } from '../provider/GlobalProvider';
 import DisplayCartItem from './DisplayCartItem';
+import defaultAvatar from '../assets/defaultAvatar.png';
 
 const Header = () => {
     const [isMobile] = useMobile();
@@ -148,7 +149,7 @@ const Header = () => {
                                             className="flex select-none items-center gap-1 cursor-pointer transition-all duration-300 ease-in-out"
                                         >
                                             <img
-                                                src={user.avatar}
+                                                src={user.avatar || defaultAvatar}
                                                 alt={user.name}
                                                 className="w-[52px] h-[52px] rounded-full border-[3px] border-inset border-primary-200"
                                             />

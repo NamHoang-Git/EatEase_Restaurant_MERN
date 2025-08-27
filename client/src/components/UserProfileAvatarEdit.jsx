@@ -5,8 +5,8 @@ import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from './../utils/AxiosToastError';
 import { updatedAvatar } from '../store/userSlice';
 import { IoClose } from 'react-icons/io5';
-import { BiSolidUserAccount } from 'react-icons/bi';
 import Loading from './Loading';
+import defaultAvatar from '../assets/defaultAvatar.png';
 
 const UserProfileAvatarEdit = ({ close }) => {
     const user = useSelector((state) => state.user);
@@ -58,15 +58,11 @@ const UserProfileAvatarEdit = ({ close }) => {
                     className="w-20 h-20 bg-red-400 flex items-center justify-center
                         rounded-full overflow-hidden drop-shadow-sm "
                 >
-                    {user.avatar ? (
-                        <img
-                            src={user.avatar}
-                            alt={user.name}
-                            className="w-full h-full"
-                        />
-                    ) : (
-                        <BiSolidUserAccount size={60} />
-                    )}
+                    <img
+                        src={user.avatar || defaultAvatar}
+                        alt={user.name}
+                        className="w-full h-full"
+                    />
                 </div>
                 <label htmlFor="uploadProfile">
                     <div

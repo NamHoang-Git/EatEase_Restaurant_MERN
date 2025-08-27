@@ -7,6 +7,7 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { Link, useNavigate } from 'react-router-dom';
 import banner from '../assets/register_banner.jpg';
 import { TypeAnimation } from 'react-type-animation';
+import Loading from '../components/Loading';
 
 const Register = () => {
     const [data, setData] = useState({
@@ -19,6 +20,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,6 +44,7 @@ const Register = () => {
         }
 
         try {
+            setLoading(true);
             const response = await Axios({
                 ...SummaryApi.register,
                 data: data,
@@ -65,6 +68,8 @@ const Register = () => {
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -175,7 +180,7 @@ const Register = () => {
                                     : 'bg-gray-400 text-white cursor-no-drop'
                             } py-2 rounded-md font-bold my-4`}
                         >
-                            Đăng ký
+                            {loading ? <Loading /> : 'Đăng ký'}
                         </button>
                     </form>
 

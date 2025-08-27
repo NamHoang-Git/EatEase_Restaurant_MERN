@@ -278,7 +278,7 @@ const CheckoutPage = () => {
                     </h3>
 
                     <div
-                        className="bg-white grid gap-4 overflow-auto max-h-[50vh] sm:max-h-[55vh]
+                        className="bg-white grid gap-4 overflow-auto max-h-[55vh] sm:max-h-[55vh]
                     md:max-h-[60vh] lg:max-h-[65vh]"
                     >
                         {sortedAddressList.map((address, index) => (
@@ -287,8 +287,8 @@ const CheckoutPage = () => {
                                 htmlFor={'address' + index}
                                 className={!address.status && 'hidden'}
                             >
-                                <div className="border border-secondary-100 rounded-md px-4 py-3 hover:bg-base-100 shadow-md">
-                                    <div className="flex justify-between items-start gap-4">
+                                <div className="border border-secondary-100 rounded-md px-2 sm:px-4 py-3 hover:bg-base-100 shadow-md">
+                                    <div className="flex justify-between sm:items-start items-end gap-4">
                                         <div className="flex items-baseline gap-2 sm:gap-3">
                                             <input
                                                 id={'address' + index}
@@ -312,7 +312,7 @@ const CheckoutPage = () => {
                                                 }
                                                 name="address"
                                             />
-                                            <div className="flex flex-col gap-1 text-xs sm:text-base">
+                                            <div className="flex flex-col gap-1 text-[10px] sm:text-base text-justify">
                                                 <p>
                                                     Địa chỉ:{' '}
                                                     {address.address_line}
@@ -331,8 +331,8 @@ const CheckoutPage = () => {
                                                 </p>
                                             </div>
                                             {address.isDefault && (
-                                                <span className="text-secondary-200 text-xs sm:text-md font-bold">
-                                                    (Mặc định)
+                                                <span className="text-secondary-200 text-[10px] sm:text-lg font-bold">
+                                                    (*)
                                                 </span>
                                             )}
                                         </div>
@@ -367,7 +367,7 @@ const CheckoutPage = () => {
                                                     setOpenEdit(true);
                                                     setEditData(address);
                                                 }}
-                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[2px] text-primary-200"
+                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[1px] text-primary-200"
                                             >
                                                 <MdEdit size={15} />
                                             </button>
@@ -378,7 +378,7 @@ const CheckoutPage = () => {
                                                         address._id
                                                     )
                                                 }
-                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[2px] text-secondary-200"
+                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[1px] text-secondary-200"
                                             >
                                                 <MdDelete size={15} />
                                             </button>

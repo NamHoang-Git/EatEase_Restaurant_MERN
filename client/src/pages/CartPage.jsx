@@ -155,16 +155,16 @@ const CartPage = () => {
                     type="checkbox"
                     checked={selectedItems.includes(row.original._id)}
                     onChange={() => toggleSelect(row.original._id)}
-                    className="mr-2"
+                    className=""
                 />
             ),
-            meta: { className: 'text-center w-fit' },
+            meta: { className: 'sm:w-fit max-w-[35px]' },
         },
         {
             header: 'Sản phẩm',
             accessorKey: 'productId.name',
             cell: ({ row }) => (
-                <div className="flex items-center gap-4 sm:h-16 h-12">
+                <div className="flex items-center gap-2 sm:gap-4 sm:h-16 h-12">
                     <img
                         src={row.original.productId?.image?.[0] || ''}
                         alt={row.original.productId?.name || ''}
@@ -205,7 +205,7 @@ const CartPage = () => {
             accessorKey: 'price',
             cell: ({ row }) => (
                 <div className="lg:flex items-end gap-2 justify-center">
-                    <p className="text-xs font-bold text-secondary-200">
+                    <p className="text-[10px] font-bold text-secondary-200">
                         {DisplayPriceInVND(
                             pricewithDiscount(
                                 row.original.productId?.price || 0,

@@ -131,7 +131,7 @@ const AddToCartButton = ({ data }) => {
                         <FaMinus className="hidden sm:block" size={14} />
                     </button>
 
-                    <p className="flex-1 text-sm sm:text-base text-secondary-200 font-semibold w-9 flex items-center justify-center">
+                    <p className="flex-1 text-[10px] sm:text-base text-secondary-200 font-semibold w-9 flex items-center justify-center">
                         {qty}
                     </p>
 

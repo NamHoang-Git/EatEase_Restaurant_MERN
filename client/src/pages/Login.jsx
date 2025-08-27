@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { setUserDetails } from '../store/userSlice';
 import banner from '../assets/register_banner.jpg';
 import { TypeAnimation } from 'react-type-animation';
+import Loading from '../components/Loading';
 
 const Login = () => {
     const [data, setData] = useState({
@@ -20,6 +21,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,6 +40,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
+            setLoading(true);
             const response = await Axios({
                 ...SummaryApi.login,
                 data: data,
@@ -70,6 +73,8 @@ const Login = () => {
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -165,7 +170,7 @@ const Login = () => {
                                     : 'bg-gray-400 text-white cursor-no-drop'
                             } py-2 rounded-md font-bold my-4`}
                         >
-                            Login
+                            {loading ? <Loading /> : 'Đăng nhập'}
                         </button>
                     </form>
 
