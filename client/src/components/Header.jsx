@@ -145,7 +145,7 @@ const Header = () => {
                                             onClick={() =>
                                                 setOpenUserMenu((prev) => !prev)
                                             }
-                                            className="flex select-none items-center gap-1 cursor-pointer"
+                                            className="flex select-none items-center gap-1 cursor-pointer transition-all duration-300 ease-in-out"
                                         >
                                             <img
                                                 src={user.avatar}

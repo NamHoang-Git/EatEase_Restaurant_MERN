@@ -164,11 +164,11 @@ const CartPage = () => {
             header: 'Sản phẩm',
             accessorKey: 'productId.name',
             cell: ({ row }) => (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 sm:h-16 h-12">
                     <img
                         src={row.original.productId?.image?.[0] || ''}
                         alt={row.original.productId?.name || ''}
-                        className="w-16 h-16 flex-shrink-0 object-cover rounded"
+                        className="sm:w-16 w-12 h-full flex-shrink-0 object-cover rounded"
                         onError={(e) => {
                             e.target.src = '/placeholder-image.jpg';
                         }}
@@ -205,7 +205,7 @@ const CartPage = () => {
             accessorKey: 'price',
             cell: ({ row }) => (
                 <div className="lg:flex items-end gap-2 justify-center">
-                    <p className="font-bold text-secondary-200">
+                    <p className="text-xs font-bold text-secondary-200">
                         {DisplayPriceInVND(
                             pricewithDiscount(
                                 row.original.productId?.price || 0,
@@ -214,7 +214,7 @@ const CartPage = () => {
                         )}
                     </p>
                     {row.original.productId?.discount > 0 && (
-                        <p className="text-sm text-gray-500 line-through">
+                        <p className="text-[10px] text-gray-500 line-through">
                             {DisplayPriceInVND(
                                 row.original.productId?.price || 0
                             )}
@@ -243,8 +243,8 @@ const CartPage = () => {
     return (
         <section className="container mx-auto min-h-[80vh] px-2 py-6">
             <div
-                className="p-4 lg:p-3 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
-                font-bold text-secondary-200 text-lg uppercase flex items-center gap-3"
+                className="p-3 sm:p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
+                font-bold text-secondary-200 sm:text-lg text-sm uppercase flex items-center gap-2"
             >
                 <span onClick={() => navigate('/')} className="cursor-pointer hover:text-secondary-100 sm:hidden block">
                     <FaRegArrowAltCircleLeft size={25} />
@@ -260,7 +260,7 @@ const CartPage = () => {
 
                     <div
                         className="flex justify-between items-center mt-6 px-4 py-3 bg-primary-100 shadow-md
-                    rounded-lg"
+                    rounded-lg sm:text-base text-xs"
                     >
                         <div>
                             <p className="font-bold">
@@ -268,17 +268,17 @@ const CartPage = () => {
                                 chọn):
                             </p>
                             {hasDiscount > 0 && (
-                                <p className="text-base text-gray-500 line-through">
+                                <p className="text-gray-500 line-through">
                                     {DisplayPriceInVND(originalTotalPrice)}
                                 </p>
                             )}
                         </div>
-                        <p className="text-lg lg:text-xl font-bold text-secondary-200">
+                        <p className="text-base sm:text-xl font-bold text-secondary-200">
                             {DisplayPriceInVND(totalPrice)}
                         </p>
                     </div>
 
-                    <div className="mt-5 flex justify-between gap-4">
+                    <div className="mt-5 flex justify-between gap-4 sm:text-base text-xs">
                         <div className="flex items-center gap-6">
                             <div className="flex items-center gap-2">
                                 <input

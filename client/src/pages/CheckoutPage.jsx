@@ -267,13 +267,13 @@ const CheckoutPage = () => {
         <section className="container mx-auto bg-base-100 min-h-[80vh] px-2 py-6">
             <div
                 className="p-4 lg:p-3 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
-                font-bold text-secondary-200 text-lg uppercase"
+                font-bold text-secondary-200 sm:text-lg text-sm uppercase"
             >
                 Thanh toán
             </div>
             <div className="h-full flex flex-col lg:flex-row w-full gap-5 bg-white shadow rounded-lg p-5">
                 <div className="w-full flex flex-col gap-3">
-                    <h3 className="text-lg font-bold shadow-md px-2 py-3">
+                    <h3 className="sm:text-lg text-sm font-bold shadow-md px-2 py-3">
                         Chọn địa chỉ giao hàng
                     </h3>
 
@@ -289,7 +289,7 @@ const CheckoutPage = () => {
                             >
                                 <div className="border border-secondary-100 rounded-md px-4 py-3 hover:bg-base-100 shadow-md">
                                     <div className="flex justify-between items-start gap-4">
-                                        <div className="flex items-baseline gap-3">
+                                        <div className="flex items-baseline gap-2 sm:gap-3">
                                             <input
                                                 id={'address' + index}
                                                 type="radio"
@@ -312,7 +312,7 @@ const CheckoutPage = () => {
                                                 }
                                                 name="address"
                                             />
-                                            <div className="flex flex-col gap-1 text-base">
+                                            <div className="flex flex-col gap-1 text-xs sm:text-base">
                                                 <p>
                                                     Địa chỉ:{' '}
                                                     {address.address_line}
@@ -331,13 +331,14 @@ const CheckoutPage = () => {
                                                 </p>
                                             </div>
                                             {address.isDefault && (
-                                                <span className="text-secondary-200 text-md font-bold">
+                                                <span className="text-secondary-200 text-xs sm:text-md font-bold">
                                                     (Mặc định)
                                                 </span>
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-3">
+                                        {/* PC / Tablet */}
+                                        <div className="sm:flex hidden items-center gap-3">
                                             <button
                                                 onClick={() => {
                                                     setOpenEdit(true);
@@ -359,6 +360,29 @@ const CheckoutPage = () => {
                                                 <MdDelete size={18} />
                                             </button>
                                         </div>
+
+                                        <div className="flex sm:hidden items-center gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    setOpenEdit(true);
+                                                    setEditData(address);
+                                                }}
+                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[2px] text-primary-200"
+                                            >
+                                                <MdEdit size={15} />
+                                            </button>
+                                            <div className="w-[2px] h-4 bg-secondary-100"></div>
+                                            <button
+                                                onClick={() =>
+                                                    handleDisableAddress(
+                                                        address._id
+                                                    )
+                                                }
+                                                className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[2px] text-secondary-200"
+                                            >
+                                                <MdDelete size={15} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </label>
@@ -366,8 +390,9 @@ const CheckoutPage = () => {
                     </div>
                     <div
                         onClick={() => setOpenAddress(true)}
-                        className="h-14 bg-base-100 border-[3px] border-dashed border-gray-300 text-gray-400
-                    flex justify-center items-center cursor-pointer hover:bg-primary-100 hover:text-gray-500 transition-all"
+                        className="sm:h-14 h-12 bg-base-100 border-[3px] border-dashed border-gray-300 text-gray-400
+                    flex justify-center items-center cursor-pointer hover:bg-primary-100 hover:text-gray-500
+                    transition-all sm:text-base text-xs"
                     >
                         Thêm địa chỉ
                     </div>
@@ -407,26 +432,26 @@ const CheckoutPage = () => {
                                             <img
                                                 src={image}
                                                 alt={name}
-                                                className="w-16 h-16 object-cover rounded border border-inset border-primary-200"
+                                                className="sm:w-16 sm:h-16 w-12 h-12 object-cover rounded border border-inset border-primary-200"
                                                 onError={(e) => {
                                                     e.target.src =
                                                         '/placeholder-image.jpg';
                                                 }}
                                             />
-                                            <div className="flex-1">
-                                                <p className="font-medium">
+                                            <div className="flex-1 flex flex-col sm:gap-0 gap-1">
+                                                <p className="font-medium sm:text-base text-xs">
                                                     {name}
                                                 </p>
-                                                <p className="text-sm text-gray-600">
+                                                <p className="sm:text-sm text-xs text-gray-600">
                                                     Số lượng: {quantity}
                                                 </p>
-                                                <p className="text-sm">
+                                                <p className="sm:text-sm text-xs flex items-center gap-2">
                                                     Giá:{' '}
                                                     {DisplayPriceInVND(
                                                         finalPrice
                                                     )}
                                                     {discount > 0 && (
-                                                        <span className="line-through text-gray-400 ml-2">
+                                                        <span className="line-through text-gray-400">
                                                             {DisplayPriceInVND(
                                                                 price * quantity
                                                             )}
@@ -439,14 +464,14 @@ const CheckoutPage = () => {
                                 })
                             )}
                         </div>
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col sm:gap-2 gap-3 sm:text-base text-xs">
                             <h3 className="font-semibold text-red-darker">
                                 Chi tiết hóa đơn
                             </h3>
-                            <div className="px-4 text-[15px] flex flex-col gap-1">
+                            <div className="px-4 flex flex-col gap-2">
                                 <div className="flex gap-4 justify-between">
                                     <p>Tổng sản phẩm</p>
-                                    <p className="flex items-center gap-2">
+                                    <p className="flex sm:flex-row flex-col items-center sm:gap-2 gap-0">
                                         {hasDiscount > 0 && (
                                             <span className="line-through text-neutral-400">
                                                 {DisplayPriceInVND(
@@ -482,7 +507,7 @@ const CheckoutPage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="w-full flex flex-col gap-4 py-4">
+                    <div className="w-full flex flex-col gap-4 py-4 sm:text-base text-xs">
                         <button
                             className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
                         cursor-pointer text-secondary-200 font-semibold"
@@ -514,7 +539,7 @@ const CheckoutPage = () => {
 
             {/* Modal xác nhận cho cả hai phương thức thanh toán */}
             {showConfirmModal.show && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                         <h3 className="text-lg font-semibold mb-4">
                             Xác nhận đặt hàng

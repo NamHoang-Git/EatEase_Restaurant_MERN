@@ -70,7 +70,7 @@ const SearchPage = () => {
     return (
         <section className="bg-primary-100 mt-4">
             <div className="container mx-auto p-4 min-h-[80vh]">
-                <p className="font-bold text-secondary-200">
+                <p className="font-bold text-secondary-200 sm:text-base text-sm">
                     Kết quả tìm kiếm: {data.length}
                 </p>
 
@@ -80,7 +80,7 @@ const SearchPage = () => {
                     next={handleFetchMore}
                 >
                     <div
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5
+                        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
                     p-4 gap-6"
                     >
                         {data.map((p, index) => {

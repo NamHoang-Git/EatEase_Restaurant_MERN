@@ -26,7 +26,7 @@ const DisplayTableCart = ({ data, column }) => {
                             {headerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
-                                    className={`border p-2 border-b-4 border-b-secondary-100 ${
+                                    className={`border p-2 border-b-4 border-b-secondary-100 sm:text-base text-xs ${
                                         header.column.columnDef.meta
                                             ?.className || ''
                                     }`}
@@ -44,11 +44,11 @@ const DisplayTableCart = ({ data, column }) => {
                 </thead>
                 <tbody>
                     {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id} className="hover:bg-gray-100">
+                        <tr key={row.id} className="hover:bg-base-100">
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className={`border p-2 ${
+                                    className={`border p-2 sm:text-base text-xs ${
                                         cell.column.columnDef.meta?.className ||
                                         ''
                                     }`}
