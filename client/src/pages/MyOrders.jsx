@@ -82,10 +82,17 @@ const MyOrders = () => {
                                         e.target.src = '/placeholder.jpg';
                                     }}
                                 />
-                                <p className="font-semibold">
-                                    {order?.product_details?.name ||
-                                        'Sản phẩm không xác định'}
-                                </p>
+                                <div>
+                                    <p className="font-semibold">
+                                        {order?.product_details?.name ||
+                                            'Sản phẩm không xác định'}
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <p className="flex items-center gap-2 text-secondary-200 font-semibold">
+                                            x{order?.quantity || 'Chưa xác định'}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex gap-2">
                                 <p className="font-semibold">Trạng thái:</p>

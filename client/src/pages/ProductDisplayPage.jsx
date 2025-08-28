@@ -414,8 +414,8 @@ const ProductDisplayPage = () => {
 
                     <div className="max-w-72 sm:w-full">
                         {data.stock === 0 ? (
-                            <p className="text-lg text-rose-600 my-2">
-                                Out of Stock
+                            <p className="md:text-2xl text-lg font-bold text-rose-600 my-2">
+                                Hết hàng
                             </p>
                         ) : (
                             <div className="flex items-center gap-10 sm:gap-14 mt-2">

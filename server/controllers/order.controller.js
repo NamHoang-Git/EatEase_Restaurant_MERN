@@ -71,6 +71,23 @@ export async function CashOnDeliveryOrderController(request, response) {
         );
         console.log('CashOnDelivery User shopping_cart Updated:', userUpdateResult);
 
+        // Cập nhật số lượng tồn kho
+        try {
+            console.log('🔄 Updating product stock for COD order...');
+            const orderIds = generatedOrder.map(order => order._id);
+            const stockUpdateResult = await updateProductStock(orderIds);
+            
+            if (!stockUpdateResult.success) {
+                console.error('⚠️ Failed to update product stock for COD order:', stockUpdateResult.message);
+                // Continue with the order even if stock update fails, but log the error
+            } else {
+                console.log('✅ Successfully updated product stock for COD order');
+            }
+        } catch (stockError) {
+            console.error('Error updating stock for COD order:', stockError);
+            // Continue with the order even if stock update fails
+        }
+
         return response.json({
             message: "Order Successfully",
             error: false,
