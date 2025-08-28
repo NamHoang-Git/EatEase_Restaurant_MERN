@@ -16,6 +16,10 @@ const MyOrders = () => {
         navigate(`/product/${productId}`);
     };
 
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     useEffect(() => {
         // Gọi fetchOrder và xử lý kết quả
         const loadOrders = async () => {
@@ -96,9 +100,10 @@ const MyOrders = () => {
                                 </p>
                             </div>
                             <button
-                                onClick={() =>
-                                    handleBuyAgain(order?.productId || '')
-                                }
+                                onClick={() => {
+                                    handleBuyAgain(order?.productId || '');
+                                    scrollToTop();
+                                }}
                                 className="mt-2 bg-primary-4 text-secondary-200 py-2 px-4 rounded-md
                             transition-colors duration-200 text-sm sm:text-base w-full sm:w-auto text-center
                             font-bold shadow-md"
