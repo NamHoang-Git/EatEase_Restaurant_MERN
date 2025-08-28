@@ -55,8 +55,8 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
 
     return (
         <div
-            className="container mx-auto px-6 sm:px-12 py-6 bg-primary-100 shadow-md shadow-secondary-100
-        rounded-[50px]"
+            className="container mx-auto px-4 sm:px-12 py-4 bg-primary-100 shadow-md shadow-secondary-100
+        sm:rounded-[50px] rounded-[20px]"
         >
             <div className="container mx-auto pb-1 flex items-center justify-between gap-4 text-sm sm:text-lg">
                 <h3 className="font-bold">{name}</h3>
@@ -71,13 +71,13 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
                 </Link>
             </div>
             <div className="container mx-auto">
-                <div className="relative flex items-center ">
+                <div className="relative flex items-center">
                     <div
                         ref={containerRef}
-                        className="grid grid-flow-col auto-cols-[minmax(10rem,10rem)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
-                    lg:auto-cols-[minmax(14rem,14rem)] gap-4 md:gap-6 lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
+                        className="grid grid-flow-col auto-cols-[minmax(150px,150px)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
+                    lg:auto-cols-[minmax(14rem,14rem)] gap-3 md:gap-6 lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
                     >
-                        {loading &&
+                        {!loading &&
                             loadingCardNumber.map((_, index) => {
                                 return (
                                     <CardLoading

@@ -130,7 +130,7 @@ const Home = () => {
             </div>
 
             {/* Display Category Product */}
-            <div className="mt-2 mb-8 flex flex-col gap-12 px-4">
+            <div className="mt-2 mb-8 flex flex-col gap-8 sm:gap-12 sm:px-4 px-2">
                 {categoryData?.map((c, index) => {
                     return (
                         <CategoryWiseProductDisplay
