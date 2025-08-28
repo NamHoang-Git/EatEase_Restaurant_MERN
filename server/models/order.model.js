@@ -18,6 +18,12 @@ const orderSchema = new mongoose.Schema({
         name: String,
         image: Array,
     },
+    quantity: {
+        type: Number,
+        required: true,
+        default: 1,
+        min: 1
+    },
     paymentId: {
         type: String,
         default: "",
@@ -33,10 +39,12 @@ const orderSchema = new mongoose.Schema({
     subTotalAmt: {
         type: Number,
         default: 0,
+        required: false
     },
     totalAmt: {
         type: Number,
         default: 0,
+        required: false
     },
     invoice_receipt: {
         type: String,

@@ -3,6 +3,7 @@ import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
 import CartProductModel from './../models/cartProduct.model.js';
+import { updateProductStock } from "../utils/productStockUpdater.js";
 
 export async function CashOnDeliveryOrderController(request, response) {
     try {
@@ -20,20 +21,26 @@ export async function CashOnDeliveryOrderController(request, response) {
 
         // Tạo payload cho đơn hàng
         const payload = list_items.map(el => {
-            return ({
+            const quantity = Number(el.quantity) || 1;
+            const price = Number(el.productId.price) || 0;
+            const subTotal = price * quantity;
+            
+            return {
                 userId: userId,
                 orderId: `ORD-${new mongoose.Types.ObjectId()}`,
                 productId: el.productId._id,
                 product_details: {
-                    name: el.productId.name,
-                    image: el.productId.image
+                    name: el.productId.name || 'Sản phẩm không tên',
+                    image: Array.isArray(el.productId.image) ? el.productId.image : [el.productId.image || '']
                 },
+                quantity: quantity,
                 paymentId: "",
                 payment_status: "Thanh toán khi giao hàng",
                 delivery_address: addressId,
-                subTotalAmt: subTotalAmt,
-                totalAmt: totalAmt,
-            });
+                subTotalAmt: subTotal,
+                totalAmt: subTotal, // For individual items, totalAmt is same as subTotal
+                status: 'pending'
+            };
         });
 
         // Tạo đơn hàng
@@ -110,20 +117,28 @@ export async function paymentController(request, response) {
 
         // Tạo order tạm thời
         const tempOrder = await OrderModel.insertMany(
-            list_items.map(el => ({
-                userId,
-                orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-                productId: el.productId._id,
-                product_details: {
-                    name: el.productId.name,
-                    image: el.productId.image
-                },
-                paymentId: '',
-                payment_status: 'Đang chờ thanh toán',
-                delivery_address: addressId,
-                subTotalAmt,
-                totalAmt,
-            }))
+            list_items.map(el => {
+                const quantity = Number(el.quantity) || 1;
+                const price = Number(el.productId.price) || 0;
+                const subTotal = price * quantity;
+                
+                return {
+                    userId,
+                    orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+                    productId: el.productId._id,
+                    product_details: {
+                        name: el.productId.name || 'Sản phẩm không tên',
+                        image: Array.isArray(el.productId.image) ? el.productId.image : [el.productId.image || '']
+                    },
+                    quantity: quantity,
+                    paymentId: '',
+                    payment_status: 'Đang chờ thanh toán',
+                    delivery_address: addressId,
+                    subTotalAmt: subTotal,
+                    totalAmt: subTotal, // For individual items, totalAmt is same as subTotal
+                    status: 'pending'
+                };
+            })
         );
 
         const line_items = list_items.map(item => {
@@ -298,6 +313,15 @@ export async function webhookStripe(request, response) {
                     );
                     console.log('✅ Updated orders result:', updatedOrders);
                     console.log('✅ Orders updated successfully to PAID status');
+                    
+                    // Update product stock after successful payment
+                    console.log('🔄 Updating product stock...');
+                    const stockUpdateResult = await updateProductStock(orderIds);
+                    if (!stockUpdateResult.success) {
+                        console.error('⚠️ Failed to update product stock:', stockUpdateResult.message);
+                    } else {
+                        console.log('✅ Successfully updated product stock');
+                    }
                 } catch (error) {
                     console.error('Error updating orders:', error);
                     return response.status(500).json({
