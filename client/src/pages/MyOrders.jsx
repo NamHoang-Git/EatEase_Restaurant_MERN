@@ -105,11 +105,21 @@ const MyOrders = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 items-center">
                                 <p className="font-semibold">Trạng thái:</p>
-                                <p className="flex items-center gap-2">
+                                <span
+                                    className={`px-2 py-1 rounded-md text-sm font-semibold ${
+                                        order?.payment_status ===
+                                        'Đã thanh toán'
+                                            ? 'bg-green-100 text-green-800'
+                                            : order?.payment_status ===
+                                              'Thanh toán khi giao hàng'
+                                            ? 'bg-blue-100 text-blue-800'
+                                            : 'bg-yellow-100 text-yellow-800'
+                                    }`}
+                                >
                                     {order?.payment_status || 'Chưa xác định'}
-                                </p>
+                                </span>
                             </div>
                             <div className="flex gap-2">
                                 <p className="font-semibold">Tổng tiền:</p>
