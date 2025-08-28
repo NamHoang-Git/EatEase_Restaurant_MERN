@@ -88,7 +88,9 @@ const Address = () => {
             {/* Danh sách địa chỉ hiện hoạt */}
             <div className="bg-white p-2 grid gap-4">
                 {activeAddresses.length === 0 ? (
-                    <p className="text-gray-500">Chưa có địa chỉ</p>
+                    <p className="text-gray-500">
+                        Chưa có địa chỉ. Hãy thêm địa chỉ mới
+                    </p>
                 ) : (
                     activeAddresses.map((address, index) => (
                         <div

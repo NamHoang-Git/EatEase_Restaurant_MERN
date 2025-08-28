@@ -139,7 +139,10 @@ const DisplayCartItem = ({ close }) => {
                                     <div className="flex gap-4 justify-between">
                                         <p>Tổng giá trị các mặt hàng</p>
                                         <p className="flex items-center gap-2">
-                                            {cartItem.some(item => item.productId?.discount > 0) && (
+                                            {cartItem.some(
+                                                (item) =>
+                                                    item.productId?.discount > 0
+                                            ) && (
                                                 <span className="line-through text-gray-400">
                                                     {DisplayPriceInVND(
                                                         notDiscountTotalPrice
@@ -184,7 +187,7 @@ const DisplayCartItem = ({ close }) => {
                                 className="bg-primary-3 hover:opacity-80 text-secondary-200 px-6 py-2
                             rounded-lg font-bold shadow-md shadow-secondary-100 my-4"
                             >
-                                Mua ngay
+                                Mua sắm ngay!
                             </Link>
                         </div>
                     )}

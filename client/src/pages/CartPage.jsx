@@ -246,14 +246,27 @@ const CartPage = () => {
                 className="p-3 sm:p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
                 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex items-center gap-2"
             >
-                <span onClick={() => navigate('/')} className="cursor-pointer hover:text-secondary-100 sm:hidden block">
+                <span
+                    onClick={() => navigate('/')}
+                    className="cursor-pointer hover:text-secondary-100 sm:hidden block"
+                >
                     <FaRegArrowAltCircleLeft size={25} />
                 </span>
                 <p className="leading-3 mt-1">Giỏ hàng</p>
             </div>
 
             {cart.length === 0 ? (
-                <NoData />
+                <div className="flex flex-col gap-4 items-center">
+                    <NoData />
+                    <button
+                        onClick={() => navigate('/')}
+                        className="bg-primary-4 text-secondary-200 py-2 px-5 rounded-md
+                    transition-colors duration-200 text-sm sm:text-base w-full sm:w-auto text-center
+                    font-bold shadow-md"
+                    >
+                        Mua sắm ngay!
+                    </button>
+                </div>
             ) : (
                 <div className="bg-white shadow rounded-lg p-2 sm:p-4">
                     <DisplayTableCart data={cart} column={columns} />

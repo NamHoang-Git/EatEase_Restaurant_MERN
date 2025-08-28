@@ -58,7 +58,8 @@ const Home = () => {
                     {/* Category */}
                     <div
                         ref={containerRef}
-                        className="grid grid-flow-col auto-cols-[minmax(7rem,7rem)] sm:auto-cols-[minmax(9rem,9rem)] md:auto-cols-[minmax(9rem,9rem)] lg:auto-cols-[minmax(10rem,10rem)]
+                        className="grid grid-flow-col auto-cols-[minmax(7rem,7rem)] sm:auto-cols-[minmax(9rem,9rem)]
+                    md:auto-cols-[minmax(9rem,9rem)] lg:auto-cols-[minmax(10rem,10rem)]
                     gap-4 md:gap-6 lg:gap-8 container mx-auto px-4 pt-6 pb-6 overflow-x-auto scroll-smooth scrollbar-hide"
                     >
                         {loadingCategory
@@ -96,7 +97,7 @@ const Home = () => {
                                           <div
                                               className="grid grid-flow-col grid-cols-[2fr_1fr] h-[4rem] sm:h-[5rem] md:h-[5rem] lg:h-[6rem] gap-2
                                             place-items-center border-[3px] border-inset border-primary-200 rounded-2xl sm:rounded-3xl bg-primary-5
-                                            shadow-md shadow-primary-100 cursor-pointer"
+                                            shadow-md shadow-primary-100 cursor-pointer group"
                                           >
                                               <p className="text-xs sm:text-sm md:text-base lg:text-base text-center p-2 text-secondary-200 font-bold">
                                                   {cat.name}
@@ -104,7 +105,8 @@ const Home = () => {
                                               <img
                                                   src={cat.image}
                                                   alt={cat.name}
-                                                  className="w-full h-full object-cover rounded-3xl"
+                                                  className="w-full h-full object-cover rounded-3xl transition-transform duration-500
+                                                group-hover:scale-95"
                                               />
                                           </div>
                                       </div>

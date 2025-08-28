@@ -49,7 +49,17 @@ const MyOrders = () => {
             </div>
             <div className="bg-white p-2 grid gap-4">
                 {!orders.length ? (
-                    <NoData />
+                    <div className="flex flex-col gap-4 items-center">
+                        <NoData />
+                        <button
+                            onClick={() => navigate('/')}
+                            className="bg-primary-4 text-secondary-200 py-2 px-5 rounded-md
+                        transition-colors duration-200 text-sm sm:text-base w-full sm:w-auto text-center
+                        font-bold shadow-md"
+                        >
+                            Mua sắm ngay!
+                        </button>
+                    </div>
                 ) : (
                     orders.map((order, index) => (
                         <div
@@ -89,7 +99,8 @@ const MyOrders = () => {
                                     </p>
                                     <div className="flex gap-2">
                                         <p className="flex items-center gap-2 text-secondary-200 font-semibold">
-                                            x{order?.quantity || 'Chưa xác định'}
+                                            x
+                                            {order?.quantity || 'Chưa xác định'}
                                         </p>
                                     </div>
                                 </div>

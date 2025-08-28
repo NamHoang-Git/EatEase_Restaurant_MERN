@@ -24,7 +24,7 @@ export async function CashOnDeliveryOrderController(request, response) {
             const quantity = Number(el.quantity) || 1;
             const price = Number(el.productId.price) || 0;
             const subTotal = price * quantity;
-            
+
             return {
                 userId: userId,
                 orderId: `ORD-${new mongoose.Types.ObjectId()}`,
@@ -76,7 +76,7 @@ export async function CashOnDeliveryOrderController(request, response) {
             console.log('🔄 Updating product stock for COD order...');
             const orderIds = generatedOrder.map(order => order._id);
             const stockUpdateResult = await updateProductStock(orderIds);
-            
+
             if (!stockUpdateResult.success) {
                 console.error('⚠️ Failed to update product stock for COD order:', stockUpdateResult.message);
                 // Continue with the order even if stock update fails, but log the error
@@ -138,7 +138,7 @@ export async function paymentController(request, response) {
                 const quantity = Number(el.quantity) || 1;
                 const price = Number(el.productId.price) || 0;
                 const subTotal = price * quantity;
-                
+
                 return {
                     userId,
                     orderId: `ORD-${new mongoose.Types.ObjectId()}`,
@@ -260,7 +260,7 @@ const getOrderProductItems = async ({
 export async function webhookStripe(request, response) {
     console.log('🚀 WEBHOOK FUNCTION CALLED - START');
     console.log('🚀 Current time:', new Date().toISOString());
-    
+
     try {
         console.log('=== WEBHOOK CALLED ===');
         console.log('Headers:', request.headers);
@@ -330,7 +330,7 @@ export async function webhookStripe(request, response) {
                     );
                     console.log('✅ Updated orders result:', updatedOrders);
                     console.log('✅ Orders updated successfully to PAID status');
-                    
+
                     // Update product stock after successful payment
                     console.log('🔄 Updating product stock...');
                     const stockUpdateResult = await updateProductStock(orderIds);

@@ -55,8 +55,8 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
 
     return (
         <div
-            className="container mx-auto px-4 sm:px-12 py-4 bg-primary-100 shadow-md shadow-secondary-100
-        sm:rounded-[50px] rounded-[20px]"
+            className="container mx-auto px-4 sm:px-8 sm:py-6 py-4 bg-primary-100 shadow-md shadow-secondary-100
+        sm:rounded-xl rounded-[20px]"
         >
             <div className="container mx-auto pb-1 flex items-center justify-between gap-4 text-sm sm:text-lg">
                 <h3 className="font-bold">{name}</h3>
