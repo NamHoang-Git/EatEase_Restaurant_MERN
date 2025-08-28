@@ -77,7 +77,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
                         className="grid grid-flow-col auto-cols-[minmax(150px,150px)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
                     lg:auto-cols-[minmax(14rem,14rem)] gap-3 md:gap-6 lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
                     >
-                        {!loading &&
+                        {loading &&
                             loadingCardNumber.map((_, index) => {
                                 return (
                                     <CardLoading
