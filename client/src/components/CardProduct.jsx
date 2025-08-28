@@ -20,7 +20,7 @@ const CardProduct = ({ data }) => {
         hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
             {/* Image */}
-            <div className="relative w-full h-52 overflow-hidden">
+            <div className="relative w-full h-40 sm:h-52 overflow-hidden">
                 <img
                     src={data.image[0]}
                     alt={data.name}
@@ -38,14 +38,14 @@ const CardProduct = ({ data }) => {
             </div>
 
             {/* Info */}
-            <div className="px-2 py-3 sm:p-4 flex flex-col gap-4 lg:gap-2">
+            <div className="px-2 py-3 sm:px-3 sm:py-4 flex flex-col gap-2 lg:gap-2">
                 {/* Tên sản phẩm */}
                 <h2 className="font-semibold line-clamp-2 text-sm sm:text-base h-9 sm:h-11 md:h-10 lg:h-12">
                     {data.name}
                 </h2>
 
                 {/* Đơn vị + discount */}
-                <div className="flex gap-4 items-center h-[10px] sm:h-[14px]">
+                <div className="flex gap-4 items-center sm:h-[14px]">
                     <div className="whitespace-nowrap font-semibold text-sm line-clamp-1">
                         {data.unit}
                     </div>
@@ -61,14 +61,14 @@ const CardProduct = ({ data }) => {
                 </div>
 
                 {/* Giá + Button */}
-                <div className="flex items-center justify-between h-6 mt-2 lg:mt-4 gap-2">
-                    <div className="flex flex-col">
+                <div className="flex md:flex-row flex-col md:items-center justify-between md:h-6 mt-1 md:mt-4 gap-2">
+                    <div className="flex flex-col h-10 justify-center">
                         {Boolean(data.discount) && (
                             <span className="text-gray-400 line-through text-xs sm:text-sm">
                                 {DisplayPriceInVND(data.price)}
                             </span>
                         )}
-                        <span className="text-secondary-200 font-bold text-xs sm:text-md lg:text-base">
+                        <span className="text-secondary-200 font-bold text-sm sm:text-md lg:text-base">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}
@@ -77,7 +77,7 @@ const CardProduct = ({ data }) => {
 
                     <div className="">
                         {data.stock === 0 ? (
-                            <p className="text-secondary-200 text-xs sm:text-base font-bold sm:font-semibold text-center">
+                            <p className="text-secondary-200 text-sm md:text-base font-bold md:font-semibold md:text-center">
                                 Out of stock
                             </p>
                         ) : (

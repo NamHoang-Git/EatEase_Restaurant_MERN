@@ -412,7 +412,7 @@ const ProductDisplayPage = () => {
                         )}
                     </div>
 
-                    <div>
+                    <div className="max-w-72 sm:w-full">
                         {data.stock === 0 ? (
                             <p className="text-lg text-rose-600 my-2">
                                 Out of Stock
@@ -621,7 +621,7 @@ const ProductDisplayPage = () => {
                 <h2 className="text-xl font-bold text-secondary-200">
                     Sản phẩm tương tự
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {relatedProducts.length > 0 ? (
                         relatedProducts.map((item) => (
                             <CardProduct key={item._id} data={item} />

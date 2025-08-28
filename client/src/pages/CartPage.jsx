@@ -164,11 +164,11 @@ const CartPage = () => {
             header: 'Sản phẩm',
             accessorKey: 'productId.name',
             cell: ({ row }) => (
-                <div className="flex items-center gap-2 sm:gap-4 sm:h-16 h-12">
+                <div className="flex items-center gap-2 sm:gap-4 sm:h-16 h-10">
                     <img
                         src={row.original.productId?.image?.[0] || ''}
                         alt={row.original.productId?.name || ''}
-                        className="sm:w-16 w-12 h-full flex-shrink-0 object-cover rounded"
+                        className="sm:w-16 w-10 h-full flex-shrink-0 object-cover rounded"
                         onError={(e) => {
                             e.target.src = '/placeholder-image.jpg';
                         }}
@@ -194,18 +194,18 @@ const CartPage = () => {
             header: 'Số lượng',
             accessorKey: 'quantity',
             cell: ({ row }) => (
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center mx-auto">
                     <AddToCartButton data={row.original.productId} />
                 </div>
             ),
-            meta: { className: 'max-w-20' },
+            meta: { className: 'sm:max-w-24' },
         },
         {
             header: 'Giá',
             accessorKey: 'price',
             cell: ({ row }) => (
                 <div className="lg:flex items-end gap-2 justify-center">
-                    <p className="text-[10px] font-bold text-secondary-200">
+                    <p className="text-[10px] sm:text-base font-bold text-secondary-200">
                         {DisplayPriceInVND(
                             pricewithDiscount(
                                 row.original.productId?.price || 0,
@@ -214,7 +214,7 @@ const CartPage = () => {
                         )}
                     </p>
                     {row.original.productId?.discount > 0 && (
-                        <p className="text-[10px] text-gray-500 line-through">
+                        <p className="text-[10px] sm:text-base text-gray-500 line-through">
                             {DisplayPriceInVND(
                                 row.original.productId?.price || 0
                             )}
@@ -255,7 +255,7 @@ const CartPage = () => {
             {cart.length === 0 ? (
                 <NoData />
             ) : (
-                <div className="bg-white shadow rounded-lg p-5">
+                <div className="bg-white shadow rounded-lg p-2 sm:p-4">
                     <DisplayTableCart data={cart} column={columns} />
 
                     <div

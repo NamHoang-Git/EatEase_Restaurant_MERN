@@ -55,7 +55,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
 
     return (
         <div
-            className="container mx-auto px-12 py-6 bg-primary-100 shadow-md shadow-secondary-100
+            className="container mx-auto px-6 sm:px-12 py-6 bg-primary-100 shadow-md shadow-secondary-100
         rounded-[50px]"
         >
             <div className="container mx-auto pb-1 flex items-center justify-between gap-4 text-sm sm:text-lg">
@@ -74,7 +74,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
                 <div className="relative flex items-center ">
                     <div
                         ref={containerRef}
-                        className="grid grid-flow-col auto-cols-[minmax(11rem,11rem)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
+                        className="grid grid-flow-col auto-cols-[minmax(10rem,10rem)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
                     lg:auto-cols-[minmax(14rem,14rem)] gap-4 md:gap-6 lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
                     >
                         {loading &&

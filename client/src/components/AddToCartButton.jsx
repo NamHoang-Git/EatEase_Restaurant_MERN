@@ -119,19 +119,19 @@ const AddToCartButton = ({ data }) => {
     };
 
     return (
-        <div className="w-full max-w-[150px]">
+        <div className="w-full md:max-w-[150px]">
             {isAvailableCart && cartItemDetails ? (
-                <div className="flex items-center w-full h-full bg-primary-100">
+                <div className="flex items-center justify-center w-full h-full bg-primary-100">
                     <button
                         onClick={decreaseQty}
                         className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
                         disabled={loading}
                     >
-                        <FaMinus className="sm:hidden" size={10} />
+                        <FaMinus className="sm:hidden" size={12} />
                         <FaMinus className="hidden sm:block" size={14} />
                     </button>
 
-                    <p className="flex-1 text-[10px] sm:text-base text-secondary-200 font-semibold w-9 flex items-center justify-center">
+                    <p className="flex-1 text-xs sm:text-base text-secondary-200 font-bold w-9 flex items-center justify-center">
                         {qty}
                     </p>
 
@@ -140,7 +140,7 @@ const AddToCartButton = ({ data }) => {
                         className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
                         disabled={loading}
                     >
-                        <FaPlus className="sm:hidden" size={10} />
+                        <FaPlus className="sm:hidden" size={12} />
                         <FaPlus className="hidden sm:block" size={14} />
                     </button>
                 </div>
@@ -154,7 +154,7 @@ const AddToCartButton = ({ data }) => {
                     {loading ? (
                         <Loading />
                     ) : (
-                        <span className="flex items-center gap-1 text-xs sm:text-sm">
+                        <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold">
                             <FaPlus size={12} />
                             <p className="leading-[14px] mt-[2px]">Cart</p>
                         </span>
