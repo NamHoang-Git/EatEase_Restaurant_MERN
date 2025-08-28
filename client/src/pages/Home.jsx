@@ -66,10 +66,15 @@ const Home = () => {
                                   return (
                                       <div
                                           key={index + 'loadingCategory'}
-                                          className="bg-white rounded p-4 min-h-36 grid gap-2 shadow animate-pulse"
+                                          className="grid grid-flow-col grid-cols-[2fr_1fr] h-[4rem] sm:h-[5rem] md:h-[5rem] lg:h-[6rem]
+                                        place-items-center border-2 rounded-2xl sm:rounded-3xl bg-white
+                                        shadow-md shadow-primary-100 cursor-pointer animate-pulse"
                                       >
-                                          <div className="bg-blue-100 min-h-24 rounded"></div>
-                                          <div className="bg-blue-100 h-8 rounded"></div>
+                                          <div className="h-full w-full flex flex-col gap-2 justify-center p-2">
+                                              <div className="bg-blue-100 w-full h-2 rounded"></div>
+                                              <div className="bg-blue-100 w-2/3 h-2 rounded"></div>
+                                          </div>
+                                          <div className="bg-blue-100 w-full h-full rounded"></div>
                                       </div>
                                   );
                               })
@@ -89,8 +94,9 @@ const Home = () => {
                                           }
                                       >
                                           <div
-                                              className="grid grid-flow-col grid-cols-[2fr_1fr] h-[4rem] sm:h-[5rem] md:h-[5rem] lg:h-[6rem] gap-2 place-items-center border-[3px] border-inset
-                                        border-primary-200 rounded-2xl sm:rounded-3xl bg-primary-5 shadow-md shadow-primary-100 cursor-pointer"
+                                              className="grid grid-flow-col grid-cols-[2fr_1fr] h-[4rem] sm:h-[5rem] md:h-[5rem] lg:h-[6rem] gap-2
+                                            place-items-center border-[3px] border-inset border-primary-200 rounded-2xl sm:rounded-3xl bg-primary-5
+                                            shadow-md shadow-primary-100 cursor-pointer"
                                           >
                                               <p className="text-xs sm:text-sm md:text-base lg:text-base text-center p-2 text-secondary-200 font-bold">
                                                   {cat.name}
