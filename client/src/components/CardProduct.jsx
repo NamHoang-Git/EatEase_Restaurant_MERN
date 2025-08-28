@@ -45,7 +45,7 @@ const CardProduct = ({ data }) => {
                 </h2>
 
                 {/* Đơn vị + discount */}
-                <div className="flex gap-4 items-center sm:h-[14px]">
+                <div className="flex gap-4 items-center sm:h-[14px] mt-1 md:mt-2">
                     <div className="whitespace-nowrap font-semibold text-sm line-clamp-1">
                         {data.unit}
                     </div>
@@ -78,7 +78,7 @@ const CardProduct = ({ data }) => {
                     <div className="">
                         {data.stock === 0 ? (
                             <p className="text-secondary-200 text-sm md:text-base font-bold md:font-semibold md:text-center">
-                                Out of stock
+                                Hết hàng
                             </p>
                         ) : (
                             <AddToCartButton data={data} />

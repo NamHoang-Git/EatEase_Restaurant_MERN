@@ -29,6 +29,12 @@ const AddToCartButton = ({ data }) => {
             return;
         }
 
+        // Kiểm tra số lượng tồn kho
+        if (data?.stock <= 0) {
+            toast.error('Sản phẩm đã hết hàng');
+            return;
+        }
+
         try {
             setLoading(true);
 
@@ -82,6 +88,12 @@ const AddToCartButton = ({ data }) => {
 
         if (!cartItemDetails?._id || qty < 0) {
             toast.error('Sản phẩm không hợp lệ');
+            return;
+        }
+
+        // Kiểm tra số lượng tồn kho
+        if (qty >= (data?.stock || 0)) {
+            toast.error('Đã đạt số lượng tối đa trong kho');
             return;
         }
 
@@ -149,14 +161,16 @@ const AddToCartButton = ({ data }) => {
                     onClick={handleADDTocart}
                     className="bg-primary hover:opacity-80 text-secondary-200 shadow-md p-1 px-2 sm:px-2 sm:p-[6px]
                 rounded-md sm:rounded-full"
-                    disabled={loading || !data?._id}
+                    disabled={loading || !data?._id || data?.stock <= 0}
                 >
                     {loading ? (
                         <Loading />
                     ) : (
                         <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold">
                             <FaPlus size={12} />
-                            <p className="leading-[14px] mt-[2px]">Cart</p>
+                            <p className="leading-[14px] mt-[2px]">
+                                {data?.stock <= 0 ? 'Hết hàng' : 'Cart'}
+                            </p>
                         </span>
                     )}
                 </button>
