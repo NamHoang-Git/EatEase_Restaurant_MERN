@@ -60,15 +60,15 @@ const Search = () => {
                     >
                         <TypeAnimation
                             sequence={[
-                                'Search "điện thoại"',
+                                'Tìm kiếm "điện thoại"',
                                 1000,
-                                'Search "iPad"',
+                                'Tìm kiếm "iPad"',
                                 1000,
-                                'Search "laptop"',
+                                'Tìm kiếm "laptop"',
                                 1000,
-                                'Search "tai nghe"',
+                                'Tìm kiếm "tai nghe"',
                                 1000,
-                                'Search "tivi"',
+                                'Tìm kiếm "tivi"',
                                 1000,
                             ]}
                             wrapper="span"

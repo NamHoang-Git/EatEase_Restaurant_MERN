@@ -35,7 +35,7 @@ const testCartCleanup = async () => {
 
         // Simulate webhook cart cleanup logic
         console.log('\n=== SIMULATING WEBHOOK CART CLEANUP ===');
-        
+
         // Lấy productIds từ cart items (giống như từ Stripe line items)
         const productIdsToRemove = cartItems.map(item => item.productId.toString());
         console.log('Product IDs to remove:', productIdsToRemove);
@@ -67,11 +67,11 @@ const testCartCleanup = async () => {
             // Kiểm tra kết quả
             const remainingCartItems = await CartProductModel.find({ userId: user._id });
             const updatedUser = await UserModel.findById(user._id);
-            
+
             console.log('\n=== CLEANUP RESULTS ===');
             console.log('Remaining cart items:', remainingCartItems.length);
             console.log('User shopping_cart length:', updatedUser.shopping_cart.length);
-            
+
             if (remainingCartItems.length === 0 && updatedUser.shopping_cart.length === 0) {
                 console.log('🎉 SUCCESS: Cart cleanup completed successfully!');
             } else {

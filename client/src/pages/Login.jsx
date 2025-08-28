@@ -79,7 +79,7 @@ const Login = () => {
     };
 
     return (
-        <section className="mx-auto my-12 max-w-4xl">
+        <section className="container mx-auto my-12 max-w-4xl">
             <div
                 className="grid grid-flow-col lg:grid-cols-[2fr_1.5fr] mx-5 rounded-md shadow-md
             shadow-secondary-100"
@@ -117,7 +117,7 @@ const Login = () => {
                         className="grid gap-4 mt-6"
                         onSubmit={handleSubmit}
                     >
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                             <label htmlFor="email">Email: </label>
                             <input
                                 type="email"
@@ -130,7 +130,7 @@ const Login = () => {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                             <label htmlFor="password">Mật khẩu: </label>
                             <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
                                 <input
@@ -157,7 +157,7 @@ const Login = () => {
                             </div>
                             <Link
                                 to={'/forgot-password'}
-                                className="block ml-auto mt-1 text-sm hover:text-secondary-100"
+                                className="block ml-auto mt-2 text-base hover:text-secondary-100"
                             >
                                 Quên mật khẩu?
                             </Link>
@@ -168,13 +168,13 @@ const Login = () => {
                                 valideValue
                                     ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
                                     : 'bg-gray-400 text-white cursor-no-drop'
-                            } py-2 rounded-md font-bold my-4`}
+                            } py-2 rounded-md font-bold my-2`}
                         >
                             {loading ? <Loading /> : 'Đăng nhập'}
                         </button>
                     </form>
 
-                    <p>
+                    <p className="py-2">
                         Bạn chưa có tài khoản?{' '}
                         <Link
                             to={'/register'}

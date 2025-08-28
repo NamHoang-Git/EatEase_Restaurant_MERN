@@ -16,7 +16,7 @@ export async function registerUserController(req, res) {
 
         if (!name || !email || !password) {
             return res.status(400).json({
-                message: "Provide name, email, password",
+                message: "Vui lòng nhập các trường bắt buộc",
                 error: true,
                 success: false
             })
@@ -26,7 +26,7 @@ export async function registerUserController(req, res) {
 
         if (user) {
             return res.json({
-                message: "Already register email",
+                message: "Email đã tồn tại",
                 error: true,
                 success: false
             })
@@ -48,7 +48,7 @@ export async function registerUserController(req, res) {
 
         const verifyEmail = await sendEmail({
             sendTo: email,
-            subject: "Verify email from TakSHOP",
+            subject: "Xác nhận email từ EcomSpace",
             html: verifyEmailTemplate({
                 name,
                 url: VerifyEmailUrl
@@ -56,7 +56,7 @@ export async function registerUserController(req, res) {
         })
 
         return res.json({
-            message: "User register successfully",
+            message: "Đăng ký thành công",
             error: false,
             success: true,
             data: save
@@ -80,7 +80,7 @@ export async function verifyEmailController(req, res) {
 
         if (!user) {
             return res.status(400).json({
-                message: "Invalid code",
+                message: "Mã không hợp lệ",
                 error: true,
                 success: false
             })
@@ -91,7 +91,7 @@ export async function verifyEmailController(req, res) {
         })
 
         return res.json({
-            message: "Verify email code",
+            message: "Xác nhận email thành công",
             error: false,
             success: true
         })
@@ -111,7 +111,7 @@ export async function loginController(req, res) {
 
         if (!email || !password) {
             return res.status(400).json({
-                message: "Provide email, password",
+                message: "Vui lòng nhập email, mật khẩu",
                 error: true,
                 success: false
             });
@@ -121,7 +121,7 @@ export async function loginController(req, res) {
 
         if (!user) {
             return res.status(400).json({
-                message: "User not register",
+                message: "Tài khoản không tồn tại",
                 error: true,
                 success: false
             });
@@ -129,7 +129,7 @@ export async function loginController(req, res) {
 
         if (user.status !== "Active") {
             return res.status(400).json({
-                message: "Contact to Admin",
+                message: "Liên hệ Admin",
                 error: true,
                 success: false
             });
@@ -139,7 +139,7 @@ export async function loginController(req, res) {
 
         if (!checkPassword) {
             return res.status(400).json({
-                message: "Check your password",
+                message: "Mật khẩu không chính xác",
                 error: true,
                 success: false
             });
@@ -164,7 +164,7 @@ export async function loginController(req, res) {
 
         // Trả token trong response body để frontend sử dụng
         return res.json({
-            message: "Login successfully",
+            message: "Đăng nhập thành công",
             error: false,
             success: true,
             data: {
@@ -201,7 +201,7 @@ export async function logoutController(req, res) {
         })
 
         return res.json({
-            message: "Logout successfully",
+            message: "Đăng xuất thành công",
             error: false,
             success: true
         })
@@ -227,7 +227,7 @@ export async function uploadAvatar(req, res) {
         })
 
         return res.json({
-            message: "Upload profile",
+            message: "Upload avatar thành công",
             success: true,
             error: false,
             data: {
@@ -265,7 +265,7 @@ export async function updateUserDetails(req, res) {
         })
 
         return res.json({
-            message: "Updated successfully",
+            message: "Cập nhật thông tin thành công",
             error: false,
             success: true,
             data: updateUser
@@ -289,7 +289,7 @@ export async function forgotPasswordController(req, res) {
 
         if (!user) {
             return res.status(400).json({
-                message: "Email not available",
+                message: "Email không tồn tại",
                 error: true,
                 success: false
             })
@@ -305,7 +305,7 @@ export async function forgotPasswordController(req, res) {
 
         await sendEmail({
             sendTo: email,
-            subject: "Forgot email from TakSHOP",
+            subject: "Quên mật khẩu từ EcomSpace",
             html: forgotPasswordTemplate({
                 name: user.name,
                 otp: otp
@@ -313,7 +313,7 @@ export async function forgotPasswordController(req, res) {
         })
 
         return res.json({
-            message: "Check your email",
+            message: "Kiểm tra email",
             error: false,
             success: true
         })
@@ -334,7 +334,7 @@ export async function verifyForgotPasswordOtp(req, res) {
 
         if (!email || !otp) {
             return res.status(400).json({
-                message: "Provide required field email, otp.",
+                message: "Vui lòng nhập email, otp.",
                 error: true,
                 success: false
             })
@@ -344,7 +344,7 @@ export async function verifyForgotPasswordOtp(req, res) {
 
         if (!user) {
             return res.status(400).json({
-                message: "Email not available",
+                message: "Email không tồn tại",
                 error: true,
                 success: false
             })
@@ -354,7 +354,7 @@ export async function verifyForgotPasswordOtp(req, res) {
 
         if (user.forgot_password_expiry < currentTime) {
             return res.status(400).json({
-                message: "Otp is expired",
+                message: "Mã OTP đã hết hạn",
                 error: true,
                 success: false
             })
@@ -362,7 +362,7 @@ export async function verifyForgotPasswordOtp(req, res) {
 
         if (otp !== user.forgot_password_otp) {
             return res.status(400).json({
-                message: "Invalid otp",
+                message: "Mã OTP không chính xác",
                 error: true,
                 success: false
             })
@@ -374,7 +374,7 @@ export async function verifyForgotPasswordOtp(req, res) {
         })
 
         return res.json({
-            message: "Verify otp successfully.",
+            message: "Xác nhận mã OTP thành công",
             error: false,
             success: true
         })
@@ -395,7 +395,7 @@ export async function resetPassword(req, res) {
 
         if (!email || !newPassword || !confirmPassword) {
             return res.status(400).json({
-                message: "Provide required fields email, newPassword, confirmPassword.",
+                message: "Vui lòng nhập các trường bắt buộc",
                 error: true,
                 success: false
             })
@@ -405,7 +405,7 @@ export async function resetPassword(req, res) {
 
         if (!user) {
             return res.status(400).json({
-                message: "Email is not available",
+                message: "Email không tồn tại",
                 error: true,
                 success: false
             })
@@ -413,7 +413,7 @@ export async function resetPassword(req, res) {
 
         if (newPassword !== confirmPassword) {
             return res.status(400).json({
-                message: "New password and Comfirm password must be same.",
+                message: "Mật khẩu mới và mật khẩu xác nhận phải giống nhau.",
                 error: true,
                 success: false
             })
@@ -427,7 +427,7 @@ export async function resetPassword(req, res) {
         })
 
         return res.json({
-            message: "Password updated successfully.",
+            message: "Mật khẩu đã được cập nhật",
             error: false,
             success: true
         })
@@ -448,7 +448,7 @@ export async function refreshTokenController(req, res) {
 
         if (!refreshToken) {
             return res.status(400).json({
-                message: "Invalid token",
+                message: "Token không hợp lệ",
                 error: true,
                 success: false
             });
@@ -458,7 +458,7 @@ export async function refreshTokenController(req, res) {
 
         if (!verifyToken) {
             return res.status(400).json({
-                message: "Token is expired",
+                message: "Token hết hạn",
                 error: true,
                 success: false
             });
@@ -468,7 +468,7 @@ export async function refreshTokenController(req, res) {
         const newAccessToken = await generatedAccessToken(userId);
 
         return res.json({
-            message: "New Access token generated",
+            message: "Token mới đã được tạo",
             error: false,
             success: true,
             data: {
@@ -493,14 +493,14 @@ export async function userDetails(req, res) {
         const user = await UserModel.findById(userId).select('-password -refresh_token')
 
         return res.json({
-            message: 'User details',
+            message: 'Chi tiết người dùng',
             data: user,
             error: false,
             success: true
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Something is wrong',
+            message: 'Có lỗi xảy ra',
             error: true,
             success: false
         })

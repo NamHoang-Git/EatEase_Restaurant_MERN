@@ -8,7 +8,7 @@ const fetchUserDetails = async () => {
         return {
             success: false,
             data: null,
-            message: "You have not login",
+            message: "Bạn chưa đăng nhập",
         };
     }
 
@@ -29,7 +29,7 @@ const fetchUserDetails = async () => {
         return {
             success: false,
             data: null,
-            message: "You have not login",
+            message: "Bạn chưa đăng nhập",
         };
     }
 };

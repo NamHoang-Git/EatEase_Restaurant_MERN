@@ -21,7 +21,7 @@ const testSelectiveCartCleanup = async () => {
         // 1. Tạo 5 cart items để test
         const allProducts = [
             '68a843cbf3e807516f273c16',
-            '68a84408f3e807516f273c3d', 
+            '68a84408f3e807516f273c3d',
             '68ac1fa76886d39c175d3928',
             '68a843cbf3e807516f273c17',
             '68a84408f3e807516f273c3e'
@@ -37,7 +37,7 @@ const testSelectiveCartCleanup = async () => {
             });
             const saved = await cartItem.save();
             cartItems.push(saved);
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -52,7 +52,7 @@ const testSelectiveCartCleanup = async () => {
         // 2. Test xóa chỉ 3 sản phẩm được chọn (giả lập thanh toán một phần)
         const selectedProductIds = [
             '68a843cbf3e807516f273c16',
-            '68a84408f3e807516f273c3d', 
+            '68a84408f3e807516f273c3d',
             '68ac1fa76886d39c175d3928'
         ];
 
@@ -65,7 +65,7 @@ const testSelectiveCartCleanup = async () => {
             productId: { $in: selectedProductIds }
         });
         const cartItemIds = cartItemsToDelete.map(item => item._id);
-        
+
         console.log(`Found ${cartItemsToDelete.length} cart items to delete`);
         console.log('Cart item IDs to delete:', cartItemIds.map(id => id.toString()));
 
@@ -74,7 +74,7 @@ const testSelectiveCartCleanup = async () => {
             userId: user._id,
             productId: { $in: selectedProductIds }
         });
-        
+
         // Xóa references từ User.shopping_cart
         const userUpdateResult = await UserModel.updateOne(
             { _id: user._id },
@@ -87,11 +87,11 @@ const testSelectiveCartCleanup = async () => {
         // 3. Kiểm tra kết quả
         const afterCart = await CartProductModel.find({ userId: user._id });
         const afterUser = await UserModel.findById(user._id);
-        
+
         console.log('\n=== RESULTS ===');
         console.log(`Remaining cart items: ${afterCart.length} (should be 2)`);
         console.log(`Remaining user shopping_cart: ${afterUser.shopping_cart.length} (should be 2)`);
-        
+
         console.log('\nRemaining products:');
         afterCart.forEach(item => {
             console.log(`- Product ID: ${item.productId}, Cart Item ID: ${item._id}`);
@@ -105,7 +105,7 @@ const testSelectiveCartCleanup = async () => {
         ];
 
         const isCorrect = expectedRemaining.every(id => remainingProductIds.includes(id)) &&
-                         remainingProductIds.length === expectedRemaining.length;
+            remainingProductIds.length === expectedRemaining.length;
 
         if (isCorrect && afterUser.shopping_cart.length === 2) {
             console.log('\n🎉 SUCCESS: Selective cart cleanup works perfectly!');

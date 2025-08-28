@@ -40,7 +40,7 @@ const testSelectiveFocus = async () => {
                 productId: productId,
                 name: `Product ${String.fromCharCode(65 + i)}`
             });
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -69,13 +69,13 @@ const testSelectiveFocus = async () => {
 
         // 3. Test clearCartController logic với selectedProductIds
         console.log('\n=== Testing clearCartController logic ===');
-        
+
         // Tìm cart items cần xóa
         const cartItemsToDelete = await CartProductModel.find({
             userId: user._id,
             productId: { $in: selectedProductIds.map(id => new mongoose.Types.ObjectId(id)) }
         });
-        
+
         console.log(`Found ${cartItemsToDelete.length} cart items to delete:`);
         cartItemsToDelete.forEach(item => {
             const productName = createdItems.find(p => p.productId === item.productId.toString())?.name;
@@ -122,8 +122,8 @@ const testSelectiveFocus = async () => {
 
         const actualRemaining = afterCart.map(item => item.productId.toString());
         const isCorrect = expectedRemaining.every(id => actualRemaining.includes(id)) &&
-                         actualRemaining.length === expectedRemaining.length &&
-                         afterUser.shopping_cart.length === 2;
+            actualRemaining.length === expectedRemaining.length &&
+            afterUser.shopping_cart.length === 2;
 
         if (isCorrect) {
             console.log('\n🎉 SUCCESS: Selective deletion works perfectly!');
@@ -139,28 +139,28 @@ const testSelectiveFocus = async () => {
 
         // 6. Test với selectedProductIds = null (should clear all)
         console.log('\n=== Testing full clear (selectedProductIds = null) ===');
-        
+
         const selectedProductIds2 = null;
         console.log('selectedProductIds:', selectedProductIds2);
-        
+
         if (selectedProductIds2 && selectedProductIds2.length > 0) {
             console.log('❌ Should NOT enter selective mode');
         } else {
             console.log('✅ Should enter full clear mode');
-            
+
             // Full clear
             const fullDeleteResult = await CartProductModel.deleteMany({ userId: user._id });
             const fullUserUpdateResult = await UserModel.updateOne(
                 { _id: user._id },
                 { $set: { shopping_cart: [] } }
             );
-            
+
             console.log(`Full clear results: ${fullDeleteResult.deletedCount} items deleted`);
         }
 
         const finalCart = await CartProductModel.find({ userId: user._id });
         const finalUser = await UserModel.findById(user._id);
-        
+
         console.log('\n=== Final State ===');
         console.log(`Cart items: ${finalCart.length} (should be 0)`);
         console.log(`User shopping_cart: ${finalUser.shopping_cart.length} (should be 0)`);

@@ -29,7 +29,7 @@ const CategoryPage = () => {
         // API admin cần authentication - giữ nguyên check
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken) return;
-        
+
         try {
             setLoading(true);
             const response = await Axios({
@@ -89,22 +89,22 @@ const CategoryPage = () => {
 
             {!data[0] && !loading && <NoData />}
 
-            <div
-                className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
-            >
+            <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {data.map((category, index) => {
                     return (
                         <div
                             className="relative group rounded shadow-md cursor-pointer"
                             key={category._id || index}
                         >
-                            <div className='grid gap-2 place-items-center'>
+                            <div className="grid gap-2 place-items-center">
                                 <img
                                     src={category.image}
                                     alt={category.name}
                                     className="w-32 h-32 object-cover rounded"
                                 />
-                                <span className='text-center'>{category.name}</span>
+                                <span className="text-center">
+                                    {category.name}
+                                </span>
                             </div>
                             <div
                                 className="absolute -bottom-12 left-0 right-0 z-10 hidden group-hover:flex

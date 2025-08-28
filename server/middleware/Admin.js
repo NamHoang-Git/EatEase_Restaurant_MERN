@@ -8,7 +8,7 @@ export const admin = async (request, response, next) => {
 
         if (user.role !== 'ADMIN') {
             return response.status(400).json({
-                message: "Permission Denial",
+                message: "Bạn không có quyền truy cập",
                 error: true,
                 success: false
             })
@@ -18,7 +18,7 @@ export const admin = async (request, response, next) => {
 
     } catch (error) {
         return response.status(500).json({
-            message: "Permission denial",
+            message: "Bạn không có quyền truy cập",
             error: true,
             success: false
         })

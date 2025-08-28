@@ -8,6 +8,7 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { MdDelete, MdEdit, MdRestore } from 'react-icons/md';
 import AddAddress from '../components/AddAddress';
 import EditAddressDetails from '../components/EditAddressDetails';
+import ConfirmBox from '../components/ConfirmBox';
 
 const Address = () => {
     const addressList = useSelector((state) => state.addresses.addressList);
@@ -15,6 +16,13 @@ const Address = () => {
     const [openEdit, setOpenEdit] = useState(false);
     const [editData, setEditData] = useState({});
     const { fetchAddress } = useGlobalContext();
+    const [confirmAction, setConfirmAction] = useState({
+        isOpen: false,
+        type: '', // 'delete' or 'restore'
+        addressId: null,
+        message: '',
+        onConfirm: null
+    });
 
     // Sắp xếp địa chỉ hiện hoạt (status: true) với isDefault: true lên đầu
     const activeAddresses = addressList
@@ -129,11 +137,15 @@ const Address = () => {
                                         <>
                                             <div className="w-[2px] h-4 bg-secondary-100"></div>
                                             <button
-                                                onClick={() =>
-                                                    handleDisableAddress(
-                                                        address._id
-                                                    )
-                                                }
+                                                onClick={() => {
+                                                    setConfirmAction({
+                                                        isOpen: true,
+                                                        type: 'delete',
+                                                        addressId: address._id,
+                                                        message: 'Bạn có chắc chắn muốn xóa địa chỉ này?',
+                                                        onConfirm: handleDisableAddress
+                                                    });
+                                                }}
                                                 className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[3px] text-secondary-200"
                                             >
                                                 <MdDelete size={18} />
@@ -155,9 +167,15 @@ const Address = () => {
                                     </button>
                                     <div className="w-[2px] h-4 bg-secondary-100"></div>
                                     <button
-                                        onClick={() =>
-                                            handleDisableAddress(address._id)
-                                        }
+                                        onClick={() => {
+                                            setConfirmAction({
+                                                isOpen: true,
+                                                type: 'delete',
+                                                addressId: address._id,
+                                                message: 'Bạn có chắc chắn muốn xóa địa chỉ này?',
+                                                onConfirm: handleDisableAddress
+                                            });
+                                        }}
                                         className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[1px] text-secondary-200"
                                     >
                                         <MdDelete size={15} />
@@ -198,9 +216,15 @@ const Address = () => {
                             </div>
                             <div className="grid gap-2">
                                 <button
-                                    onClick={() =>
-                                        handleRestoreAddress(address._id)
-                                    }
+                                    onClick={() => {
+                                        setConfirmAction({
+                                            isOpen: true,
+                                            type: 'restore',
+                                            addressId: address._id,
+                                            message: 'Bạn có chắc chắn muốn khôi phục địa chỉ này?',
+                                            onConfirm: handleRestoreAddress
+                                        });
+                                    }}
                                     className="bg-blue-200 p-2 text-blue-900 font-bold rounded hover:text-white hover:bg-blue-400"
                                 >
                                     <MdRestore size={22} />
@@ -217,6 +241,25 @@ const Address = () => {
                 <EditAddressDetails
                     data={editData}
                     close={() => setOpenEdit(false)}
+                />
+            )}
+
+            {confirmAction.isOpen && (
+                <ConfirmBox
+                    cancel={() => setConfirmAction(prev => ({ ...prev, isOpen: false }))}
+                    confirm={async () => {
+                        try {
+                            await confirmAction.onConfirm(confirmAction.addressId);
+                            setConfirmAction(prev => ({ ...prev, isOpen: false }));
+                        } catch (error) {
+                            console.error('Error:', error);
+                        }
+                    }}
+                    close={() => setConfirmAction(prev => ({ ...prev, isOpen: false }))}
+                    title="Xác nhận"
+                    message={confirmAction.message}
+                    confirmText={confirmAction.type === 'delete' ? 'Xóa' : 'Khôi phục'}
+                    cancelText="Hủy"
                 />
             )}
         </div>

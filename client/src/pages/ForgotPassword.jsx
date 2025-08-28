@@ -56,22 +56,24 @@ const ForgotPassword = () => {
     };
 
     return (
-        <section className="container mx-auto px-2 w-full">
-            <div className="bg-white my-4 w-full max-w-lg mx-auto rounded-md p-6">
-                <p className="font-semibold text-lg">FORGOT PASSWORD</p>
+        <section className="container mx-auto my-12 max-w-lg px-2">
+            <div className="bg-white rounded-md p-6 shadow-md shadow-secondary-100">
+                <p className="font-bold text-lg text-secondary-200 uppercase">
+                    Quên Mật Khẩu
+                </p>
                 <form
                     action=""
-                    className="grid gap-4 mt-6"
+                    className="grid gap-4 mt-4"
                     onSubmit={handleSubmit}
                 >
-                    <div className="grid gap-1">
+                    <div className="grid gap-2">
                         <label htmlFor="email">Email: </label>
                         <input
                             type="email"
                             id="email"
-                            className="bg-blue-50 p-2 border rounded outline-none focus-within:border-primary-200"
+                            className="bg-base-100 p-2 border rounded outline-none focus-within:border-secondary-200"
                             name="email"
-                            placeholder="Enter your email"
+                            placeholder="Nhập email của bạn"
                             value={data.email}
                             onChange={handleChange}
                         />
@@ -80,21 +82,21 @@ const ForgotPassword = () => {
                         disabled={!valideValue}
                         className={`${
                             valideValue
-                                ? 'bg-green-700 hover:bg-green-800 cursor-pointer'
-                                : 'bg-gray-400 cursor-no-drop'
-                        } text-white py-2 rounded-md font-semibold my-4`}
+                                ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
+                                : 'bg-gray-400 text-white cursor-no-drop'
+                        } py-2 rounded-md font-bold my-2`}
                     >
-                        Send OTP
+                        Gửi OTP
                     </button>
                 </form>
 
-                <p>
-                    Already have account?{' '}
+                <p className="py-2">
+                    Bạn đã có tài khoản?{' '}
                     <Link
                         to={'/login'}
-                        className="font-bold text-green-700 hover:text-green-800"
+                        className="font-bold text-secondary-200 hover:text-secondary-100"
                     >
-                        Login
+                        Đăng nhập
                     </Link>
                 </p>
             </div>

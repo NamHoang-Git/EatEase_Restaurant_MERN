@@ -5,12 +5,14 @@ import toast from 'react-hot-toast';
 import SummaryApi from '../common/SummaryApi';
 import Axios from '../utils/Axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa6';
+import Loading from '../components/Loading';
 
 const ResetPassword = () => {
     const location = useLocation();
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
     const [data, setData] = useState({
@@ -51,6 +53,7 @@ const ResetPassword = () => {
         e.preventDefault();
 
         try {
+            setLoading(true);
             const response = await Axios({
                 ...SummaryApi.reset_password,
                 data: data,
@@ -74,21 +77,25 @@ const ResetPassword = () => {
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <section className="container mx-auto px-2 w-full">
-            <div className="bg-white my-4 w-full max-w-lg mx-auto rounded-md p-6">
-                <p className="font-semibold text-lg">ENTER YOUR NEW PASSWORD</p>
+        <section className="container mx-auto my-12 max-w-lg px-2">
+            <div className="bg-white rounded-md p-6 shadow-md shadow-secondary-100">
+                <p className="font-bold text-lg text-secondary-200 uppercase">
+                    Nhập mật khẩu mới
+                </p>
                 <form
                     action=""
-                    className="grid gap-4 mt-6"
+                    className="grid gap-4 mt-4"
                     onSubmit={handleSubmit}
                 >
-                    <div className="grid gap-1">
-                        <label htmlFor="newPassword">New Password: </label>
-                        <div className="bg-blue-50 p-2 border rounded flex items-center focus-within:border-primary-200">
+                    <div className="grid gap-2">
+                        <label htmlFor="newPassword">Mật khẩu mới: </label>
+                        <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 id="newPassword"
@@ -100,17 +107,21 @@ const ResetPassword = () => {
                             />
                             <div
                                 onClick={() => setShowPassword((prev) => !prev)}
-                                className="cursor-pointer"
+                                className="cursor-pointer text-secondary-100"
                             >
-                                {showPassword ? <FaEye /> : <FaEyeSlash />}
+                                {showPassword ? (
+                                    <FaEye size={20} />
+                                ) : (
+                                    <FaEyeSlash size={20} />
+                                )}
                             </div>
                         </div>
                     </div>
-                    <div className="grid gap-1">
+                    <div className="grid gap-2">
                         <label htmlFor="confirmPassword">
-                            Confirm New Password:{' '}
+                            Xác nhận mật khẩu mới:{' '}
                         </label>
-                        <div className="bg-blue-50 p-2 border rounded flex items-center focus-within:border-primary-200">
+                        <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
                             <input
                                 type={showConfirmPassword ? 'text' : 'password'}
                                 id="confirmPassword"
@@ -124,12 +135,12 @@ const ResetPassword = () => {
                                 onClick={() =>
                                     setShowConfirmPassword((prev) => !prev)
                                 }
-                                className="cursor-pointer"
+                                className="cursor-pointer text-secondary-100"
                             >
                                 {showConfirmPassword ? (
-                                    <FaEye />
+                                    <FaEye size={20} />
                                 ) : (
-                                    <FaEyeSlash />
+                                    <FaEyeSlash size={20} />
                                 )}
                             </div>
                         </div>
@@ -138,21 +149,21 @@ const ResetPassword = () => {
                         disabled={!valideValue}
                         className={`${
                             valideValue
-                                ? 'bg-green-700 hover:bg-green-800 cursor-pointer'
+                                ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
                                 : 'bg-gray-400 cursor-no-drop'
-                        } text-white py-2 rounded-md font-semibold my-4`}
+                        } py-2 rounded-md font-bold my-2`}
                     >
-                        Change Password
+                        {loading ? <Loading /> : 'Xác nhận'}
                     </button>
                 </form>
 
-                <p>
-                    Already have account?{' '}
+                <p className="py-2">
+                    Bạn đã có tài khoản?{' '}
                     <Link
                         to={'/login'}
-                        className="font-bold text-green-700 hover:text-green-800"
+                        className="font-bold text-secondary-200 hover:text-secondary-100"
                     >
-                        Login
+                        Đăng nhập
                     </Link>
                 </p>
             </div>

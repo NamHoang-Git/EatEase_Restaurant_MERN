@@ -17,6 +17,8 @@ import {
 } from '../store/cartProduct';
 import toast from 'react-hot-toast';
 import { useGlobalContext } from '../provider/GlobalProvider';
+import ConfirmBox from '../components/ConfirmBox';
+import Loading from '../components/Loading';
 
 const CartPage = () => {
     const { cart } = useSelector((state) => state.cartItem);
@@ -25,6 +27,8 @@ const CartPage = () => {
     const dispatch = useDispatch();
     const location = useLocation();
     const { fetchCartItem } = useGlobalContext();
+    const [openConfirmBoxDelete, setOpenConfirmBoxDelete] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -136,6 +140,7 @@ const CartPage = () => {
             setSelectedItems([]);
             await fetchCartItem(); // Đồng bộ với server
             toast.success('Đã xóa các sản phẩm được chọn');
+            setOpenConfirmBoxDelete(false);
         } catch (error) {
             toast.error('Lỗi khi xóa sản phẩm: ' + error.message);
         }
@@ -306,7 +311,9 @@ const CartPage = () => {
                             </div>
                             {selectedItems.length > 0 && (
                                 <button
-                                    onClick={handleRemoveSelectedItems}
+                                    onClick={() =>
+                                        setOpenConfirmBoxDelete(true)
+                                    }
                                     className="text-secondary-200 hover:text-secondary-100 font-bold"
                                 >
                                     Xóa
@@ -331,11 +338,23 @@ const CartPage = () => {
                                         : 'bg-primary-3 hover:opacity-80 text-secondary-200 rounded-lg font-bold shadow-lg'
                                 }`}
                             >
-                                Đặt hàng
+                                {loading ? <Loading /> : 'Đặt hàng'}
                             </button>
                         </div>
                     </div>
                 </div>
+            )}
+
+            {openConfirmBoxDelete && (
+                <ConfirmBox
+                    confirm={handleRemoveSelectedItems}
+                    cancel={() => setOpenConfirmBoxDelete(false)}
+                    close={() => setOpenConfirmBoxDelete(false)}
+                    title="Xóa sản phẩm"
+                    message="Bạn có chắc chắn muốn xóa sản phẩm này?"
+                    confirmText="Xóa"
+                    cancelText="Hủy"
+                />
             )}
         </section>
     );

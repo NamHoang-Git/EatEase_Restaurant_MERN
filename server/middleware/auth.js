@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: "Authentication required"
+                message: "Yêu cầu xác thực"
             });
         }
 
@@ -18,7 +18,7 @@ const auth = (req, res, next) => {
     } catch (err) {
         return res.status(401).json({
             success: false,
-            message: err.name === "TokenExpiredError" ? "Token expired" : "Invalid token"
+            message: err.name === "TokenExpiredError" ? "Token hết hạn" : "Token không hợp lệ"
         });
     }
 };

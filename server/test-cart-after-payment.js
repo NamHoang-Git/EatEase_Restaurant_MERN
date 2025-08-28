@@ -23,7 +23,7 @@ const testCartAfterPayment = async () => {
         // 2. Thêm cart items
         const testProducts = [
             '68a843cbf3e807516f273c16',
-            '68a84408f3e807516f273c3d', 
+            '68a84408f3e807516f273c3d',
             '68ac1fa76886d39c175d3928'
         ];
 
@@ -36,7 +36,7 @@ const testCartAfterPayment = async () => {
             });
             const saved = await cartItem.save();
             cartItems.push(saved);
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -68,7 +68,7 @@ const testCartAfterPayment = async () => {
         // 4. Hiển thị trạng thái trước khi xóa
         const beforeCartItems = await CartProductModel.find({ userId: user._id });
         const beforeUser = await UserModel.findById(user._id);
-        
+
         console.log('\n=== BEFORE CLEANUP ===');
         console.log(`Cart items: ${beforeCartItems.length}`);
         console.log(`User shopping_cart: ${beforeUser.shopping_cart.length}`);
@@ -77,7 +77,7 @@ const testCartAfterPayment = async () => {
 
         // 5. Test logic xóa cart (giống webhook)
         console.log('\n=== TESTING CART CLEANUP LOGIC ===');
-        
+
         const productIdsToRemove = testProducts;
         console.log('Product IDs to remove:', productIdsToRemove);
 
@@ -86,7 +86,7 @@ const testCartAfterPayment = async () => {
             userId: new mongoose.Types.ObjectId(user._id),
             productId: { $in: productIdsToRemove.map(id => new mongoose.Types.ObjectId(id)) }
         });
-        
+
         console.log(`Found ${cartItemsToDelete.length} cart items to delete`);
         console.log('Cart items to delete:', cartItemsToDelete.map(item => ({
             _id: item._id.toString(),
@@ -95,7 +95,7 @@ const testCartAfterPayment = async () => {
 
         if (cartItemsToDelete.length > 0) {
             const cartItemIds = cartItemsToDelete.map(item => item._id);
-            
+
             // Xóa CartProduct documents
             const cartDeleteResult = await CartProductModel.deleteMany({
                 _id: { $in: cartItemIds }
@@ -113,7 +113,7 @@ const testCartAfterPayment = async () => {
         // 6. Kiểm tra kết quả sau khi xóa
         const afterCartItems = await CartProductModel.find({ userId: user._id });
         const afterUser = await UserModel.findById(user._id);
-        
+
         console.log('\n=== AFTER CLEANUP ===');
         console.log(`Cart items: ${afterCartItems.length}`);
         console.log(`User shopping_cart: ${afterUser.shopping_cart.length}`);

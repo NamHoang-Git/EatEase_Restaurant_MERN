@@ -7,7 +7,7 @@ export const addCategoryController = async (req, res) => {
 
         if (!name || !image) {
             return res.status(400).json({
-                message: "Enter required fields",
+                message: "Vui lòng điền đầy đủ các trường bắt buộc.",
                 error: true,
                 success: false
             })
@@ -22,14 +22,14 @@ export const addCategoryController = async (req, res) => {
 
         if (!saveCategory) {
             return res.status(500).json({
-                message: "Not created",
+                message: "Không tạo được",
                 error: true,
                 success: false
             })
         }
 
         return res.json({
-            message: "Add category successfully",
+            message: "Thêm danh mục thành công",
             data: saveCategory,
             error: false,
             success: true
@@ -49,7 +49,7 @@ export const getCategoryController = async (req, res) => {
         const data = await CategoryModel.find().sort({ createdAt: -1 })
 
         return res.json({
-            message: 'Category Data',
+            message: 'Danh mục Data',
             data: data,
             error: false,
             success: true
@@ -72,7 +72,7 @@ export const updateCategoryController = async (req, res) => {
 
         if (!check) {
             return res.status(400).json({
-                message: 'Check your _id',
+                message: 'Không tìm thấy _id',
                 error: true,
                 success: false
             })
@@ -85,7 +85,7 @@ export const updateCategoryController = async (req, res) => {
         )
 
         return res.json({
-            message: 'Update Category Successfully',
+            message: 'Cập nhật danh mục thành công',
             error: false,
             success: true,
             data: update
@@ -112,7 +112,7 @@ export const deleteCategoryController = async (req, res) => {
 
         if (checkProduct > 0) {
             return res.status(400).json({
-                message: "Category is already use can't delete",
+                message: "Danh mục đã được sử dụng, không thể xóa",
                 error: true,
                 success: false
             })
@@ -121,7 +121,7 @@ export const deleteCategoryController = async (req, res) => {
         const deleteCategory = await CategoryModel.findByIdAndDelete(_id)
 
         return res.json({
-            message: 'Delete category successfully',
+            message: 'Xóa danh mục thành công',
             data: deleteCategory,
             error: false,
             success: true

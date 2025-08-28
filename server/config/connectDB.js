@@ -4,7 +4,7 @@ dotenv.config();
 
 if (!process.env.MONGODB_URL) {
     throw new Error(
-        "Please provide MONGODB_URL in the .env file"
+        "Vui lòng cung cấp MONGODB_URL trong tệp .env"
     )
 }
 

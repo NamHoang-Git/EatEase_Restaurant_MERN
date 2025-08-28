@@ -231,7 +231,7 @@ const EditAddressDetails = ({ close, data }) => {
             >
                 <div className="flex justify-between items-center gap-4">
                     <h2 className="font-semibold text-lg text-secondary-200">
-                        Chỉnh Sửa Địa Chỉ
+                        Chỉnh Sửa
                     </h2>
                     <button
                         onClick={close}

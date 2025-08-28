@@ -39,7 +39,7 @@ const testDebugFlow = async () => {
                 productId: { _id: product.id },
                 name: product.name
             });
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -61,57 +61,57 @@ const testDebugFlow = async () => {
 
         // 3. Giả lập logic từ CheckoutPage.jsx
         console.log('\n=== BƯỚC 3: Logic từ CheckoutPage.jsx ===');
-        const filteredItems = cartItems.filter(item => 
+        const filteredItems = cartItems.filter(item =>
             selectedItems.some(selected => selected._id.toString() === item._id.toString())
         );
-        
+
         console.log(`filteredItems.length: ${filteredItems.length}`);
         console.log(`cartItemsList.length: ${cartItems.length}`);
-        
+
         const isPartialCheckout = selectedItems.length < cartItems.length;
         console.log(`isPartialCheckout: ${isPartialCheckout}`);
 
         if (isPartialCheckout) {
             const selectedProductIds = filteredItems.map(item => item.productId._id);
             console.log('selectedProductIds sẽ được gửi:', selectedProductIds);
-            
+
             // 4. Test clearCartController logic
             console.log('\n=== BƯỚC 4: Test clearCartController logic ===');
             console.log('Request data sẽ gửi:', { selectedProductIds });
-            
+
             // Giả lập clearCartController
             if (selectedProductIds && selectedProductIds.length > 0) {
                 console.log('✅ Vào selective mode');
-                
+
                 // Tìm cart items cần xóa
                 const cartItemsToDelete = await CartProductModel.find({
                     userId: user._id,
                     productId: { $in: selectedProductIds.map(id => new mongoose.Types.ObjectId(id)) }
                 });
-                
+
                 console.log(`Tìm thấy ${cartItemsToDelete.length} cart items cần xóa:`);
                 cartItemsToDelete.forEach(item => {
                     const product = products.find(p => p.id === item.productId.toString());
                     console.log(`- ${product?.name}: Cart ID ${item._id}`);
                 });
-                
+
                 const cartItemIds = cartItemsToDelete.map(item => item._id);
-                
+
                 // Xóa cart items
                 const deleteResult = await CartProductModel.deleteMany({
                     userId: user._id,
                     productId: { $in: selectedProductIds.map(id => new mongoose.Types.ObjectId(id)) }
                 });
-                
+
                 // Cập nhật user shopping_cart
                 const userUpdateResult = await UserModel.updateOne(
                     { _id: user._id },
                     { $pull: { shopping_cart: { $in: cartItemIds } } }
                 );
-                
+
                 console.log(`Đã xóa ${deleteResult.deletedCount} cart items`);
                 console.log(`User update: matched ${userUpdateResult.matchedCount}, modified ${userUpdateResult.modifiedCount}`);
-                
+
             } else {
                 console.log('❌ Không vào selective mode - sẽ xóa toàn bộ');
             }
@@ -123,10 +123,10 @@ const testDebugFlow = async () => {
         console.log('\n=== BƯỚC 5: Kiểm tra kết quả ===');
         const remainingCart = await CartProductModel.find({ userId: user._id });
         const updatedUser = await UserModel.findById(user._id);
-        
+
         console.log(`Còn lại ${remainingCart.length} sản phẩm trong giỏ hàng (mong đợi: 2)`);
         console.log(`User shopping_cart có ${updatedUser.shopping_cart.length} items (mong đợi: 2)`);
-        
+
         if (remainingCart.length > 0) {
             console.log('Sản phẩm còn lại:');
             remainingCart.forEach(item => {
@@ -138,10 +138,10 @@ const testDebugFlow = async () => {
         // Kiểm tra chính xác
         const expectedRemaining = ['68a843cbf3e807516f273c17', '68a84408f3e807516f273c3e']; // D, E
         const actualRemaining = remainingCart.map(item => item.productId.toString());
-        
+
         const isCorrect = expectedRemaining.every(id => actualRemaining.includes(id)) &&
-                         actualRemaining.length === expectedRemaining.length &&
-                         updatedUser.shopping_cart.length === 2;
+            actualRemaining.length === expectedRemaining.length &&
+            updatedUser.shopping_cart.length === 2;
 
         if (isCorrect) {
             console.log('\n🎉 THÀNH CÔNG: Selective deletion hoạt động chính xác!');

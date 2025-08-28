@@ -10,7 +10,7 @@ const uploadImageCloudinary = async (image) => {
     const buffer = image?.buffer || Buffer.from(await image.arrayBuffer())
 
     const uploadImage = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream({ folder: "takshop" }, (error, uploadResult) => {
+        cloudinary.uploader.upload_stream({ folder: "ecommerce_shop" }, (error, uploadResult) => {
             return resolve(uploadResult)
         }).end(buffer)
     })

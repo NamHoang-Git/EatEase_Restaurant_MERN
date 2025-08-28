@@ -21,17 +21,17 @@ export async function updateProductStock(orderIds) {
                 console.warn(`Order ${order._id} is missing productId`);
                 return;
             }
-            
+
             const productId = order.productId._id || order.productId;
             const quantity = order.quantity || 1; // Default to 1 if quantity is not set
-            
+
             if (!productUpdates[productId]) {
                 productUpdates[productId] = 0;
             }
-            
+
             // Add the quantity from this order to the total for this product
             productUpdates[productId] += quantity;
-            
+
             console.log(`Product ${productId}: Order ${order._id} quantity ${quantity}, new total: ${productUpdates[productId]}`);
         });
 
@@ -48,24 +48,24 @@ export async function updateProductStock(orderIds) {
         }));
 
         if (bulkOps.length === 0) {
-            console.log('No products to update stock for');
-            return { success: true, message: 'No stock updates needed' };
+            console.log('Không có sản phẩm để cập nhật số lượng tồn kho');
+            return { success: true, message: 'Không cần cập nhật số lượng tồn kho' };
         }
 
         // Execute all updates in bulk
         const result = await ProductModel.bulkWrite(bulkOps, { ordered: false });
 
-        console.log(`✅ Updated stock for ${result.modifiedCount} products`);
+        console.log(`✅ Cập nhật số lượng tồn kho thành công cho ${result.modifiedCount} sản phẩm`);
         return {
             success: true,
-            message: `Successfully updated stock for ${result.modifiedCount} products`,
+            message: `Cập nhật số lượng tồn kho thành công cho ${result.modifiedCount} sản phẩm`,
             details: result
         };
     } catch (error) {
-        console.error('Error updating product stock:', error);
+        console.error('Lỗi khi cập nhật số lượng tồn kho:', error);
         return {
             success: false,
-            message: 'Failed to update product stock',
+            message: 'Cập nhật số lượng tồn kho thất bại',
             error: error.message
         };
     }

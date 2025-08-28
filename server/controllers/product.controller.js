@@ -9,7 +9,7 @@ export const addProductController = async (req, res) => {
 
         if (!name || !image[0] || !category[0] || !unit || !stock || !price) {
             return res.status(400).json({
-                message: "Enter required fields",
+                message: "Vui lòng nhập các trường bắt buộc",
                 error: true,
                 success: false
             })
@@ -31,14 +31,14 @@ export const addProductController = async (req, res) => {
 
         if (!saveProduct) {
             return res.status(500).json({
-                message: "Not created",
+                message: "Không tạo được",
                 error: true,
                 success: false
             })
         }
 
         return res.json({
-            message: "Add product successfully",
+            message: "Thêm sản phẩm thành công",
             data: saveProduct,
             error: false,
             success: true
@@ -83,7 +83,7 @@ export const getProductController = async (req, res) => {
         ]);
 
         return res.json({
-            message: 'Product Data',
+            message: 'Danh sách sản phẩm',
             data: data,
             totalCount: totalCount,
             totalNoPage: Math.ceil(totalCount / limit),
@@ -107,7 +107,7 @@ export const getProductByCategoryHome = async (request, response) => {
         // Nếu id không tồn tại hoặc rỗng → trả về mảng trống
         if (!id || (Array.isArray(id) && id.length === 0)) {
             return response.json({
-                message: "Category Product List",
+                message: "Danh sách sản phẩm",
                 data: [],
                 error: false,
                 success: true
@@ -126,7 +126,7 @@ export const getProductByCategoryHome = async (request, response) => {
             .limit(15);
 
         return response.json({
-            message: "Category Product List",
+            message: "Danh sách sản phẩm",
             data: product,
             error: false,
             success: true
@@ -176,7 +176,7 @@ export const getProductByCategoryList = async (request, response) => {
         ]);
 
         return response.json({
-            message: "Product list by category",
+            message: "Danh sách sản phẩm",
             data: data,
             totalCount: dataCount,
             page: page,
@@ -202,7 +202,7 @@ export const getProductDetails = async (request, response) => {
             .populate('category')
 
         return response.json({
-            message: "Product Details",
+            message: "Chi tiết sản phẩm",
             data: product,
             error: false,
             success: true
@@ -235,7 +235,7 @@ export const updateProductDetails = async (request, response) => {
         })
 
         return response.json({
-            message: "Updated Product Successfully",
+            message: "Cập nhật sản phẩm thành công",
             data: updateProduct,
             error: false,
             success: true
@@ -277,7 +277,7 @@ export const deleteProductDetails = async (request, response) => {
             session.endSession();
 
             return response.json({
-                message: "Delete Successfully",
+                message: "Xóa sản phẩm thành công",
                 error: false,
                 success: true,
                 data: deleteProduct
@@ -323,7 +323,7 @@ export const searchProduct = async (request, response) => {
         ])
 
         return response.json({
-            message: "Product Data",
+            message: "Danh sách sản phẩm",
             error: false,
             success: true,
             data: data,

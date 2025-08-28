@@ -74,7 +74,7 @@ const Register = () => {
     };
 
     return (
-        <section className="mx-auto my-12 max-w-4xl">
+        <section className="container mx-auto my-12 max-w-4xl">
             <div
                 className="grid grid-flow-col lg:grid-cols-[2fr_1.5fr] mx-5 rounded-md shadow-md
             shadow-secondary-100"
@@ -89,7 +89,7 @@ const Register = () => {
                         className="grid gap-4 mt-6"
                         onSubmit={handleSubmit}
                     >
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                             <label htmlFor="name">Tên: </label>
                             <input
                                 type="text"
@@ -102,7 +102,7 @@ const Register = () => {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                             <label htmlFor="email">Email: </label>
                             <input
                                 type="email"
@@ -114,7 +114,7 @@ const Register = () => {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                             <label htmlFor="password">Mật khẩu: </label>
                             <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
                                 <input
@@ -140,7 +140,7 @@ const Register = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                             <label htmlFor="confirmPassword">
                                 Xác nhận mật khẩu:{' '}
                             </label>
@@ -178,13 +178,13 @@ const Register = () => {
                                 valideValue
                                     ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
                                     : 'bg-gray-400 text-white cursor-no-drop'
-                            } py-2 rounded-md font-bold my-4`}
+                            } py-2 rounded-md font-bold my-2`}
                         >
                             {loading ? <Loading /> : 'Đăng ký'}
                         </button>
                     </form>
 
-                    <p>
+                    <p className="py-2">
                         Bạn đã có tài khoản?{' '}
                         <Link
                             to={'/login'}

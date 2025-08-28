@@ -22,7 +22,7 @@ const testFinalSolution = async () => {
         // 1. Tạo cart items để test
         const testProducts = [
             '68a843cbf3e807516f273c16',
-            '68a84408f3e807516f273c3d', 
+            '68a84408f3e807516f273c3d',
             '68ac1fa76886d39c175d3928'
         ];
 
@@ -36,7 +36,7 @@ const testFinalSolution = async () => {
             });
             const saved = await cartItem.save();
             cartItems.push(saved);
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -50,7 +50,7 @@ const testFinalSolution = async () => {
 
         // 2. Test Cash on Delivery cleanup (từ order.controller.js)
         console.log('\n=== STEP 2: Testing Cash on Delivery cleanup ===');
-        
+
         // Tạo orders
         const orders = await OrderModel.insertMany(
             testProducts.map(productId => ({
@@ -72,7 +72,7 @@ const testFinalSolution = async () => {
 
         // Test logic xóa cart từ cash_on_delivery (dòng 44-58 trong order.controller.js)
         const productIdsToRemove = testProducts;
-        
+
         const cartDeleteResult = await CartProductModel.deleteMany({
             userId: user._id,
             productId: { $in: productIdsToRemove }
@@ -88,7 +88,7 @@ const testFinalSolution = async () => {
         // 3. Kiểm tra kết quả
         const afterCashCart = await CartProductModel.find({ userId: user._id });
         const afterCashUser = await UserModel.findById(user._id);
-        
+
         console.log('\n=== CASH ON DELIVERY RESULT ===');
         console.log(`Cart items: ${afterCashCart.length}`);
         console.log(`User shopping_cart: ${afterCashUser.shopping_cart.length}`);
@@ -102,7 +102,7 @@ const testFinalSolution = async () => {
 
         // 4. Reset và test manual clear cart API
         console.log('\n=== STEP 3: Testing manual clear cart API ===');
-        
+
         // Tạo lại cart items
         for (const productId of testProducts) {
             const cartItem = new CartProductModel({
@@ -111,7 +111,7 @@ const testFinalSolution = async () => {
                 quantity: 1
             });
             const saved = await cartItem.save();
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -137,7 +137,7 @@ const testFinalSolution = async () => {
         const finalCart = await CartProductModel.find({ userId: user._id });
         const finalUser = await UserModel.findById(user._id);
         const finalOrders = await OrderModel.find({ userId: user._id });
-        
+
         console.log('\n=== FINAL RESULTS ===');
         console.log(`Cart items: ${finalCart.length}`);
         console.log(`User shopping_cart: ${finalUser.shopping_cart.length}`);

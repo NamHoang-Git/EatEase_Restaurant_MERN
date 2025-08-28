@@ -32,7 +32,7 @@ export const addAddressController = async (request, response) => {
         });
 
         return response.json({
-            message: "Address Created Successfully",
+            message: "Địa chỉ đã được thêm thành công",
             error: false,
             success: true,
             data: saveAddress
@@ -54,7 +54,7 @@ export const getAddressController = async (request, response) => {
 
         return response.json({
             data: data,
-            message: "List of address",
+            message: "Danh sách địa chỉ",
             error: false,
             success: true
         });
@@ -93,7 +93,7 @@ export const updateAddressController = async (request, response) => {
         );
 
         return response.json({
-            message: "Address Updated",
+            message: "Địa chỉ đã được cập nhật",
             error: false,
             success: true,
             data: updateAddress
@@ -119,14 +119,14 @@ export const deleteAddresscontroller = async (request, response) => {
 
         if (disableAddress.nModified === 0) {
             return response.status(404).json({
-                message: "Address not found or not authorized",
+                message: "Địa chỉ không tìm thấy hoặc không được ủy quyền",
                 error: true,
                 success: false
             });
         }
 
         return response.json({
-            message: "Address removed successfully",
+            message: "Địa chỉ đã được xóa",
             error: false,
             success: true,
             data: disableAddress
@@ -152,14 +152,14 @@ export const restoreAddressController = async (request, response) => {
 
         if (restoreAddress.nModified === 0) {
             return response.status(404).json({
-                message: "Address not found or already active",
+                message: "Địa chỉ không tìm thấy hoặc đã được khôi phục",
                 error: true,
                 success: false
             });
         }
 
         return response.json({
-            message: "Address restored successfully",
+            message: "Địa chỉ đã được khôi phục",
             error: false,
             success: true,
             data: restoreAddress

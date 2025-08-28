@@ -20,7 +20,7 @@ const testWebhookLogic = async () => {
         // Thêm cart items
         const testProducts = ['68a843cbf3e807516f273c16', '68a84408f3e807516f273c3d'];
         const cartItems = [];
-        
+
         for (const productId of testProducts) {
             const cartItem = new CartProductModel({
                 userId: user._id,
@@ -29,7 +29,7 @@ const testWebhookLogic = async () => {
             });
             const saved = await cartItem.save();
             cartItems.push(saved);
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -53,11 +53,11 @@ const testWebhookLogic = async () => {
 
         if (userId && addressId && tempOrderIds) {
             console.log('✅ Metadata complete - would proceed with normal flow');
-            
+
             // Test cart cleanup logic
             const cartItemsToDelete = await CartProductModel.find({ userId: new mongoose.Types.ObjectId(userId) });
             console.log(`Found ${cartItemsToDelete.length} cart items to delete`);
-            
+
             if (cartItemsToDelete.length > 0) {
                 await CartProductModel.deleteMany({ userId: new mongoose.Types.ObjectId(userId) });
                 await UserModel.updateOne(
@@ -70,7 +70,7 @@ const testWebhookLogic = async () => {
 
         // 3. Test fallback logic
         console.log('\n=== TESTING FALLBACK LOGIC ===');
-        
+
         // Tạo lại cart items để test fallback
         for (const productId of testProducts) {
             const cartItem = new CartProductModel({
@@ -79,7 +79,7 @@ const testWebhookLogic = async () => {
                 quantity: 1
             });
             const saved = await cartItem.save();
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -89,17 +89,17 @@ const testWebhookLogic = async () => {
         // Test fallback khi thiếu metadata
         const mockSessionNoMetadata = { metadata: {} };
         const { userId: noUserId } = mockSessionNoMetadata.metadata || {};
-        
+
         if (!noUserId) {
             console.log('Missing metadata - testing fallback...');
-            
+
             const usersWithCart = await UserModel.find({ shopping_cart: { $exists: true, $ne: [] } });
             console.log(`Found ${usersWithCart.length} users with cart items`);
-            
+
             for (const userWithCart of usersWithCart) {
                 const cartItemsFound = await CartProductModel.find({ userId: userWithCart._id });
                 console.log(`User ${userWithCart._id}: ${cartItemsFound.length} cart items`);
-                
+
                 if (cartItemsFound.length > 0) {
                     await CartProductModel.deleteMany({ userId: userWithCart._id });
                     await UserModel.updateOne(
@@ -114,11 +114,11 @@ const testWebhookLogic = async () => {
         // 4. Kiểm tra kết quả cuối
         const finalCartItems = await CartProductModel.find();
         const finalUsersWithCart = await UserModel.find({ shopping_cart: { $exists: true, $ne: [] } });
-        
+
         console.log('\n=== FINAL RESULTS ===');
         console.log(`Total cart items: ${finalCartItems.length}`);
         console.log(`Users with cart: ${finalUsersWithCart.length}`);
-        
+
         if (finalCartItems.length === 0 && finalUsersWithCart.length === 0) {
             console.log('🎉 SUCCESS: Webhook logic works perfectly!');
         } else {

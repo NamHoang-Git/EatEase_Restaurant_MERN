@@ -13,7 +13,7 @@ export async function CashOnDeliveryOrderController(request, response) {
         // Validate input
         if (!list_items?.length || !addressId || !subTotalAmt || !totalAmt) {
             return response.status(400).json({
-                message: "Missing required fields",
+                message: "Vui lòng điền đầy đủ các trường bắt buộc.",
                 error: true,
                 success: false
             });
@@ -89,7 +89,7 @@ export async function CashOnDeliveryOrderController(request, response) {
         }
 
         return response.json({
-            message: "Order Successfully",
+            message: "Đặt hàng thành công",
             error: false,
             success: true,
             data: generatedOrder
@@ -117,7 +117,7 @@ export async function paymentController(request, response) {
 
         if (!list_items?.length || !addressId || !subTotalAmt || !totalAmt) {
             return response.status(400).json({
-                message: "Missing required fields",
+                message: "Vui lòng điền đầy đủ các trường bắt buộc.",
                 error: true,
                 success: false
             });
@@ -126,7 +126,7 @@ export async function paymentController(request, response) {
         const user = await UserModel.findById(userId);
         if (!user) {
             return response.status(404).json({
-                message: "User not found",
+                message: "Không tìm thấy User",
                 error: true,
                 success: false
             });
@@ -160,7 +160,7 @@ export async function paymentController(request, response) {
 
         const line_items = list_items.map(item => {
             if (!item.productId?._id || !item.productId?.name || !item.productId?.price) {
-                throw new Error(`Invalid product data for item: ${JSON.stringify(item)}`);
+                throw new Error(`Không tìm thấy sản phẩm: ${JSON.stringify(item)}`);
             }
             return {
                 price_data: {
@@ -202,7 +202,7 @@ export async function paymentController(request, response) {
     } catch (error) {
         console.error('paymentController Error:', error);
         return response.status(500).json({
-            message: error.message || "Internal Server Error",
+            message: error.message || "Lỗi Server",
             error: true,
             success: false
         });
@@ -342,7 +342,7 @@ export async function webhookStripe(request, response) {
                 } catch (error) {
                     console.error('Error updating orders:', error);
                     return response.status(500).json({
-                        message: 'Error updating orders',
+                        message: 'Lỗi khi cập nhật đơn hàng',
                         error: true,
                         success: false
                     });
@@ -359,7 +359,7 @@ export async function webhookStripe(request, response) {
         console.error('webhookStripe Error:', error);
         console.error('Error stack:', error.stack);
         response.status(500).json({
-            message: error.message || "Webhook processing failed",
+            message: error.message || "Xử lý webhook không thành công",
             error: true,
             success: false
         });
@@ -377,7 +377,7 @@ export async function getOrderDetailsController(request, response) {
         console.log('Order list retrieved:', orderlist);
 
         return response.json({
-            message: "Order List",
+            message: "Danh sách đơn hàng",
             data: orderlist,
             error: false,
             success: true
@@ -385,7 +385,7 @@ export async function getOrderDetailsController(request, response) {
     } catch (error) {
         console.error('getOrderDetailsController Error:', error);
         return response.status(500).json({
-            message: error.message || "Internal Server Error",
+            message: error.message || "Lỗi Server",
             error: true,
             success: false
         });

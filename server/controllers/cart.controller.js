@@ -8,7 +8,7 @@ export const addToCartItemController = async (request, response) => {
 
         if (!productId) {
             return response.status(402).json({
-                message: "Provide productId",
+                message: "Vui lòng cung cấp productId",
                 error: true,
                 success: false
             })
@@ -21,7 +21,9 @@ export const addToCartItemController = async (request, response) => {
 
         if (checkItemCart) {
             return response.status(400).json({
-                message: "Item already in cart"
+                message: "Sản phẩm đã tồn tại trong giỏ hàng",
+                error: true,
+                success: false
             })
         }
 
@@ -40,7 +42,7 @@ export const addToCartItemController = async (request, response) => {
 
         return response.json({
             data: save,
-            message: "Item add successfully",
+            message: "Sản phẩm đã được thêm vào giỏ hàng",
             error: false,
             success: true
         })
@@ -85,7 +87,9 @@ export const updateCartItemQtyController = async (request, response) => {
 
         if (!_id || !qty) {
             return response.status(400).json({
-                message: "provide _id, qty"
+                message: "Vui lòng cung cấp _id, qty",
+                error: true,
+                success: false
             })
         }
 
@@ -97,7 +101,7 @@ export const updateCartItemQtyController = async (request, response) => {
         })
 
         return response.json({
-            message: "Update cart",
+            message: "Cập nhật giỏ hàng",
             success: true,
             error: false,
             data: updateCartitem
@@ -119,7 +123,7 @@ export const deleteCartItemQtyController = async (request, response) => {
 
         if (!_id) {
             return response.status(400).json({
-                message: "Provide _id",
+                message: "Vui lòng cung cấp _id",
                 error: true,
                 success: false
             })
@@ -134,7 +138,7 @@ export const deleteCartItemQtyController = async (request, response) => {
         )
 
         return response.json({
-            message: "Item remove",
+            message: "Sản phẩm đã được xóa",
             error: false,
             success: true,
             data: deleteCartItem
@@ -158,47 +162,47 @@ export const clearCartController = async (request, response) => {
         let deleteResult, userUpdateResult;
 
         console.log('clearCartController received:', { userId, selectedProductIds });
-        
+
         if (selectedProductIds && selectedProductIds.length > 0) {
             // Xóa chỉ các sản phẩm được chọn
             console.log('Clearing selected products:', selectedProductIds);
-            
+
             // Tìm cart items cần xóa
             const cartItemsToDelete = await CartProductModel.find({
                 userId: userId,
                 productId: { $in: selectedProductIds }
             });
             const cartItemIds = cartItemsToDelete.map(item => item._id);
-            
+
             // Xóa cart items được chọn
             deleteResult = await CartProductModel.deleteMany({
                 userId: userId,
                 productId: { $in: selectedProductIds }
             });
-            
+
             // Xóa references từ User.shopping_cart
             userUpdateResult = await UserModel.updateOne(
                 { _id: userId },
                 { $pull: { shopping_cart: { $in: cartItemIds } } }
             );
-            
+
             console.log('Selected cart clear:', { deleteResult, userUpdateResult, selectedProductIds });
         } else {
             // Xóa tất cả cart items của user (logic cũ)
             deleteResult = await CartProductModel.deleteMany({ userId: userId });
-            
+
             userUpdateResult = await UserModel.updateOne(
                 { _id: userId },
                 { $set: { shopping_cart: [] } }
             );
-            
+
             console.log('Full cart clear:', { deleteResult, userUpdateResult });
         }
 
         return response.json({
-            message: selectedProductIds && selectedProductIds.length > 0 
-                ? "Selected items cleared successfully" 
-                : "Cart cleared successfully",
+            message: selectedProductIds && selectedProductIds.length > 0
+                ? "Đã xóa các sản phẩm được chọn"
+                : "Giỏ hàng đã được xóa",
             error: false,
             success: true,
             data: { deletedCount: deleteResult.deletedCount }

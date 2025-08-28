@@ -20,7 +20,7 @@ const testCompleteSolution = async () => {
         // 1. Tạo 5 cart items để test
         const allProducts = [
             '68a843cbf3e807516f273c16',
-            '68a84408f3e807516f273c3d', 
+            '68a84408f3e807516f273c3d',
             '68ac1fa76886d39c175d3928',
             '68a843cbf3e807516f273c17',
             '68a84408f3e807516f273c3e'
@@ -34,7 +34,7 @@ const testCompleteSolution = async () => {
                 quantity: 1
             });
             const saved = await cartItem.save();
-            
+
             await UserModel.updateOne(
                 { _id: user._id },
                 { $push: { shopping_cart: saved._id } }
@@ -48,7 +48,7 @@ const testCompleteSolution = async () => {
         console.log('\n=== STEP 2: Testing COD selective cleanup ===');
         const selectedProducts = [
             '68a843cbf3e807516f273c16',
-            '68a84408f3e807516f273c3d', 
+            '68a84408f3e807516f273c3d',
             '68ac1fa76886d39c175d3928'
         ];
 
@@ -98,7 +98,7 @@ const testCompleteSolution = async () => {
 
         // 3. Test Online Payment webhook selective cleanup
         console.log('\n=== STEP 3: Testing Online Payment selective cleanup ===');
-        
+
         // Tạo thêm cart items để test online payment
         const remainingProducts = [
             '68a843cbf3e807516f273c17',
@@ -125,7 +125,7 @@ const testCompleteSolution = async () => {
 
         // Test webhook selective cleanup logic
         const productIdsToRemove = remainingProducts;
-        
+
         const webhookCartItemsToDelete = await CartProductModel.find({
             userId: new mongoose.Types.ObjectId(user._id),
             productId: { $in: productIdsToRemove.map(id => new mongoose.Types.ObjectId(id)) }
@@ -150,7 +150,7 @@ const testCompleteSolution = async () => {
 
         // 4. Test fallback selective cleanup
         console.log('\n=== STEP 4: Testing fallback selective cleanup ===');
-        
+
         // Tạo lại một số cart items để test fallback
         const fallbackProduct = '68ac1fa76886d39c175d3928';
         const fallbackCartItem = new CartProductModel({
@@ -159,7 +159,7 @@ const testCompleteSolution = async () => {
             quantity: 1
         });
         const savedFallback = await fallbackCartItem.save();
-        
+
         await UserModel.updateOne(
             { _id: user._id },
             { $push: { shopping_cart: savedFallback._id } }
@@ -179,7 +179,7 @@ const testCompleteSolution = async () => {
 
             if (fallbackCartItemsToDelete.length > 0) {
                 const fallbackCartItemIds = fallbackCartItemsToDelete.map(item => item._id);
-                
+
                 const fallbackDeleteResult = await CartProductModel.deleteMany({
                     _id: { $in: fallbackCartItemIds }
                 });
