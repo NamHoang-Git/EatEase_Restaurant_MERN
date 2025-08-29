@@ -4,7 +4,6 @@ import uploadImage from '../utils/UploadImage.js';
 import Axios from '../utils/Axios.js';
 import SummaryApi from '../common/SummaryApi.js';
 import AxiosToastError from '../utils/AxiosToastError.js';
-import Loading from './Loading.jsx';
 import successAlert from '../utils/successAlert.js';
 
 const UploadCategoryModel = ({ close, fetchData }) => {
@@ -72,96 +71,152 @@ const UploadCategoryModel = ({ close, fetchData }) => {
 
     return (
         <section
-            className="fixed top-0 bottom-0 left-0 right-0
-        bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center"
+            onClick={close}
+            className="bg-neutral-800 z-50 bg-opacity-60 fixed top-0 left-0 right-0 bottom-0 overflow-auto
+        flex items-center justify-center px-2"
         >
-            <div className="bg-white max-w-4xl w-full p-4 rounded">
-                <div className="flex items-center justify-between">
-                    <h1 className="font-bold">Add Category</h1>
-                    <button
-                        onClick={close}
-                        className="text-neutral-900 w-fit block ml-auto"
-                    >
-                        <IoClose size={25} />
-                    </button>
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
+            >
+                {/* Header */}
+                <div className="border-b border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-secondary-200">
+                            Thêm danh mục mới
+                        </h3>
+                        <button
+                            onClick={close}
+                            className="text-gray-400 hover:text-secondary-200 transition-colors"
+                        >
+                            <IoClose size={24} />
+                        </button>
+                    </div>
                 </div>
-                <form
-                    action=""
-                    className="mt-6 mb-2 grid gap-6"
-                    onSubmit={handleSubmit}
-                >
-                    <div className="grid gap-2">
-                        <label id="name" htmlFor="name">
-                            Name (<span className="text-red-500">*</span>)
+
+                <form className="px-6 py-4 space-y-5" onSubmit={handleSubmit}>
+                    {/* Category Name */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="name"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Tên danh mục <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
-                            className="bg-blue-50 p-2 border rounded outline-none
-                            focus-within:border-primary-200"
                             id="name"
-                            placeholder="Enter category name!"
-                            value={data.name}
                             name="name"
+                            value={data.name}
                             onChange={handleOnChange}
+                            className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 
+                            focus:ring-secondary-100 focus:border-secondary-100 outline-none transition-all"
+                            placeholder="Nhập tên danh mục"
+                            required
                         />
                     </div>
-                    <div className="grid gap-2">
-                        <p>
-                            Image (<span className="text-red-500">*</span>)
-                        </p>
-                        <div className="flex gap-4 items-center flex-col lg:flex-row">
-                            <div
-                                className="bg-blue-50 p-2 h-36 w-full lg:w-36 border rounded
-                                flex items-center justify-center"
-                            >
-                                {data.image ? (
+
+                    {/* Image Upload */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Hình ảnh <span className="text-red-500">*</span>
+                        </label>
+                        <label
+                            htmlFor="image"
+                            className={`block border-2 border-dashed rounded-xl sm:p-6 p-4 text-center cursor-pointer
+                            transition-all duration-200 ${
+                                data.image
+                                    ? 'border-green-200 bg-green-50'
+                                    : 'border-gray-300 hover:border-primary-200'
+                            }`}
+                        >
+                            {data.image ? (
+                                <div className="relative">
                                     <img
                                         src={data.image}
-                                        alt="category"
-                                        className="w-full h-full object-scale-down"
+                                        alt="Preview"
+                                        className="sm:h-40 h-32 mx-auto object-contain rounded-lg"
                                     />
-                                ) : (
-                                    <p className="text-sm text-neutral-500">
-                                        No Image
-                                    </p>
-                                )}
-                            </div>
-                            <label htmlFor="uploadCategoryImage">
-                                <div
-                                    className={`${
-                                        !data.name
-                                            ? 'bg-gray-300 text-white cursor-no-drop'
-                                            : 'bg-blue-400 text-white hover:bg-blue-600 cursor-pointer'
-                                    } px-3 py-1 text-sm rounded-md`}
-                                >
-                                    {loading ? (
-                                        <Loading />
-                                    ) : (
-                                        <IoAddSharp size={42} />
-                                    )}
+                                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 rounded-lg transition-all flex items-center justify-center">
+                                        <span className="text-white bg-black/70 text-xs px-2 py-1 rounded">
+                                            Thay đổi ảnh
+                                        </span>
+                                    </div>
                                 </div>
-                                <input
-                                    disabled={!data.name}
-                                    onChange={handleUploadCategoryImage}
-                                    type="file"
-                                    accept="image/*"
-                                    id="uploadCategoryImage"
-                                    className="hidden"
-                                />
-                            </label>
-                        </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                        <IoAddSharp
+                                            className="text-gray-400"
+                                            size={24}
+                                        />
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                        <p className="font-medium">
+                                            Tải ảnh lên
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            PNG, JPG (tối đa 5MB)
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                id="image"
+                                className="hidden"
+                                onChange={handleUploadCategoryImage}
+                                accept="image/*"
+                            />
+                        </label>
                     </div>
 
-                    <button
-                        disabled={!data.name || !data.image}
-                        className={`${
-                            data.name && data.image
-                                ? 'bg-green-700 text-white hover:bg-green-600 cursor-pointer'
-                                : 'bg-gray-300 text-gray-700 font-semibold cursor-no-drop'
-                        } py-2 rounded-md`}
-                    >
-                        Submit
-                    </button>
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button
+                            type="button"
+                            onClick={close}
+                            className="px-6 py-[6px] border-2 border-secondary-100 rounded-lg text-secondary-200 hover:bg-secondary-100
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 hover:text-white font-semibold focus:ring-secondary-200"
+                            disabled={loading}
+                        >
+                            Hủy
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-80
+                            focus:outline-none flex items-center disabled:opacity-50 font-semibold"
+                            disabled={!data.name || !data.image || loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <svg
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                    Đang lưu...
+                                </>
+                            ) : (
+                                'Lưu danh mục'
+                            )}
+                        </button>
+                    </div>
                 </form>
             </div>
         </section>

@@ -13,6 +13,8 @@ const ChangePassword = ({ close }) => {
     });
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [failedAttempts, setFailedAttempts] = useState(0);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,7 +44,9 @@ const ChangePassword = ({ close }) => {
 
             if (response.data.success) {
                 // Show success toast
-                toast.success(response.data.message || 'Xác thực mật khẩu thành công');
+                toast.success(
+                    response.data.message || 'Xác thực mật khẩu thành công'
+                );
                 // If password is correct, navigate to reset password page
                 close();
                 navigate('/reset-password', {
@@ -55,37 +59,59 @@ const ChangePassword = ({ close }) => {
                 });
             }
         } catch (error) {
-            AxiosToastError(error);
+            const newFailedAttempts = failedAttempts + 1;
+            setFailedAttempts(newFailedAttempts);
+
+            if (newFailedAttempts >= 3) {
+                setShowForgotPassword(true);
+                toast.error(
+                    'Bạn đã nhập sai mật khẩu quá 3 lần. Vui lòng thử lại sau hoặc sử dụng chức năng quên mật khẩu.'
+                );
+            } else {
+                AxiosToastError(error);
+            }
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div className="p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                            <FaLock className="mr-2 text-blue-500" />
-                            Xác minh danh tính của bạn
+        <section
+            onClick={close}
+            className="fixed top-0 bottom-0 left-0 right-0
+        bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center"
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-lg shadow-xl w-full max-w-lg"
+            >
+                <div className="p-4 sm:p-6 grid gap-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="sm:text-xl text-base font-semibold text-gray-800 flex items-center">
+                            <FaLock
+                                className="mr-2 mb-[5px] text-secondary-200"
+                                size={18}
+                            />
+                            <p className="font-semibold">
+                                Xác minh danh tính của bạn
+                            </p>
                         </h2>
                         <button
                             onClick={close}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-gray-400 hover:text-secondary-200"
                         >
                             <span className="text-2xl">&times;</span>
                         </button>
                     </div>
 
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-600">
                         Vì lý do bảo mật, vui lòng nhập mật khẩu hiện tại của
                         bạn để tiếp tục.
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Mật khẩu hiện tại
                             </label>
                             <div className="relative">
@@ -98,7 +124,8 @@ const ChangePassword = ({ close }) => {
                                     name="currentPassword"
                                     value={formData.currentPassword}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
+                                    focus:border-secondary-200 pr-10"
                                     placeholder="Nhập mật khẩu hiện tại"
                                     required
                                     autoFocus
@@ -110,7 +137,7 @@ const ChangePassword = ({ close }) => {
                                             !showCurrentPassword
                                         )
                                     }
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-secondary-200 hover:text-secondary-100"
                                 >
                                     {showCurrentPassword ? (
                                         <FaEyeSlash />
@@ -121,18 +148,20 @@ const ChangePassword = ({ close }) => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end space-x-3 pt-2">
+                        <div className="flex justify-end gap-4">
                             <button
                                 type="button"
                                 onClick={close}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                className="px-6 py-[6px] border-2 border-secondary-100 rounded-lg text-secondary-200 hover:bg-secondary-100
+                                focus:outline-none focus:ring-2 focus:ring-offset-2 hover:text-white font-semibold focus:ring-secondary-200"
                                 disabled={loading}
                             >
                                 Hủy
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
+                                className="px-4 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-80
+                            focus:outline-none flex items-center disabled:opacity-50 font-semibold"
                                 disabled={loading}
                             >
                                 {loading ? (
@@ -164,10 +193,28 @@ const ChangePassword = ({ close }) => {
                                 )}
                             </button>
                         </div>
+
+                        {showForgotPassword && (
+                            <div className="grid gap-1 place-items-center py-2">
+                                <p className="text-sm text-gray-600 font-semibold">
+                                    Bạn quên mật khẩu?
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        close();
+                                        navigate('/forgot-password');
+                                    }}
+                                    className="text-blue-600 hover:text-blue-800 text-sm font-bold"
+                                >
+                                    Đặt lại mật khẩu
+                                </button>
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>
-        </div>
+        </section>
     );
 };
 

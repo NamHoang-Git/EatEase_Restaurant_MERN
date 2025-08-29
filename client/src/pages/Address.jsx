@@ -87,7 +87,7 @@ const Address = () => {
                 <button
                     onClick={() => setOpenAddress(true)}
                     className="bg-primary-2 border-[3px] border-secondary-200 text-secondary-200 px-3 hover:opacity-80
-                 py-1 rounded-full"
+                 py-1 rounded-full text-xs"
                 >
                     Thêm Mới
                 </button>
