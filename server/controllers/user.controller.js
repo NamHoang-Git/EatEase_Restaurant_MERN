@@ -388,6 +388,91 @@ export async function verifyForgotPasswordOtp(req, res) {
     }
 }
 
+// Verify Password
+export async function verifyPassword(req, res) {
+    try {
+        const { password } = req.body;
+        const userId = req.userId; // Changed from req.user._id to req.userId
+
+        if (!password) {
+            return res.status(400).json({
+                message: "Vui lòng nhập mật khẩu hiện tại",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findById(userId).select('+password');
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Người dùng không tồn tại",
+                error: true,
+                success: false
+            });
+        }
+
+        const isPasswordValid = await bcryptjs.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                message: "Mật khẩu không chính xác",
+                error: true,
+                success: false
+            });
+        }
+
+        return res.json({
+            message: "Xác thực mật khẩu thành công",
+            error: false,
+            success: true,
+            email: user.email
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+// Change Password
+export async function changePassword(req, res) {
+    try {
+        const { newPassword, confirmPassword } = req.body;
+        const userId = req.user._id;
+
+        // Get user email for resetPassword function
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "Người dùng không tồn tại",
+                error: true,
+                success: false
+            });
+        }
+
+        // Reuse resetPassword logic
+        return resetPassword({
+            ...req,
+            body: {
+                email: user.email,
+                newPassword,
+                confirmPassword
+            }
+        }, res);
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
 // Reset the Password
 export async function resetPassword(req, res) {
     try {

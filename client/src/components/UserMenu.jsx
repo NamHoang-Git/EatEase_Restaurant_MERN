@@ -77,7 +77,7 @@ const UserMenu = ({ close }) => {
 
     return (
         <div ref={menuRef}>
-            <div className="font-semibold">Tài khoản</div>
+            <div className="font-bold">Tài khoản</div>
             <div className="text-sm flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
                 <span className="max-w-96 md:max-w-60 text-ellipsis line-clamp-1 flex gap-2">
                     {user.name || user.mobile}

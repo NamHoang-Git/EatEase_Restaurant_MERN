@@ -24,19 +24,20 @@ const ResetPassword = () => {
     const valideValue = Object.values(data).every((el) => el);
 
     useEffect(() => {
-        if (!location?.state?.data?.success) {
+        // Only redirect if this is a forgot password flow and there's no email in state
+        if (location?.state?.fromForgotPassword && !location?.state?.email) {
             navigate('/');
+            return;
         }
 
+        // Set email from state if available (for both change password and forgot password flows)
         if (location?.state?.email) {
-            setData((prev) => {
-                return {
-                    ...prev,
-                    email: location?.state?.email,
-                };
-            });
+            setData((prev) => ({
+                ...prev,
+                email: location.state.email,
+            }));
         }
-    }, []);
+    }, [location, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -52,11 +53,23 @@ const ResetPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (data.newPassword !== data.confirmPassword) {
+            toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
+            return;
+        }
+
         try {
             setLoading(true);
             const response = await Axios({
-                ...SummaryApi.reset_password,
-                data: data,
+                ...(location?.state?.fromProfile
+                    ? SummaryApi.change_password
+                    : SummaryApi.reset_password),
+                data: {
+                    ...data,
+                    ...(location?.state?.fromProfile
+                        ? {}
+                        : { email: data.email }),
+                },
             });
 
             if (response.data.error) {
@@ -66,7 +79,14 @@ const ResetPassword = () => {
 
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate('/login');
+
+                if (location?.state?.fromProfile) {
+                    // If coming from profile, go back to profile
+                    navigate('/account');
+                } else {
+                    // For forgot password flow, go to login
+                    navigate('/login');
+                }
 
                 // Reset form
                 setData({
@@ -86,7 +106,7 @@ const ResetPassword = () => {
         <section className="container mx-auto my-12 max-w-lg px-2">
             <div className="bg-white rounded-md p-6 shadow-md shadow-secondary-100">
                 <p className="font-bold text-lg text-secondary-200 uppercase">
-                    Nhập mật khẩu mới
+                    Đổi mật khẩu
                 </p>
                 <form
                     action=""
@@ -101,7 +121,7 @@ const ResetPassword = () => {
                                 id="newPassword"
                                 className="w-full outline-none bg-transparent"
                                 name="newPassword"
-                                placeholder="Enter your new password"
+                                placeholder="Nhập mật khẩu mới"
                                 value={data.newPassword}
                                 onChange={handleChange}
                             />
@@ -119,7 +139,7 @@ const ResetPassword = () => {
                     </div>
                     <div className="grid gap-2">
                         <label htmlFor="confirmPassword">
-                            Xác nhận mật khẩu mới:{' '}
+                            Xác nhận mật khẩu:{' '}
                         </label>
                         <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
                             <input
@@ -127,7 +147,7 @@ const ResetPassword = () => {
                                 id="confirmPassword"
                                 className="w-full outline-none bg-transparent"
                                 name="confirmPassword"
-                                placeholder="Enter your confirm password"
+                                placeholder="Xác nhận mật khẩu"
                                 value={data.confirmPassword}
                                 onChange={handleChange}
                             />

@@ -93,7 +93,7 @@ const MyOrders = () => {
                                     }}
                                 />
                                 <div>
-                                    <p className="font-semibold">
+                                    <p className="font-semibold line-clamp-2">
                                         {order?.product_details?.name ||
                                             'Sản phẩm không xác định'}
                                     </p>

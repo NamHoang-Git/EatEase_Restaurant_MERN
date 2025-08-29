@@ -41,6 +41,14 @@ const SummaryApi = {
         url: '/api/user/update-user',
         method: 'put'
     },
+    verify_password: {
+        url: '/api/user/verify-password',
+        method: 'post'
+    },
+    change_password: {
+        url: '/api/user/change-password',
+        method: 'put'
+    },
 
     // Category
     add_category: {
