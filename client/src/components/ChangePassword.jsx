@@ -41,6 +41,8 @@ const ChangePassword = ({ close }) => {
             });
 
             if (response.data.success) {
+                // Show success toast
+                toast.success(response.data.message || 'Xác thực mật khẩu thành công');
                 // If password is correct, navigate to reset password page
                 close();
                 navigate('/reset-password', {
