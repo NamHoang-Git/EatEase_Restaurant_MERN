@@ -7,548 +7,567 @@ import uploadImage from '../utils/UploadImage';
 import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import Axios from '../utils/Axios';
-import Loading from '../components/Loading';
 import ViewImage from '../components/ViewImage';
 import AddFieldComponent from '../components/AddFieldComponent';
-import successAlert from './../utils/successAlert';
+import successAlert from '../utils/successAlert';
 
 const EditProductAdmin = ({ close, data: propsData, fetchProduct }) => {
+    const allCategory = useSelector((state) => state.product.allCategory);
+    const [selectCategoryValue, setSelectCategoryValue] = useState('');
+    const [openAddField, setOpenAddField] = useState(false);
     const [data, setData] = useState({
         _id: propsData._id,
-        name: propsData.name,
+        name: propsData.name || '',
         image: propsData.image ? [...propsData.image] : [],
         category: propsData.category ? [...propsData.category] : [],
-        unit: propsData.unit,
-        stock: propsData.stock,
-        price: propsData.price,
-        discount: propsData.discount,
-        description: propsData.description,
+        unit: propsData.unit || '',
+        stock: propsData.stock || '',
+        price: propsData.price || '',
+        discount: propsData.discount || '',
+        description: propsData.description || '',
         more_details: propsData.more_details || {},
     });
 
     const [loading, setLoading] = useState(false);
     const [imageURL, setImageURL] = useState('');
+    const [fieldName, setFieldName] = useState('');
 
     const handleOnChange = (e) => {
         const { name, value } = e.target;
-
-        setData((preve) => {
-            return {
-                ...preve,
-                [name]: value,
-            };
-        });
+        setData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleUploadProductImage = async (e) => {
-        const file = e.target.files[0];
+        const files = Array.from(e.target.files);
 
-        if (!file) {
+        if (files.length === 0) {
+            return;
+        }
+
+        const maxImages = 10;
+        if (data.image.length + files.length > maxImages) {
+            alert(`Bạn chỉ có thể tải lên tối đa ${maxImages} ảnh`);
             return;
         }
 
         setLoading(true);
 
-        const response = await uploadImage(file);
-        const { data: ImageResponse } = response;
-        const imageUrl = ImageResponse.data.url;
+        try {
+            const uploadPromises = files.map((file) => uploadImage(file));
+            const responses = await Promise.all(uploadPromises);
+            const newImageUrls = responses.map(
+                (response) => response.data.data.url
+            );
 
-        setLoading(false);
-
-        setData((prev) => {
-            return {
+            setData((prev) => ({
                 ...prev,
-                image: [...prev.image, imageUrl],
-            };
-        });
+                image: [...prev.image, ...newImageUrls],
+            }));
+        } catch (error) {
+            console.error('Lỗi khi tải ảnh lên:', error);
+            alert('Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleRemoveImage = async (index) => {
-        data.image.splice(index, 1);
-        setData((prev) => {
-            return {
-                ...prev,
-            };
-        });
-    };
-
-    // Category
-    const [selectCategoryValue, setSelectCategoryValue] = useState('');
-    const allCategory = useSelector((state) => state.product.allCategory);
-
-    const handleRemoveCategorySelected = (categoryId) => {
-        const updated = data.category.filter((el) => el._id !== categoryId);
-
+    const handleRemoveImage = (index) => {
         setData((prev) => ({
             ...prev,
-            category: updated,
+            image: prev.image.filter((_, i) => i !== index),
         }));
     };
 
-    // Add More Field
-    const [openAddField, setOpenAddField] = useState(false);
-    const [fieldName, setFieldName] = useState('');
+    const handleRemoveCategorySelected = (categoryId) => {
+        setData((prev) => ({
+            ...prev,
+            category: prev.category.filter((el) => el._id !== categoryId),
+        }));
+    };
 
     const handleAddField = () => {
-        setData((prev) => {
-            return {
+        if (fieldName.trim() && !data.more_details[fieldName]) {
+            setData((prev) => ({
                 ...prev,
                 more_details: {
                     ...prev.more_details,
                     [fieldName]: '',
                 },
-            };
-        });
-
+            }));
+        }
         setFieldName('');
         setOpenAddField(false);
     };
 
+    const handleRemoveField = (fieldName) => {
+        const newDetails = { ...data.more_details };
+        delete newDetails[fieldName];
+        setData((prev) => ({
+            ...prev,
+            more_details: newDetails,
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
-            const response = await Axios({
-                ...SummaryApi.update_product_details,
-                data: data,
-            });
-            const { data: responseData } = response;
-
-            if (responseData.success) {
-                successAlert(responseData.message);
-                if (close) {
-                    close();
-                }
+            const response = await Axios.put(
+                SummaryApi.updateProduct.url,
+                data
+            );
+            if (response.data.success) {
+                successAlert('Cập nhật sản phẩm thành công!');
                 fetchProduct();
-                setData({
-                    name: '',
-                    image: [],
-                    category: [],
-                    unit: '',
-                    stock: '',
-                    price: '',
-                    discount: '',
-                    description: '',
-                    more_details: {},
-                });
+                close();
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <section
-            className="fixed top-0 bottom-0 left-0 right-0
-        bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center"
+            onClick={close}
+            className="fixed top-0 bottom-0 left-0 right-0 bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center"
         >
-            <div className="bg-white max-w-4xl w-full p-4 rounded mx-auto overflow-y-auto h-full max-h-[95vh]">
-                <section className="">
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white max-w-4xl w-full rounded-xl shadow-sm border border-gray-200 overflow-y-auto max-h-[calc(100vh-200px)]"
+            >
+                <div className="border-b border-gray-200 px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <h1 className="font-bold">Edit Product</h1>
+                        <h2 className="text-lg font-semibold text-secondary-200">
+                            Chỉnh sửa sản phẩm
+                        </h2>
                         <button
                             onClick={close}
-                            className="text-neutral-900 w-fit block ml-auto"
+                            className="text-gray-400 hover:text-secondary-200 transition-colors"
                         >
-                            <IoClose size={25} />
+                            <IoClose size={24} />
                         </button>
                     </div>
-                    <div className="grid gap-2">
-                        <form
-                            action=""
-                            className="my-4 grid gap-6"
-                            onSubmit={handleSubmit}
+                </div>
+
+                <form
+                    className="px-4 py-6 sm:p-6 space-y-6"
+                    onSubmit={handleSubmit}
+                >
+                    {/* Product Name */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="name"
+                            className="block text-sm font-medium text-gray-700"
                         >
-                            <div className="grid gap-2">
-                                <label
-                                    id="name"
-                                    htmlFor="name"
-                                    className="font-semibold"
-                                >
-                                    Name (
-                                    <span className="text-red-500">*</span>)
-                                </label>
-                                <input
-                                    type="text"
-                                    className="bg-blue-50 p-2 border rounded outline-none
-                                    focus-within:border-primary-200"
-                                    id="name"
-                                    placeholder="Enter product name!"
-                                    value={data.name}
-                                    name="name"
-                                    onChange={handleOnChange}
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <p className="font-semibold">
-                                    Image (
-                                    <span className="text-red-500">*</span>)
-                                </p>
-                                <div className="flex flex-col">
-                                    <div
-                                        className="bg-blue-50 p-2 h-28 w-full border rounded
-                                    flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <label htmlFor="uploadProductImage">
-                                                <div
-                                                    className={`${
-                                                        !data.name
-                                                            ? ' text-blue-300 cursor-no-drop'
-                                                            : ' text-blue-600 hover:bg-blue-200 cursor-pointer'
-                                                    } px-3 py-1 text-sm rounded-md`}
-                                                >
-                                                    {loading ? (
-                                                        <Loading />
-                                                    ) : (
-                                                        <FaCloudUploadAlt
-                                                            size={45}
-                                                        />
-                                                    )}
-                                                </div>
-                                                <input
-                                                    disabled={!data.name}
-                                                    onChange={
-                                                        handleUploadProductImage
-                                                    }
-                                                    type="file"
-                                                    accept="image/*"
-                                                    id="uploadProductImage"
-                                                    className="hidden"
-                                                />
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    {/* Display Upload Image */}
-                                    <div
-                                        className={`${
-                                            data.image[0] ? 'mt-2' : 'mt-0'
-                                        } flex flex-wrap gap-2`}
-                                    >
-                                        {data.image.map((img, index) => {
-                                            return (
-                                                <div
-                                                    key={img + index}
-                                                    className="h-20 w-20 min-w-20
-                                                  bg-blue-100 border relative group hover:opacity-90"
-                                                >
-                                                    <img
-                                                        src={img}
-                                                        alt={img}
-                                                        title={img}
-                                                        className="w-full h-full object-scale-down cursor-pointer"
-                                                        onClick={() => {
-                                                            setImageURL(img);
-                                                        }}
-                                                    />
-                                                    <div
-                                                        onClick={() =>
-                                                            handleRemoveImage(
-                                                                index
-                                                            )
-                                                        }
-                                                        className="absolute bottom-0 right-0 hidden cursor-pointer p-1
-                                            bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-tl-xl
-                                            group-hover:block transition-all duration-200"
-                                                    >
-                                                        <MdDelete />
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="grid gap-2">
-                                <label className="font-semibold">
-                                    Category (
-                                    <span className="text-red-500">*</span>)
-                                </label>
-
-                                {/* Display Value */}
-                                <div
-                                    className={`${
-                                        data.category[0] ? 'flex' : 'hidden'
-                                    } gap-4 flex-wrap`}
-                                >
-                                    {data.category.map((cate, index) => {
-                                        return (
-                                            <span
-                                                key={cate._id + 'category' || index}
-                                                className="bg-slate-200 shadow-md px-2 mx-1 flex items-center gap-2"
-                                            >
-                                                {cate.name}
-                                                <div
-                                                    onClick={() =>
-                                                        handleRemoveCategorySelected(
-                                                            cate._id
-                                                        )
-                                                    }
-                                                    className="cursor-pointer hover:text-red-600"
-                                                >
-                                                    <IoClose size={18} />
-                                                </div>
-                                            </span>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Select Category */}
-                                <select
-                                    className={`${
-                                        data.category[0] ? 'mt-1' : 'mt-0'
-                                    } bg-blue-50 p-2 border rounded outline-none focus-within:border-primary-200`}
-                                    value={selectCategoryValue}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-
-                                        if (!value) return;
-                                        const categoryDetails =
-                                            allCategory.find(
-                                                (el) => el._id == value
-                                            );
-
-                                        // Kiểm tra trùng lặp
-                                        const alreadySelected =
-                                            data.category.some(
-                                                (cate) => cate._id === value
-                                            );
-
-                                        if (alreadySelected) {
-                                            return;
-                                        }
-
-                                        setData((prev) => {
-                                            return {
-                                                ...prev,
-                                                category: [
-                                                    ...prev.category,
-                                                    categoryDetails,
-                                                ],
-                                            };
-                                        });
-
-                                        setSelectCategoryValue('');
-                                    }}
-                                >
-                                    <option value={''}>Select Category</option>
-                                    {allCategory.map((category) => {
-                                        return (
-                                            <option
-                                                value={category?._id}
-                                                key={category._id + 'product'}
-                                            >
-                                                {category?.name}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                            </div>
-                            <div className="grid gap-2">
-                                <label
-                                    id="unit"
-                                    htmlFor="unit"
-                                    className="font-semibold"
-                                >
-                                    Units (
-                                    <span className="text-red-500">*</span>)
-                                </label>
-                                <input
-                                    type="text"
-                                    className="bg-blue-50 p-2 border rounded outline-none
-                            focus-within:border-primary-200"
-                                    id="unit"
-                                    placeholder="Enter product unit!"
-                                    value={data.unit}
-                                    name="unit"
-                                    onChange={handleOnChange}
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <label
-                                    id="stock"
-                                    htmlFor="stock"
-                                    className="font-semibold"
-                                >
-                                    Number of Stocks (
-                                    <span className="text-red-500">*</span>)
-                                </label>
-                                <input
-                                    type="number"
-                                    className="bg-blue-50 p-2 border rounded outline-none
-                            focus-within:border-primary-200"
-                                    id="stock"
-                                    placeholder="Enter product stock!"
-                                    value={data.stock}
-                                    name="stock"
-                                    onChange={handleOnChange}
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <label
-                                    id="price"
-                                    htmlFor="price"
-                                    className="font-semibold"
-                                >
-                                    Price (
-                                    <span className="text-red-500">*</span>)
-                                </label>
-                                <input
-                                    type="number"
-                                    className="bg-blue-50 p-2 border rounded outline-none
-                            focus-within:border-primary-200"
-                                    id="price"
-                                    placeholder="Enter product price!"
-                                    value={data.price}
-                                    name="price"
-                                    onChange={handleOnChange}
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <label
-                                    id="discount"
-                                    htmlFor="discount"
-                                    className="font-semibold"
-                                >
-                                    Discount
-                                </label>
-                                <input
-                                    type="number"
-                                    className="bg-blue-50 p-2 border rounded outline-none
-                            focus-within:border-primary-200"
-                                    id="discount"
-                                    placeholder="Enter product discount!"
-                                    value={data.discount}
-                                    name="discount"
-                                    onChange={handleOnChange}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <label id="description" htmlFor="description">
-                                    Description
-                                </label>
-                                <textarea
-                                    type="text"
-                                    className="bg-blue-50 p-2 border rounded outline-none
-                            focus-within:border-primary-200 resize-none"
-                                    id="description"
-                                    placeholder="Enter description!"
-                                    value={data.description}
-                                    name="description"
-                                    onChange={handleOnChange}
-                                    aria-multiline
-                                    rows={4}
-                                />
-                            </div>
-
-                            {/* Add More Field */}
-                            <div
-                                className={`${
-                                    Object.keys(data.more_details).length > 0
-                                        ? 'block'
-                                        : 'hidden'
-                                } grid gap-6`}
-                            >
-                                {Object?.keys(data?.more_details)?.map(
-                                    (field) => {
-                                        return (
-                                            <div className="grid gap-2">
-                                                <label
-                                                    htmlFor={field}
-                                                    className="font-semibold"
-                                                >
-                                                    {field}
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="bg-blue-50 p-2 border rounded outline-none
-                                        focus-within:border-primary-200"
-                                                    id={field}
-                                                    value={
-                                                        data?.more_details[
-                                                            field
-                                                        ]
-                                                    }
-                                                    onChange={(e) => {
-                                                        const value =
-                                                            e.target.value;
-                                                        setData((prev) => {
-                                                            return {
-                                                                ...prev,
-                                                                more_details: {
-                                                                    ...prev.more_details,
-                                                                    [field]:
-                                                                        value,
-                                                                },
-                                                            };
-                                                        });
-                                                    }}
-                                                    required
-                                                />
-                                            </div>
-                                        );
-                                    }
-                                )}
-                            </div>
-
-                            {/* Add Field Button */}
-                            <div
-                                onClick={() => setOpenAddField(true)}
-                                className="bg-white border border-slate-700 text-center text-slate-600 font-semibold
-                                                hover:bg-green-100 hover:text-green-600 hover:border-green-600 w-fit px-6 py-1
-                                                flex items-center justify-center gap-1 rounded cursor-pointer"
-                            >
-                                <IoAddCircleOutline size={30} />
-                                Add Field
-                            </div>
-
-                            <button
-                                disabled={
-                                    !data.name ||
-                                    !data.image[0] ||
-                                    !data.category[0] ||
-                                    !data.unit ||
-                                    !data.stock ||
-                                    !data.price
-                                }
-                                className={`${
-                                    data.name &&
-                                    data.image[0] &&
-                                    data.category[0] &&
-                                    data.unit &&
-                                    data.stock &&
-                                    data.price
-                                        ? 'bg-green-700 text-white font-semibold hover:bg-green-600 cursor-pointer'
-                                        : 'bg-gray-300 text-gray-700 font-medium cursor-no-drop'
-                                } py-2 rounded-md`}
-                            >
-                                Submit
-                            </button>
-                        </form>
+                            Tên sản phẩm <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={data.name}
+                            onChange={handleOnChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
+                            placeholder="Nhập tên sản phẩm"
+                            required
+                        />
                     </div>
-
-                    {imageURL && (
-                        <ViewImage
-                            url={imageURL}
-                            close={() => setImageURL('')}
+                    {/* Image Upload */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Hình ảnh sản phẩm{' '}
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <div className="space-y-3">
+                            <input
+                                type="file"
+                                id="uploadProductImage"
+                                accept="image/*"
+                                onChange={handleUploadProductImage}
+                                className="hidden"
+                                multiple
+                                disabled={!data.name || loading}
+                                required={!data.image.length}
+                            />
+                            <label
+                                htmlFor="uploadProductImage"
+                                className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
+                                    data.image.length
+                                        ? 'border-blue-200 bg-blue-50'
+                                        : 'border-gray-300 hover:border-primary-200'
+                                } ${
+                                    !data.name || loading
+                                        ? 'opacity-70 cursor-not-allowed'
+                                        : ''
+                                }`}
+                                title={
+                                    !data.name
+                                        ? 'Vui lòng nhập tên sản phẩm trước'
+                                        : ''
+                                }
+                            >
+                                <div className="space-y-2">
+                                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                        {loading ? (
+                                            <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <FaCloudUploadAlt
+                                                className="text-gray-400"
+                                                size={24}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                        <p className="font-medium">
+                                            Nhấn để chọn ảnh
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            PNG, JPG (tối đa 10 ảnh, mỗi ảnh tối
+                                            đa 5MB)
+                                        </p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        {data.image.length > 0 && (
+                            <div className="mt-3">
+                                <p className="text-sm text-gray-500 mb-2">
+                                    Đã chọn {data.image.length} ảnh
+                                </p>
+                                <div className="flex flex-wrap gap-3">
+                                    {data.image.map((img, index) => (
+                                        <div
+                                            key={img + index}
+                                            className="relative group sm:h-24 sm:w-24 h-16 w-16 rounded-lg overflow-hidden border border-gray-200"
+                                        >
+                                            <img
+                                                src={img}
+                                                alt={`Preview ${index + 1}`}
+                                                className="w-full h-full object-cover cursor-pointer"
+                                                onClick={() => setImageURL(img)}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveImage(index);
+                                                }}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                title="Xóa ảnh"
+                                            >
+                                                <IoClose size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {/* Category Selection */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Danh mục <span className="text-red-500">*</span>
+                        </label>
+                        {data.category.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {data.category.map((cate) => (
+                                    <span
+                                        key={cate._id}
+                                        className="inline-flex items-center bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full"
+                                    >
+                                        {cate.name}
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleRemoveCategorySelected(
+                                                    cate._id
+                                                )
+                                            }
+                                            className="ml-2 text-gray-500 hover:text-red-500"
+                                        >
+                                            <IoClose size={16} />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        <div className="relative">
+                            <select
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none appearance-none bg-white"
+                                value={selectCategoryValue}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (!value) return;
+                                    const categoryDetails = allCategory.find(
+                                        (el) => el._id === value
+                                    );
+                                    const alreadySelected = data.category.some(
+                                        (cate) => cate._id === value
+                                    );
+                                    if (!alreadySelected && categoryDetails) {
+                                        setData((prev) => ({
+                                            ...prev,
+                                            category: [
+                                                ...prev.category,
+                                                categoryDetails,
+                                            ],
+                                        }));
+                                        setSelectCategoryValue('');
+                                    }
+                                }}
+                            >
+                                <option value="">Chọn danh mục</option>
+                                {allCategory
+                                    .filter(
+                                        (cat) =>
+                                            !data.category.some(
+                                                (selected) =>
+                                                    selected._id === cat._id
+                                            )
+                                    )
+                                    .map((category) => (
+                                        <option
+                                            key={category._id}
+                                            value={category._id}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg
+                                    className="fill-current h-4 w-4"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Unit */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="unit"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Đơn vị tính <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="unit"
+                            name="unit"
+                            value={data.unit}
+                            onChange={handleOnChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
+                            placeholder="Ví dụ: cái, thiết bị, bộ..."
+                            required
                         />
-                    )}
-
-                    {openAddField && (
-                        <AddFieldComponent
-                            value={fieldName}
-                            onChange={(e) => setFieldName(e.target.value)}
-                            onSubmit={handleAddField}
-                            close={() => setOpenAddField(false)}
+                    </div>
+                    {/* Stock */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="stock"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Số lượng tồn kho{' '}
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="stock"
+                            name="stock"
+                            min="0"
+                            value={data.stock}
+                            onChange={handleOnChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none"
+                            placeholder="Nhập số lượng tồn kho"
+                            required
                         />
+                    </div>
+                    {/* Price */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="price"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Giá bán <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                đ
+                            </span>
+                            <input
+                                type="number"
+                                id="price"
+                                name="price"
+                                min="0"
+                                value={data.price}
+                                onChange={handleOnChange}
+                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none"
+                                placeholder="Nhập giá bán"
+                                required
+                            />
+                        </div>
+                    </div>
+                    {/* Discount */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="discount"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Giảm giá
+                        </label>
+                        <input
+                            type="number"
+                            id="discount"
+                            name="discount"
+                            min="0"
+                            max="100"
+                            value={data.discount || ''}
+                            onChange={handleOnChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none"
+                            placeholder="Nhập % giảm giá (nếu có)"
+                        />
+                    </div>
+                    {/* Description */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="description"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Mô tả sản phẩm
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            value={data.description}
+                            onChange={handleOnChange}
+                            rows={4}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none resize-none"
+                            placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                        />
+                    </div>
+                    {/* Additional Fields */}
+                    {Object.keys(data.more_details).length > 0 && (
+                        <div className="space-y-4 pt-2 border-t border-gray-200">
+                            <h4 className="text-sm font-medium text-gray-700">
+                                Thông tin bổ sung
+                            </h4>
+                            {Object.keys(data.more_details).map((field) => (
+                                <div key={field} className="space-y-2">
+                                    <label
+                                        htmlFor={`field-${field}`}
+                                        className="block text-sm font-medium text-gray-700 capitalize"
+                                    >
+                                        {field.replace(/_/g, ' ')}
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            id={`field-${field}`}
+                                            value={
+                                                data.more_details[field] || ''
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setData((prev) => ({
+                                                    ...prev,
+                                                    more_details: {
+                                                        ...prev.more_details,
+                                                        [field]: value,
+                                                    },
+                                                }));
+                                            }}
+                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleRemoveField(field)
+                                            }
+                                            className="px-3 text-red-500 hover:text-red-700"
+                                            title="Xóa trường"
+                                        >
+                                            <IoClose size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
-                </section>
+                    {/* Add Field Button */}
+                    <button
+                        type="button"
+                        onClick={() => setOpenAddField(true)}
+                        className="flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors bg-white w-full px-3 py-2 rounded-lg border shadow-md"
+                    >
+                        <IoAddCircleOutline size={20} />
+                        <p className="mt-[3px]">Thêm trường tùy chỉnh</p>
+                    </button>
+                    {/* Submit Button */}
+                    <div className="pt-4 border-t border-gray-200">
+                        <button
+                            type="submit"
+                            disabled={
+                                !data.name ||
+                                !data.image.length ||
+                                !data.category.length ||
+                                !data.unit ||
+                                !data.stock ||
+                                !data.price ||
+                                loading
+                            }
+                            className={`w-full py-2 px-4 rounded-lg sm:text-base text-sm font-semibold transition-colors ${
+                                data.name &&
+                                data.image.length &&
+                                data.category.length &&
+                                data.unit &&
+                                data.stock &&
+                                data.price &&
+                                !loading
+                                    ? 'bg-primary-4 text-secondary-200 hover:opacity-80 shadow-lg'
+                                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            }`}
+                        >
+                            {loading ? (
+                                <div className="flex items-center justify-center">
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    Đang xử lý...
+                                </div>
+                            ) : (
+                                'Lưu thay đổi'
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
+            {imageURL && (
+                <ViewImage url={imageURL} close={() => setImageURL('')} />
+            )}
+            {openAddField && (
+                <AddFieldComponent
+                    value={fieldName}
+                    onChange={(e) => setFieldName(e.target.value)}
+                    onSubmit={() => {
+                        if (fieldName.trim()) {
+                            handleAddField();
+                            setFieldName('');
+                            setOpenAddField(false);
+                        }
+                    }}
+                    close={() => {
+                        setFieldName('');
+                        setOpenAddField(false);
+                    }}
+                />
+            )}
         </section>
     );
 };

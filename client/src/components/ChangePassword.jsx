@@ -140,9 +140,9 @@ const ChangePassword = ({ close }) => {
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-secondary-200 hover:text-secondary-100"
                                 >
                                     {showCurrentPassword ? (
-                                        <FaEyeSlash />
-                                    ) : (
                                         <FaEye />
+                                    ) : (
+                                        <FaEyeSlash />
                                     )}
                                 </button>
                             </div>

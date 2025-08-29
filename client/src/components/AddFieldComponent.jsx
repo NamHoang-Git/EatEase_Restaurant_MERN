@@ -4,38 +4,68 @@ import { IoClose } from 'react-icons/io5';
 const AddFieldComponent = ({ close, value, onChange, onSubmit }) => {
     return (
         <section
-            className="fixed top-0 bottom-0 left-0 right-0
-        bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center"
+            onClick={close}
+            className="bg-neutral-800 z-50 bg-opacity-60 fixed top-0 left-0 right-0 bottom-0 overflow-auto
+        flex items-center justify-center px-2"
         >
-            <div className="bg-white max-w-4xl w-full p-4 rounded flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="font-bold">Add Field</h1>
-                    <button
-                        onClick={close}
-                        className="text-neutral-900 w-fit block ml-auto"
-                    >
-                        <IoClose size={25} />
-                    </button>
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+                {/* Header */}
+                <div className="border-b border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-secondary-200">
+                            Thêm trường mới
+                        </h3>
+                        <button
+                            onClick={close}
+                            className="text-gray-400 hover:text-secondary-200 transition-colors"
+                        >
+                            <IoClose size={24} />
+                        </button>
+                    </div>
                 </div>
-                <input
-                    type="text"
-                    className="bg-blue-50 p-2 mt-1 border rounded outline-none
-                            focus-within:border-primary-200"
-                    placeholder="Enter field name!"
-                    value={value}
-                    onChange={onChange}
-                />
-                <button
-                    disabled={!value}
-                    onClick={onSubmit}
-                    className={`${
-                        value
-                            ? 'bg-green-700 text-white font-semibold hover:bg-green-600 cursor-pointer'
-                            : 'bg-gray-300 text-gray-700 font-medium cursor-no-drop'
-                    } py-2 rounded-md`}
-                >
-                    Add
-                </button>
+
+                <div className="px-6 py-6 space-y-6">
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="fieldName"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Tên trường <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="fieldName"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-200 focus:outline-none transition-all"
+                            placeholder="Nhập tên trường"
+                            value={value}
+                            onChange={onChange}
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-2">
+                        <button
+                            type="button"
+                            onClick={close}
+                            className="px-6 py-[6px] border-2 border-secondary-100 rounded-lg text-secondary-200 hover:bg-secondary-100
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 hover:text-white font-semibold focus:ring-secondary-200"
+                        >
+                            Hủy
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onSubmit}
+                            disabled={!value}
+                            className="px-6 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-90
+                            focus:outline-none disabled:opacity-50 font-semibold"
+                        >
+                            Thêm
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
     );

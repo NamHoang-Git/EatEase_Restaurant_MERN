@@ -125,7 +125,7 @@ const Profile = () => {
                     {/* Right Column - Form */}
                     <div className="md:w-2/3 sm:text-lg text-sm">
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="bg-gray-50 px-0 py-4 sm:p-6 rounded-lg">
+                            <div className="bg-gray-50 px-2 py-4 sm:p-6 rounded-lg">
                                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                     <FaUser className="mr-2 mb-[2px] text-secondary-200" size={18} />{' '}
                                     Thông tin cá nhân
