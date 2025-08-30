@@ -20,6 +20,7 @@ const ProductListPage = () => {
     const [sortBy, setSortBy] = useState('newest');
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
     const [showFilters, setShowFilters] = useState(false);
+    const [isFiltering, setIsFiltering] = useState(false);
 
     const observer = useRef();
     const lastProductRef = useCallback(
@@ -46,44 +47,52 @@ const ProductListPage = () => {
     const categoryName = categoryInfo ? categoryInfo.name : '';
     const [showSidebar, setShowSidebar] = useState(false);
 
-    const fetchProduct = async (isInitialLoad = false) => {
-        if (isInitialLoad) {
-            setLoading(true);
-        } else {
-            setLoadingMore(true);
-        }
-
-        try {
-            const response = await Axios({
-                ...SummaryApi.get_product_by_category_list,
-                data: {
-                    categoryId,
-                    page,
-                    limit: 12,
-                    sort: sortBy,
-                    minPrice: priceRange.min,
-                    maxPrice: priceRange.max,
-                },
-            });
-
-            const { data: responseData } = response;
-
-            if (responseData.success) {
-                setData((prev) =>
-                    isInitialLoad
-                        ? [...responseData.data]
-                        : [...prev, ...responseData.data]
-                );
-                setTotalCount(responseData.totalCount);
-                setHasMore(responseData.data.length === 12);
+    const fetchProduct = useCallback(
+        async (isInitialLoad = false) => {
+            if (isInitialLoad) {
+                setLoading(true);
+            } else {
+                setLoadingMore(true);
             }
-        } catch (error) {
-            AxiosToastError(error);
-        } finally {
-            setLoading(false);
-            setLoadingMore(false);
-        }
-    };
+
+            try {
+                const response = await Axios({
+                    ...SummaryApi.get_product_by_category_list,
+                    data: {
+                        categoryId,
+                        page: isInitialLoad ? 1 : page,
+                        limit: 12,
+                        sort: sortBy,
+                        ...(priceRange.min !== '' && {
+                            minPrice: parseInt(priceRange.min),
+                        }),
+                        ...(priceRange.max !== '' && {
+                            maxPrice: parseInt(priceRange.max),
+                        }),
+                    },
+                });
+
+                const { data: responseData } = response;
+
+                if (responseData.success) {
+                    setData((prev) =>
+                        isInitialLoad
+                            ? [...responseData.data]
+                            : [...prev, ...responseData.data]
+                    );
+                    setTotalCount(responseData.totalCount);
+                    setHasMore(responseData.data.length === 12);
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải sản phẩm:', error);
+                AxiosToastError(error);
+            } finally {
+                setLoading(false);
+                setLoadingMore(false);
+            }
+        },
+        [categoryId, page, sortBy, priceRange.min, priceRange.max]
+    );
 
     // Handle scroll to top
     const scrollToTop = () => {
@@ -99,11 +108,13 @@ const ProductListPage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Reset and fetch when filters or category changes
+    // Update this useEffect to reset data when filters change
     useEffect(() => {
         setPage(1);
+        setData([]); // Reset data when filters change
+        setHasMore(true);
         fetchProduct(true);
-    }, [params.category, sortBy, priceRange]);
+    }, [params.category, sortBy, priceRange.min, priceRange.max]);
 
     // Load more when page changes
     useEffect(() => {
@@ -118,11 +129,36 @@ const ProductListPage = () => {
 
     const handlePriceChange = (e) => {
         const { name, value } = e.target;
-        setPriceRange((prev) => ({
-            ...prev,
-            [name]: value ? parseInt(value) : '',
-        }));
+        // Chỉ cho phép nhập số dương
+        if (value === '' || /^[0-9]\d*$/.test(value)) {
+            setPriceRange((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
     };
+
+    // Cập nhật useEffect cho price range
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (priceRange.min !== '' || priceRange.max !== '') {
+                setIsFiltering(true);
+                setPage(1);
+                setData([]);
+                setHasMore(true);
+                fetchProduct(true).finally(() => setIsFiltering(false));
+            } else if (priceRange.min === '' && priceRange.max === '') {
+                // Nếu cả min và max đều trống, reset filter
+                setIsFiltering(true);
+                setPage(1);
+                setData([]);
+                setHasMore(true);
+                fetchProduct(true).finally(() => setIsFiltering(false));
+            }
+        }, 800); // Tăng thời gian debounce lên 800ms
+
+        return () => clearTimeout(timer);
+    }, [priceRange.min, priceRange.max]);
 
     const handleSortChange = (e) => {
         setSortBy(e.target.value);
@@ -245,9 +281,25 @@ const ProductListPage = () => {
 
                             {showFilters && (
                                 <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                                    <h4 className="font-medium text-gray-700 mb-3">
-                                        Lọc theo giá
-                                    </h4>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h4 className="font-medium text-gray-700">
+                                            {isFiltering
+                                                ? 'Đang lọc...'
+                                                : 'Lọc theo giá'}
+                                        </h4>
+                                        <button
+                                            onClick={() => {
+                                                setPriceRange({
+                                                    min: '',
+                                                    max: '',
+                                                });
+                                                setSortBy('newest');
+                                            }}
+                                            className="text-sm text-rose-600 hover:text-rose-800 font-medium"
+                                        >
+                                            Đặt lại bộ lọc
+                                        </button>
+                                    </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
