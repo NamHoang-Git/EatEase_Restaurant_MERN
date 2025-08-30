@@ -116,14 +116,30 @@ const EditProductAdmin = ({ close, data: propsData, fetchProduct }) => {
         setLoading(true);
 
         try {
-            const response = await Axios.put(
-                SummaryApi.updateProduct.url,
-                data
-            );
-            if (response.data.success) {
-                successAlert('Cập nhật sản phẩm thành công!');
+            const response = await Axios({
+                ...SummaryApi.update_product_details,
+                data: data,
+            });
+            const { data: responseData } = response;
+
+            if (responseData.success) {
+                successAlert(responseData.message);
+                if (close) {
+                    close();
+                }
                 fetchProduct();
-                close();
+                setData({
+                    name: '',
+                    image: [],
+                    category: [],
+                    subCategory: [],
+                    unit: '',
+                    stock: '',
+                    price: '',
+                    discount: '',
+                    description: '',
+                    more_details: {},
+                });
             }
         } catch (error) {
             AxiosToastError(error);
@@ -249,7 +265,7 @@ const EditProductAdmin = ({ close, data: propsData, fetchProduct }) => {
                                             <img
                                                 src={img}
                                                 alt={`Preview ${index + 1}`}
-                                                className="w-full h-full object-cover cursor-pointer"
+                                                className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-all duration-200"
                                                 onClick={() => setImageURL(img)}
                                             />
                                             <button
@@ -258,10 +274,11 @@ const EditProductAdmin = ({ close, data: propsData, fetchProduct }) => {
                                                     e.stopPropagation();
                                                     handleRemoveImage(index);
                                                 }}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="absolute top-0 right-0 bg-red-500 text-white rounded-md sm:p-1 p-[2px] opacity-0 group-hover:opacity-100
+                                                transition-opacity"
                                                 title="Xóa ảnh"
                                             >
-                                                <IoClose size={16} />
+                                                <IoClose size={14} />
                                             </button>
                                         </div>
                                     ))}
@@ -551,6 +568,7 @@ const EditProductAdmin = ({ close, data: propsData, fetchProduct }) => {
             {imageURL && (
                 <ViewImage url={imageURL} close={() => setImageURL('')} />
             )}
+
             {openAddField && (
                 <AddFieldComponent
                     value={fieldName}

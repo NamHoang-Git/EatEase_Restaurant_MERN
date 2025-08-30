@@ -9,6 +9,7 @@ import EditCategory from '../components/EditCategory';
 import ConfirmBox from '../components/ConfirmBox';
 import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/successAlert';
+import ViewImage from '../components/ViewImage';
 
 const CategoryPage = () => {
     const [openUploadCaregory, setOpenUploadCaregory] = useState(false);
@@ -24,6 +25,7 @@ const CategoryPage = () => {
     const [deleteCategory, setDeleteCategory] = useState({
         _id: '',
     });
+    const [imageURL, setImageURL] = useState('');
 
     const fetchCategory = async () => {
         // API admin cần authentication - giữ nguyên check
@@ -115,6 +117,7 @@ const CategoryPage = () => {
                                     e.target.onerror = null;
                                     e.target.src = '/placeholder-category.jpg';
                                 }}
+                                onClick={() => setImageURL(category.image)}
                             />
                         </div>
 
@@ -131,11 +134,11 @@ const CategoryPage = () => {
                                         setOpenEdit(true);
                                         setEditData(category);
                                     }}
-                                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm
-                                    bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors"
+                                    className="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-600
+                    font-semibold rounded p-1 flex items-center justify-center gap-1 transition-colors"
                                 >
                                     <svg
-                                        className="w-4 h-4"
+                                        className="w-4 h-4 mb-[2px]"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -156,11 +159,11 @@ const CategoryPage = () => {
                                         setOpenConfirmBoxDelete(true);
                                         setDeleteCategory(category);
                                     }}
-                                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm
-                                    bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
+                                    className="flex-1 bg-red-100 hover:bg-red-200 text-red-600
+                    font-semibold rounded p-1 flex items-center justify-center gap-1 transition-colors"
                                 >
                                     <svg
-                                        className="w-4 h-4"
+                                        className="w-4 h-4 mb-[2px]"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -260,6 +263,10 @@ const CategoryPage = () => {
                     confirmText="Xóa"
                     cancelText="Hủy"
                 />
+            )}
+
+            {imageURL && (
+                <ViewImage url={imageURL} close={() => setImageURL('')} />
             )}
         </section>
     );

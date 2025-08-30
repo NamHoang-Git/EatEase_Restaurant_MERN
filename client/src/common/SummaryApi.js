@@ -72,24 +72,6 @@ const SummaryApi = {
         method: 'delete'
     },
 
-    // Sub Category
-    add_sub_category: {
-        url: '/api/sub-category/add-sub-category',
-        method: 'post'
-    },
-    get_sub_category: {
-        url: '/api/sub-category/get-sub-category',
-        method: 'get'
-    },
-    update_sub_category: {
-        url: '/api/sub-category/update-sub-category',
-        method: 'put'
-    },
-    delete_sub_category: {
-        url: '/api/sub-category/delete-sub-category',
-        method: 'delete'
-    },
-
     // Product
     add_product: {
         url: '/api/product/add-product',

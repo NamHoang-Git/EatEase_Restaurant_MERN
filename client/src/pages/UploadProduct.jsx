@@ -259,7 +259,7 @@ const UploadProduct = () => {
                                             <img
                                                 src={img}
                                                 alt={`Preview ${index + 1}`}
-                                                className="w-full h-full object-cover cursor-pointer"
+                                                className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-all duration-200"
                                                 onClick={() => setImageURL(img)}
                                             />
                                             <button
@@ -268,8 +268,8 @@ const UploadProduct = () => {
                                                     e.stopPropagation();
                                                     handleRemoveImage(index);
                                                 }}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0
-                                                group-hover:opacity-100 transition-opacity"
+                                                className="absolute top-0 right-0 bg-red-500 text-white rounded-md sm:p-1 p-[2px] opacity-0 group-hover:opacity-100
+                                                transition-opacity"
                                                 title="Xóa ảnh"
                                             >
                                                 <IoClose size={16} />
