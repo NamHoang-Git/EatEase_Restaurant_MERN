@@ -6,8 +6,8 @@ import Loading from '../components/Loading';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
+import { FaArrowUp, FaFilter, FaSort, FaChevronDown } from 'react-icons/fa';
 import CardProduct from '../components/CardProduct';
-import { FaArrowUp, FaFilter, FaSort } from 'react-icons/fa';
 
 const ProductListPage = () => {
     const [data, setData] = useState([]);
@@ -44,6 +44,7 @@ const ProductListPage = () => {
     const categoryId = category?.slice(-1)[0];
     const categoryInfo = AllCategory.find((cat) => cat._id === categoryId);
     const categoryName = categoryInfo ? categoryInfo.name : '';
+    const [showSidebar, setShowSidebar] = useState(false);
 
     const fetchProduct = async (isInitialLoad = false) => {
         if (isInitialLoad) {
@@ -136,10 +137,27 @@ const ProductListPage = () => {
         <section className="bg-gray-50 min-h-screen pt-4">
             <div className="container mx-auto px-2 sm:px-4">
                 <div className="flex flex-col lg:flex-row gap-4">
-                    {/** Category Sidebar - Hidden on mobile, shown on lg+ */}
-                    <div className="hidden lg:block w-full lg:w-72 flex-shrink-0">
-                        <div className="bg-white rounded-lg shadow-sm p-4 sticky top-24">
-                            <h3 className="font-semibold text-lg mb-4 text-gray-800">
+                    {/* Mobile Toggle Button - Only on small screens */}
+                    <button
+                        onClick={() => setShowSidebar(!showSidebar)}
+                        className="lg:hidden flex items-center justify-between w-full p-3 bg-white rounded-lg shadow-sm mb-2"
+                    >
+                        <span className="font-medium">Danh mục sản phẩm</span>
+                        <FaChevronDown
+                            className={`transition-transform ${
+                                showSidebar ? 'transform rotate-180' : ''
+                            }`}
+                        />
+                    </button>
+
+                    {/* Category Sidebar - Collapsible on mobile */}
+                    <div
+                        className={`${
+                            showSidebar ? 'block' : 'hidden'
+                        } lg:block w-full lg:w-72 flex-shrink-0`}
+                    >
+                        <div className="bg-white rounded-lg shadow-sm p-4 lg:sticky lg:top-24">
+                            <h3 className="font-semibold text-lg mb-4 text-gray-800 hidden lg:block">
                                 Danh mục
                             </h3>
                             <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
@@ -156,6 +174,9 @@ const ProductListPage = () => {
                                                     ? 'bg-rose-100 text-rose-700'
                                                     : 'hover:bg-gray-100 text-gray-700'
                                             }`}
+                                            onClick={() =>
+                                                setShowSidebar(false)
+                                            }
                                         >
                                             <img
                                                 src={
@@ -164,7 +185,7 @@ const ProductListPage = () => {
                                                 }
                                                 alt={s.name}
                                                 onError={handleImageError}
-                                                className="w-10 h-10 object-cover rounded-full mr-3"
+                                                className="w-8 h-8 lg:w-10 lg:h-10 object-cover rounded-full mr-2 lg:mr-3"
                                             />
                                             <span className="text-sm font-medium">
                                                 {s.name}
@@ -300,7 +321,7 @@ const ProductListPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
                                 {data.map((product, index) => (
                                     <div
                                         key={product._id}
@@ -309,6 +330,8 @@ const ProductListPage = () => {
                                                 ? lastProductRef
                                                 : null
                                         }
+                                        className="group bg-white rounded-xl shadow-md shadow-secondary-100
+                                    hover:shadow-lg transition-all duration-300 overflow-hidden"
                                     >
                                         <CardProduct data={product} />
                                     </div>
