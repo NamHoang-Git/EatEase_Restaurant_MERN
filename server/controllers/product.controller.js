@@ -155,7 +155,7 @@ export const getProductByCategoryList = async (request, response) => {
         // Set default values
         page = page || 1;
         limit = limit || 10;
-        
+
         // Build query
         const query = {
             category: { $in: Array.isArray(categoryId) ? categoryId : [categoryId] }

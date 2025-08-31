@@ -17,9 +17,9 @@ const UploadProduct = () => {
         image: [],
         category: [],
         unit: '',
-        stock: null,
-        price: null,
-        discount: null,
+        stock: 0,
+        price: 0,
+        discount: 0,
         description: '',
         more_details: {},
     });

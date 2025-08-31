@@ -8,12 +8,10 @@ import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import { FaArrowUp, FaFilter, FaSort, FaChevronDown } from 'react-icons/fa';
 import CardProduct from '../components/CardProduct';
-import debounce from 'lodash.debounce'; // Thêm lodash.debounce
 
 const ProductListPage = () => {
     const [data, setData] = useState([]);
     const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const [totalCount, setTotalCount] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -22,6 +20,7 @@ const ProductListPage = () => {
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
     const [showFilters, setShowFilters] = useState(false);
     const [isFiltering, setIsFiltering] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const observer = useRef();
     const params = useParams();
@@ -214,13 +213,14 @@ const ProductListPage = () => {
     };
 
     return (
-        <section className="bg-gray-50 min-h-screen pt-4">
-            <div className="container mx-auto px-2 sm:px-4">
-                <div className="flex flex-col lg:flex-row gap-4">
+        <section className="min-h-screen py-4">
+            <div className="container w-full mx-auto px-2 sm:px-4">
+                <div className="flex flex-col lg:flex-row gap-6">
                     {/* Mobile Toggle Button */}
                     <button
                         onClick={() => setShowSidebar(!showSidebar)}
-                        className="lg:hidden flex items-center justify-between w-full p-3 bg-white rounded-lg shadow-sm mb-2"
+                        className="lg:hidden flex items-center justify-between w-full p-3 bg-white rounded-lg shadow-lg
+                        text-secondary-200 font-bold text-lg"
                     >
                         <span className="font-medium">Danh mục sản phẩm</span>
                         <FaChevronDown
@@ -236,11 +236,11 @@ const ProductListPage = () => {
                             showSidebar ? 'block' : 'hidden'
                         } lg:block w-full lg:w-72 flex-shrink-0`}
                     >
-                        <div className="bg-white rounded-lg shadow-sm p-4 lg:sticky lg:top-24">
-                            <h3 className="font-semibold text-lg mb-4 text-gray-800 hidden lg:block">
+                        <div className="bg-white rounded-lg shadow-lg lg:sticky lg:top-24">
+                            <h3 className="font-bold text-lg text-secondary-200 hidden lg:block shadow-lg p-3 rounded-lg">
                                 Danh mục
                             </h3>
-                            <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                            <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto p-4">
                                 {displayCategory.map((s) => {
                                     const link = `/${valideURLConvert(
                                         s.name
@@ -249,10 +249,10 @@ const ProductListPage = () => {
                                         <Link
                                             key={s._id}
                                             to={link}
-                                            className={`flex items-center p-2 rounded-lg transition-colors ${
+                                            className={`flex items-center gap-4 p-2 rounded-lg transition-colors ${
                                                 categoryId === s._id
-                                                    ? 'bg-rose-100 text-rose-700'
-                                                    : 'hover:bg-gray-100 text-gray-700'
+                                                    ? 'bg-rose-200 text-secondary-200'
+                                                    : 'hover:bg-rose-100 text-gray-700'
                                             }`}
                                             onClick={() =>
                                                 setShowSidebar(false)
@@ -265,7 +265,7 @@ const ProductListPage = () => {
                                                 }
                                                 alt={s.name}
                                                 onError={handleImageError}
-                                                className="w-8 h-8 lg:w-10 lg:h-10 object-cover rounded-full mr-2 lg:mr-3"
+                                                className="w-8 h-8 lg:w-10 lg:h-10 object-cover rounded-md border border-inset border-secondary-200"
                                             />
                                             <span className="text-sm font-medium">
                                                 {s.name}
@@ -278,55 +278,66 @@ const ProductListPage = () => {
                     </div>
 
                     {/* Product List */}
-                    <div className="w-full">
-                        <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+                    <div className="w-full bg-white shadow-lg rounded-lg">
+                        <div
+                            className="px-4 py-6 sm:py-4 bg-primary-4 rounded-md shadow-md shadow-secondary-100
+                        font-bold text-secondary-200 sm:text-lg text-sm"
+                        >
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+                                <h1 className="text-ellipsis uppercase flex gap-2 items-baseline">
                                     {categoryName || 'Tất cả sản phẩm'}
-                                    <span className="text-sm font-normal text-gray-500 ml-2">
+                                    <span className="text-[12px] sm:text-base text-secondary-100">
                                         ({totalCount} sản phẩm)
                                     </span>
                                 </h1>
 
-                                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                {/* Filter */}
+                                <div className="flex flex-col sm:flex-row sm:gap-2 gap-3 w-full sm:w-auto text-sm">
                                     <button
                                         onClick={() =>
                                             setShowFilters(!showFilters)
                                         }
-                                        className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors w-full sm:w-auto"
+                                        className="h-full sm:h-[38px] w-full mx-auto sm:mr-0 min-w-16 lg:min-w-24 bg-white px-4 py-2
+                                    flex items-center sm:justify-center gap-2 rounded-xl shadow-md shadow-secondary-100 focus-within:border-secondary-200"
                                     >
-                                        <FaFilter />
+                                        <FaFilter
+                                            size={12}
+                                            className="mb-[2px]"
+                                        />
                                         <span>Bộ lọc</span>
                                     </button>
 
-                                    <div className="relative w-full sm:w-48">
+                                    <div
+                                        className="relative h-full sm:h-[38px] w-full mx-auto sm:mr-0 min-w-16 lg:min-w-24 bg-white px-4
+                                    flex items-center gap-2 rounded-xl shadow-md shadow-secondary-100 focus-within:border-secondary-200"
+                                    >
                                         <select
                                             value={sortBy}
                                             onChange={handleSortChange}
-                                            className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                                            className="w-full py-2 border-gray-300 focus:outline-none focus:border-transparent cursor-pointer appearance-none"
                                         >
                                             <option value="newest">
                                                 Mới nhất
                                             </option>
                                             <option value="price_asc">
-                                                Giá tăng dần
+                                                Giá gốc tăng dần
                                             </option>
                                             <option value="price_desc">
-                                                Giá giảm dần
+                                                Giá gốc giảm dần
                                             </option>
                                             <option value="popular">
                                                 Phổ biến
                                             </option>
                                         </select>
-                                        <FaSort className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                        <FaSort className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
                                     </div>
                                 </div>
                             </div>
 
                             {showFilters && (
-                                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h4 className="font-medium text-gray-700">
+                                <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md shadow-secondary-100">
+                                    <div className="flex justify-between text-base items-center mb-3 font-bold text-secondary-200">
+                                        <h4 className="">
                                             {isFiltering
                                                 ? 'Đang lọc...'
                                                 : 'Lọc theo giá'}
@@ -339,14 +350,14 @@ const ProductListPage = () => {
                                                 });
                                                 setSortBy('newest');
                                             }}
-                                            className="text-sm text-rose-600 hover:text-rose-800 font-medium"
+                                            className="hover:text-secondary-100 text-base underline"
                                         >
                                             Đặt lại bộ lọc
                                         </button>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-secondary-200 font-medium">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label className="block text-[15px] font-medium mb-1">
                                                 Giá thấp nhất
                                             </label>
                                             <input
@@ -355,11 +366,11 @@ const ProductListPage = () => {
                                                 value={priceRange.min}
                                                 onChange={handlePriceChange}
                                                 placeholder="Từ"
-                                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                                                className="w-full p-2 border text-sm border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label className="block text-[15px] font-medium mb-1">
                                                 Giá cao nhất
                                             </label>
                                             <input
@@ -368,7 +379,7 @@ const ProductListPage = () => {
                                                 value={priceRange.max}
                                                 onChange={handlePriceChange}
                                                 placeholder="Đến"
-                                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                                                className="w-full p-2 border text-sm border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
                                             />
                                         </div>
                                     </div>
@@ -417,7 +428,7 @@ const ProductListPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 p-4">
                                 {data.map((product, index) => (
                                     <div
                                         key={product._id}
@@ -447,10 +458,12 @@ const ProductListPage = () => {
             {showScrollToTop && (
                 <button
                     onClick={scrollToTop}
-                    className="fixed bottom-6 right-ange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
+                    className="fixed bottom-32 sm:bottom-28 right-4 sm:right-8 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2
+                    focus:ring-rose-500 bg-secondary-200 rounded-full p-2 sm:p-4 md:p-4 hover:bg-secondary-100 text-white z-50"
                     aria-label="Lên đầu trang"
                 >
-                    <FaArrowUp />
+                    <FaArrowUp size={24} className='hidden sm:block' />
+                    <FaArrowUp className='block sm:hidden' />
                 </button>
             )}
         </section>
