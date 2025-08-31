@@ -221,7 +221,7 @@ const ProductListPage = () => {
                     <button
                         onClick={() => setShowSidebar(!showSidebar)}
                         className="lg:hidden flex items-center justify-between w-full p-3 bg-white rounded-lg shadow-lg
-                        text-secondary-200 font-bold text-lg"
+                        text-secondary-200 font-bold sm:text-lg text-base"
                     >
                         <span className="font-medium">Danh mục sản phẩm</span>
                         <FaChevronDown

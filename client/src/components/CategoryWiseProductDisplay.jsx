@@ -51,6 +51,10 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
         containerRef.current.scrollLeft += 500;
     };
 
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const redirectURL = `/${valideURLConvert(name)}-${id}`;
 
     return (
@@ -62,7 +66,8 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
                 <h3 className="font-bold">{name}</h3>
                 <Link
                     to={redirectURL}
-                    className="flex items-center gap-1 text-secondary-200 hover:text-secondary-100 font-bold"
+                    onClick={scrollToTop}
+                    className="flex items-center gap-1 text-secondary-200 hover:text-secondary-100 font-bold text-[10px] sm:text-base"
                 >
                     Xem tất cả
                     <span>

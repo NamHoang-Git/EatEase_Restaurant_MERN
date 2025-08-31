@@ -8,6 +8,7 @@ import { MdAccessTime } from 'react-icons/md';
 
 const CardProduct = ({ data }) => {
     const url = `/product/${valideURLConvert(data.name)}-${data._id}`;
+
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -16,6 +17,7 @@ const CardProduct = ({ data }) => {
         <Link
             to={url}
             onClick={scrollToTop}
+            title={data.name}
             className="group bg-white rounded-xl shadow-md shadow-secondary-100
         hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
@@ -53,7 +55,7 @@ const CardProduct = ({ data }) => {
                     {Boolean(data.discount) && (
                         <span
                             className="w-fit bg-primary border-2 border-secondary-200 text-secondary-200 text-[10px] sm:text-xs font-semibold
-                        px-2 py-[0.8px] rounded-full shadow"
+                        px-2 sm:py-[0.8px] py-0 rounded-full shadow"
                         >
                             -{data.discount}%
                         </span>
@@ -62,13 +64,13 @@ const CardProduct = ({ data }) => {
 
                 {/* Giá + Button */}
                 <div className="flex md:flex-row flex-col md:items-center justify-between md:h-6 mt-1 md:mt-4 gap-2">
-                    <div className="flex md:flex-col md:gap-1 gap-2 md:h-10 md:justify-center justify-start md:items-start items-baseline">
+                    <div className="flex md:flex-col md:gap-0 gap-2 md:h-10 md:justify-center justify-start md:items-start items-baseline">
                         {Boolean(data.discount) && (
                             <span className="text-gray-400 line-through text-[10px] sm:text-[15px]">
                                 {DisplayPriceInVND(data.price)}
                             </span>
                         )}
-                        <span className="text-secondary-200 font-bold text-xs sm:text-[15px] lg:text-base">
+                        <span className="text-secondary-200 font-bold text-[10px] sm:text-[15px] lg:text-base">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}
@@ -77,7 +79,7 @@ const CardProduct = ({ data }) => {
 
                     <div className="">
                         {data.stock === 0 ? (
-                            <p className="text-secondary-200 text-sm md:text-base font-bold md:font-semibold md:text-center">
+                            <p className="text-secondary-200 text-sm sm:text-base font-bold md:font-semibold md:text-center">
                                 Hết hàng
                             </p>
                         ) : (
