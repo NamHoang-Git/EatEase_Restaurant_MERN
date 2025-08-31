@@ -321,10 +321,10 @@ const ProductListPage = () => {
                                                 Mới nhất
                                             </option>
                                             <option value="price_asc">
-                                                Giá gốc tăng dần
+                                                Giá tăng dần
                                             </option>
                                             <option value="price_desc">
-                                                Giá gốc giảm dần
+                                                Giá giảm dần
                                             </option>
                                             <option value="popular">
                                                 Phổ biến

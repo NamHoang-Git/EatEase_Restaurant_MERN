@@ -12,6 +12,7 @@ const Search = () => {
     const [isMobile] = useMobile();
     const params = useLocation();
     const searchText = params.search.slice(3);
+    const [isTyping, setIsTyping] = useState(false);
 
     useEffect(() => {
         const isSearch = location.pathname === '/search';
@@ -25,7 +26,11 @@ const Search = () => {
     const handleOnChange = (e) => {
         const value = e.target.value;
         const url = `/search?q=${value}`;
+        setIsTyping(true);
         navigate(url);
+        setTimeout(() => {
+            setIsTyping(false);
+        }, 200);
     };
 
     return (
@@ -78,7 +83,7 @@ const Search = () => {
                     </div>
                 ) : (
                     // Search Page
-                    <div className="w-full h-full">
+                    <div className="relative w-full h-full">
                         <input
                             type="text"
                             placeholder="Bạn muốn mua gì hôm nay?"
@@ -87,6 +92,11 @@ const Search = () => {
                             defaultValue={searchText}
                             onChange={handleOnChange}
                         />
+                        {isTyping && (
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

@@ -327,46 +327,60 @@ export const deleteProductDetails = async (request, response) => {
 // Search Product
 export const searchProduct = async (request, response) => {
     try {
-        let { search, page, limit } = request.body
+        let { search, page, limit } = request.body;
 
-        if (!page) {
-            page = 1
+        if (!page) page = 1;
+        if (!limit) limit = 15;
+        if (!search || search.trim() === '') {
+            return response.status(400).json({
+                message: 'Vui lòng nhập từ khóa tìm kiếm',
+                error: true,
+                success: false
+            });
         }
-        if (!limit) {
-            limit = 15
-        }
 
-        const query = search ? {
-            $text: {
-                $search: search
-            }
-        } : {}
+        const skip = (page - 1) * limit;
+        
+        // Create a regex pattern for partial matching
+        const searchRegex = new RegExp(search, 'i');
+        
+        // Build the query to search in name and description
+        const query = {
+            $or: [
+                { name: { $regex: searchRegex } },
+                { description: { $regex: searchRegex } },
+                { 'more_details.brand': { $regex: searchRegex } },
+                { 'more_details.model': { $regex: searchRegex } }
+            ],
+            publish: true // Only search published products
+        };
 
-        const skip = (page - 1) * limit
-
-        const [data, dataCount] = await Promise.all([
-            ProductModel.find(query).sort({ createdAt: -1 }).skip(skip)
-                .limit(limit).populate('category'),
+        // Execute search with pagination
+        const [data, totalCount] = await Promise.all([
+            ProductModel.find(query)
+                .populate('category')
+                .sort({ name: 1 })
+                .skip(skip)
+                .limit(parseInt(limit)),
             ProductModel.countDocuments(query)
-        ])
+        ]);
 
         return response.json({
-            message: "Danh sách sản phẩm",
-            error: false,
-            success: true,
             data: data,
-            totalCount: dataCount,
-            totalPage: Math.ceil(dataCount / limit),
-            page: page,
-            limit: limit
-        })
-
+            totalCount: totalCount,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPage: Math.ceil(totalCount / limit),
+            success: true,
+            error: false
+        });
 
     } catch (error) {
+        console.error('Search error:', error);
         return response.status(500).json({
-            message: error.message || error,
+            message: 'Đã xảy ra lỗi khi tìm kiếm sản phẩm',
             error: true,
             success: false
-        })
+        });
     }
 }
