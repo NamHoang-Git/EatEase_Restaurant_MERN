@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Axios from './../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
-import AxiosToastError from './../utils/AxiosToastError';
 import CardProduct from './../components/CardProduct';
 import CardLoading from './../components/CardLoading';
 import { debounce } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { FaFilter, FaSortAmountDown } from 'react-icons/fa';
+import { FaFilter } from 'react-icons/fa';
 import { FaArrowUp } from 'react-icons/fa6';
 
 const SearchPage = () => {
@@ -17,7 +16,6 @@ const SearchPage = () => {
     const [totalPage, setTotalPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
     const [initialProducts, setInitialProducts] = useState([]);
     const [loadingInitial, setLoadingInitial] = useState(true);
     const [initialPage, setInitialPage] = useState(1);
@@ -27,11 +25,12 @@ const SearchPage = () => {
         minPrice: '',
         maxPrice: '',
         sortBy: 'newest',
+        category: 'all',
     });
+    const [categories, setCategories] = useState([]);
     const [showScrollToTop, setShowScrollToTop] = useState(false);
 
     const params = useLocation();
-    const navigate = useNavigate();
 
     // Handle filter changes
     const handleFilterChange = (e) => {
@@ -48,15 +47,6 @@ const SearchPage = () => {
             ...prev,
             [name]: value,
         }));
-    };
-
-    // Validate price range
-    const validatePriceRange = () => {
-        const { minPrice, maxPrice } = filters;
-        if (minPrice && maxPrice && parseInt(minPrice) > parseInt(maxPrice)) {
-            return false;
-        }
-        return true;
     };
 
     // Fetch initial products with filters
@@ -76,12 +66,18 @@ const SearchPage = () => {
                     maxPrice: parseInt(filters.maxPrice),
                 }),
                 sort: filters.sortBy,
+                category:
+                    filters.category !== 'all' ? filters.category : undefined,
             };
+
+            console.log('Fetching initial products with data:', requestData);
 
             const response = await Axios({
                 ...SummaryApi.get_initial_products,
                 data: requestData,
             });
+
+            console.log('Initial products response:', response.data);
 
             if (response.data.success) {
                 setInitialProducts((prev) =>
@@ -90,55 +86,95 @@ const SearchPage = () => {
                         : [...prev, ...response.data.data]
                 );
                 setHasMore(response.data.data.length === 12);
+                console.log(
+                    'Initial products updated:',
+                    initialPage === 1
+                        ? response.data.data
+                        : 'appended to existing'
+                );
+            } else {
+                console.error(
+                    'Failed to fetch initial products:',
+                    response.data.message
+                );
             }
         } catch (error) {
-            console.error('Error fetching initial products:', error);
+            console.error('Error in fetchInitialProducts:', error);
         } finally {
             setLoadingInitial(false);
         }
     }, [initialPage, filters]);
+
+    // Fetch categories
+    const fetchCategories = useCallback(async () => {
+        try {
+            const response = await Axios({
+                ...SummaryApi.get_category,
+                method: 'get',
+            });
+            if (response.data.success) {
+                setCategories(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }, []);
 
     // Update search function to include filters
     const searchProduct = useCallback(
         debounce(async (query, pageNum = 1) => {
             try {
                 setLoading(true);
+                const requestData = {
+                    page: pageNum,
+                    limit: 12,
+                    search: query,
+                    ...(filters.minPrice && {
+                        minPrice: parseInt(filters.minPrice),
+                    }),
+                    ...(filters.maxPrice && {
+                        maxPrice: parseInt(filters.maxPrice),
+                    }),
+                    sort: filters.sortBy,
+                    ...(filters.category &&
+                        filters.category !== 'all' && {
+                            category: filters.category,
+                        }),
+                };
+
                 const response = await Axios({
                     ...SummaryApi.search_product,
-                    data: {
-                        search: query,
-                        page: pageNum,
-                        limit: 12,
-                        ...(filters.minPrice && {
-                            minPrice: parseInt(filters.minPrice),
-                        }),
-                        ...(filters.maxPrice && {
-                            maxPrice: parseInt(filters.maxPrice),
-                        }),
-                        sort: filters.sortBy,
-                    },
+                    data: requestData,
                 });
 
                 if (response.data.success) {
-                    setData((prev) =>
-                        pageNum === 1
-                            ? response.data.data
-                            : [...prev, ...response.data.data]
-                    );
-                    setTotalPage(response.data.totalPage);
-                    setTotalCount(response.data.totalCount);
-                    setHasMore(pageNum < response.data.totalPage);
+                    setData(response.data.data || []);
+                    setTotalPage(response.data.totalNoPage || 1);
+                    setTotalCount(response.data.totalCount || 0);
+                    setHasMore(pageNum < (response.data.totalNoPage || 1));
                 }
             } catch (error) {
                 console.error('Error searching products:', error);
-                AxiosToastError(error);
             } finally {
                 setLoading(false);
-                setIsTyping(false);
             }
-        }, 500),
+        }, 300),
         [filters]
     );
+
+    // Reset all filters
+    const resetFilters = () => {
+        setFilters({
+            minPrice: '',
+            maxPrice: '',
+            sortBy: 'newest',
+            category: 'all',
+        });
+        setSearchQuery('');
+        setPage(1);
+        setInitialPage(1);
+        setInitialProducts([]);
+    };
 
     // Reset to first page when filters change
     useEffect(() => {
@@ -151,49 +187,25 @@ const SearchPage = () => {
         }
     }, [filters]);
 
-    // Fetch initial products when initialPage or filters change
+    // Fetch initial products when component mounts or when initialPage/filters change
     useEffect(() => {
-        if (!searchQuery) {
-            fetchInitialProducts();
-        }
-    }, [initialPage, filters, searchQuery]);
+        const fetchData = async () => {
+            if (!searchQuery) {
+                await fetchInitialProducts();
+            }
+        };
+        fetchData();
+    }, [initialPage, filters, searchQuery, fetchInitialProducts]);
+
+    // Fetch categories
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
 
     // Load more initial products
     const loadMoreInitialProducts = () => {
         if (hasMore && !loadingInitial) {
             setInitialPage((prev) => prev + 1);
-        }
-    };
-
-    // Debounced search function
-    const debouncedSearch = useCallback(
-        debounce((query, pageNum) => {
-            searchProduct(query, pageNum);
-        }, 500),
-        []
-    );
-
-    // Handle search input change
-    const handleSearchChange = (e) => {
-        const query = e.target.value;
-        setSearchQuery(query);
-        setIsTyping(true);
-
-        const searchParams = new URLSearchParams();
-        if (query) {
-            searchParams.set('q', query);
-            navigate(`/search?${searchParams.toString()}`, { replace: true });
-        } else {
-            navigate('/search', { replace: true });
-        }
-
-        setPage(1);
-
-        if (query.trim()) {
-            debouncedSearch(query, 1);
-        } else {
-            setData([]);
-            setLoading(false);
         }
     };
 
@@ -228,6 +240,15 @@ const SearchPage = () => {
     // Add filter UI component
     const renderFilterControls = () => (
         <div className="mb-6 bg-white sm:p-4 p-2 rounded-lg shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Bộ lọc</h2>
+                <button
+                    onClick={resetFilters}
+                    className="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors"
+                >
+                    Đặt lại bộ lọc
+                </button>
+            </div>
             <div className="flex flex-wrap items-center justify-between gap-6 text-secondary-200">
                 <div className="flex items-center gap-2">
                     <label className="text-sm font-semibold">Giá từ</label>
@@ -263,6 +284,23 @@ const SearchPage = () => {
                         <option value="price_asc">Giá tăng dần</option>
                         <option value="price_desc">Giá giảm dần</option>
                         <option value="name_asc">Tên A-Z</option>
+                    </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <label className="text-sm font-semibold">Danh mục</label>
+                    <select
+                        name="category"
+                        value={filters.category}
+                        onChange={handleFilterChange}
+                        className="p-2 border rounded text-[14px]"
+                    >
+                        <option value="all">Tất cả</option>
+                        {categories.map((category) => (
+                            <option key={category._id} value={category._id}>
+                                {category.name}
+                            </option>
+                        ))}
                     </select>
                 </div>
             </div>

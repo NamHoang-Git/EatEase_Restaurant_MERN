@@ -62,7 +62,7 @@ export const getProductController = async (req, res) => {
 
         // Build query object
         const query = {};
-        
+
         // Add search query if provided
         if (search) {
             query.$text = { $search: search };
@@ -82,7 +82,7 @@ export const getProductController = async (req, res) => {
 
         // Build sort object
         let sortOptions = {};
-        
+
         // Apply sorting based on the sort parameter
         switch (sort) {
             case 'price_asc':
@@ -207,7 +207,7 @@ export const getProductByCategoryList = async (request, response) => {
 
         // Build sort options
         let sortOptions = {};
-        
+
         // Apply sorting based on the sort parameter
         switch (sort) {
             case 'price_asc':
@@ -364,7 +364,7 @@ export const deleteProductDetails = async (request, response) => {
 // Search Product
 export const searchProduct = async (request, response) => {
     try {
-        const { search, page = 1, limit = 12, minPrice, maxPrice, sort = 'newest' } = request.body;
+        const { search, page = 1, limit = 12, minPrice, maxPrice, sort = 'newest', category } = request.body;
         const skip = (page - 1) * limit;
 
         if (!search || search.trim() === '') {
@@ -380,22 +380,23 @@ export const searchProduct = async (request, response) => {
             $or: [
                 { name: { $regex: search, $options: 'i' } },
                 { description: { $regex: search, $options: 'i' } },
-                { 'category.name': { $regex: search, $options: 'i' } },
             ],
         };
 
-        // Add price range filter if provided
-        const priceFilter = {};
-        if (minPrice) priceFilter.$gte = Number(minPrice);
-        if (maxPrice) priceFilter.$lte = Number(maxPrice);
-        if (Object.keys(priceFilter).length > 0) {
-            query.price = priceFilter;
+        // Add price range filter
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
-        // Build sort object based on sort parameter
+        // Add category filter
+        if (category) {
+            query.category = new mongoose.Types.ObjectId(category);
+        }
+
+        // Build sort options
         let sortOptions = {};
-        
-        // Apply sorting based on the sort parameter
         switch (sort) {
             case 'price_asc':
                 sortOptions = { price: 1 };
@@ -406,14 +407,9 @@ export const searchProduct = async (request, response) => {
             case 'name_asc':
                 sortOptions = { name: 1 };
                 break;
-            case 'newest':
             default:
                 sortOptions = { createdAt: -1 };
-                break;
         }
-
-        console.log('Sort options:', sortOptions);
-        console.log('Sort parameter received:', sort);
 
         const [products, total] = await Promise.all([
             ProductModel.find(query)
@@ -424,47 +420,51 @@ export const searchProduct = async (request, response) => {
             ProductModel.countDocuments(query),
         ]);
 
-        console.log('First product in results:', products[0]?.name, products[0]?.price);
-
         const totalPage = Math.ceil(total / limit);
 
         return response.json({
-            message: 'Tìm kiếm sản phẩm thành công',
+            message: 'Kết quả tìm kiếm',
             data: products,
-            totalPage,
             totalCount: total,
+            totalNoPage: totalPage,
+            currentPage: page,
             success: true,
-            error: false
+            error: false,
         });
     } catch (error) {
+        console.error('Error in searchProduct:', error);
         return response.status(500).json({
-            message: error.message || error,
+            message: error.message || 'Lỗi server',
             error: true,
-            success: false
+            success: false,
         });
     }
-}
+};
 
 // Get initial products for homepage
 export const getInitialProducts = async (req, res) => {
     try {
-        const { page = 1, limit = 12, minPrice, maxPrice, sort = 'newest' } = req.body;
+        const { page = 1, limit = 12, minPrice, maxPrice, sort = 'newest', category } = req.body;
         const skip = (page - 1) * limit;
 
         // Build the query
         const query = { publish: true }; // Only get published products
 
+        // Add category filter if provided
+        if (category) {
+            query['category'] = new mongoose.Types.ObjectId(category);
+        }
+
         // Add price range filter if provided
-        const priceFilter = {};
-        if (minPrice) priceFilter.$gte = Number(minPrice);
-        if (maxPrice) priceFilter.$lte = Number(maxPrice);
-        if (Object.keys(priceFilter).length > 0) {
-            query.price = priceFilter;
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
         // Build sort object based on sort parameter
         let sortOptions = {};
-        
+
         // Apply sorting based on the sort parameter
         switch (sort) {
             case 'price_asc':
@@ -482,6 +482,7 @@ export const getInitialProducts = async (req, res) => {
                 break;
         }
 
+        console.log('Query:', query);
         console.log('Sort options:', sortOptions);
         console.log('Sort parameter received:', sort);
 
@@ -490,12 +491,14 @@ export const getInitialProducts = async (req, res) => {
                 .sort(sortOptions)
                 .skip(skip)
                 .limit(limit)
-                .select('name price image discount category')
                 .populate('category', 'name'),
             ProductModel.countDocuments(query),
         ]);
 
-        console.log('First product in results:', products[0]?.name, products[0]?.price);
+        console.log('Products found:', products.length);
+        if (products.length > 0) {
+            console.log('First product:', products[0].name, products[0].price);
+        }
 
         const totalPage = Math.ceil(total / limit);
 
@@ -508,8 +511,9 @@ export const getInitialProducts = async (req, res) => {
             error: false,
         });
     } catch (error) {
+        console.error('Error in getInitialProducts:', error);
         return res.status(500).json({
-            message: error.message || error,
+            message: error.message || 'Lỗi server',
             error: true,
             success: false,
         });
