@@ -20,7 +20,7 @@ const CardProduct = ({ data }) => {
         hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
             {/* Image */}
-            <div className="relative w-full h-40 sm:h-52 overflow-hidden">
+            <div className="relative w-full h-32 sm:h-48 overflow-hidden">
                 <img
                     src={data.image[0]}
                     alt={data.name}
@@ -32,27 +32,27 @@ const CardProduct = ({ data }) => {
                     className="absolute top-2 right-2 bg-green-100 text-green-700 px-2 py-1 rounded-md
                 flex items-center gap-1"
                 >
-                    <MdAccessTime size={13} />
+                    <MdAccessTime size={13} className="mb-[2px]" />
                     <p className="text-xs font-medium leading-[14px]">10 min</p>
                 </div>
             </div>
 
             {/* Info */}
-            <div className="px-2 py-3 sm:px-3 sm:py-4 flex flex-col gap-2 lg:gap-2">
+            <div className="px-2 pt-2 pb-2 md:px-3 md:pt-4 md:pb-5 flex flex-col gap-2 lg:gap-2">
                 {/* Tên sản phẩm */}
-                <h2 className="font-semibold line-clamp-2 text-sm sm:text-base h-9 sm:h-11 md:h-10 lg:h-12">
+                <h2 className="font-semibold line-clamp-2 text-xs sm:text-base h-7 sm:h-11 md:h-10 lg:h-12">
                     {data.name}
                 </h2>
 
                 {/* Đơn vị + discount */}
-                <div className="flex gap-4 items-center sm:h-[14px] mt-1 md:mt-2">
-                    <div className="whitespace-nowrap font-semibold text-sm line-clamp-1">
+                <div className="flex gap-2 items-center sm:h-[12px] h-[10px] mt-1 md:mt-2">
+                    <div className="whitespace-nowrap font-semibold text-[10px] sm:text-sm line-clamp-1">
                         {data.unit}
                     </div>
                     {/* Badge discount */}
                     {Boolean(data.discount) && (
                         <span
-                            className="w-fit bg-primary border-2 border-secondary-200 text-secondary-200 text-xs font-semibold
+                            className="w-fit bg-primary border-2 border-secondary-200 text-secondary-200 text-[10px] sm:text-xs font-semibold
                         px-2 py-[0.8px] rounded-full shadow"
                         >
                             -{data.discount}%
@@ -62,13 +62,13 @@ const CardProduct = ({ data }) => {
 
                 {/* Giá + Button */}
                 <div className="flex md:flex-row flex-col md:items-center justify-between md:h-6 mt-1 md:mt-4 gap-2">
-                    <div className="flex flex-col h-10 justify-center">
+                    <div className="flex md:flex-col md:gap-1 gap-2 md:h-10 md:justify-center justify-start md:items-start items-baseline">
                         {Boolean(data.discount) && (
-                            <span className="text-gray-400 line-through text-xs sm:text-sm">
+                            <span className="text-gray-400 line-through text-[10px] sm:text-[15px]">
                                 {DisplayPriceInVND(data.price)}
                             </span>
                         )}
-                        <span className="text-secondary-200 font-bold text-sm sm:text-md lg:text-base">
+                        <span className="text-secondary-200 font-bold text-xs sm:text-[15px] lg:text-base">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}

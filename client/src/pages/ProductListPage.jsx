@@ -8,6 +8,7 @@ import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import { FaArrowUp, FaFilter, FaSort, FaChevronDown } from 'react-icons/fa';
 import CardProduct from '../components/CardProduct';
+import CardLoading from '../components/CardLoading';
 
 const ProductListPage = () => {
     const [data, setData] = useState([]);
@@ -314,7 +315,7 @@ const ProductListPage = () => {
                                         <select
                                             value={sortBy}
                                             onChange={handleSortChange}
-                                            className="w-full py-2 border-gray-300 focus:outline-none focus:border-transparent cursor-pointer appearance-none"
+                                            className="w-full py-2 bg-white focus:outline-none focus:border-transparent cursor-pointer appearance-none"
                                         >
                                             <option value="newest">
                                                 Mới nhất
@@ -388,22 +389,21 @@ const ProductListPage = () => {
                         </div>
 
                         {loading ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                {[...Array(10)].map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse"
-                                    >
-                                        <div className="aspect-square bg-gray-200"></div>
-                                        <div className="p-3">
-                                            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4">
+                                {Array(9)
+                                    .fill(null)
+                                    .map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className="group bg-white rounded-xl shadow-md
+                                    hover:shadow-lg transition-all duration-300 overflow-hidden"
+                                        >
+                                            <CardLoading />
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         ) : data.length === 0 ? (
-                            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                            <div className="bg-white rounded-lg shadow-lg p-8 text-center font-semibold">
                                 <div className="text-gray-400 mb-4">
                                     <svg
                                         className="w-16 h-16 mx-auto"
@@ -419,7 +419,7 @@ const ProductListPage = () => {
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">
                                     Không tìm thấy sản phẩm
                                 </h3>
                                 <p className="text-gray-500">
@@ -459,11 +459,11 @@ const ProductListPage = () => {
                 <button
                     onClick={scrollToTop}
                     className="fixed bottom-32 sm:bottom-28 right-4 sm:right-8 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2
-                    focus:ring-rose-500 bg-secondary-200 rounded-full p-2 sm:p-4 md:p-4 hover:bg-secondary-100 text-white z-50"
+                    focus:ring-rose-500 bg-secondary-200 rounded-full p-3 sm:p-4 md:p-4 hover:bg-secondary-100 text-white z-50"
                     aria-label="Lên đầu trang"
                 >
-                    <FaArrowUp size={24} className='hidden sm:block' />
-                    <FaArrowUp className='block sm:hidden' />
+                    <FaArrowUp size={24} className="hidden sm:block" />
+                    <FaArrowUp className="block sm:hidden" />
                 </button>
             )}
         </section>
