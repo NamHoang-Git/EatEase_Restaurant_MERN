@@ -8,6 +8,7 @@ import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import { FaArrowUp, FaFilter, FaSort, FaChevronDown } from 'react-icons/fa';
 import CardProduct from '../components/CardProduct';
+import debounce from 'lodash.debounce'; // Thêm lodash.debounce
 
 const ProductListPage = () => {
     const [data, setData] = useState([]);
@@ -23,6 +24,16 @@ const ProductListPage = () => {
     const [isFiltering, setIsFiltering] = useState(false);
 
     const observer = useRef();
+    const params = useParams();
+    const AllCategory = useSelector((state) => state.product.allCategory);
+    const [displayCategory, setDisplayCategory] = useState([]);
+
+    const category = params?.category?.split('-');
+    const categoryId = category?.slice(-1)[0];
+    const categoryInfo = AllCategory.find((cat) => cat._id === categoryId);
+    const categoryName = categoryInfo ? categoryInfo.name : '';
+    const [showSidebar, setShowSidebar] = useState(false);
+
     const lastProductRef = useCallback(
         (node) => {
             if (loading || loadingMore) return;
@@ -37,16 +48,31 @@ const ProductListPage = () => {
         [loading, loadingMore, hasMore]
     );
 
-    const params = useParams();
-    const AllCategory = useSelector((state) => state.product.allCategory);
-    const [displayCategory, setDisplayCategory] = useState([]);
+    // Handle price range input changes
+    const handlePriceChange = (e) => {
+        const { name, value } = e.target;
 
-    const category = params?.category?.split('-');
-    const categoryId = category?.slice(-1)[0];
-    const categoryInfo = AllCategory.find((cat) => cat._id === categoryId);
-    const categoryName = categoryInfo ? categoryInfo.name : '';
-    const [showSidebar, setShowSidebar] = useState(false);
+        // Only allow numbers or empty string
+        if (value === '' || /^\d*$/.test(value)) {
+            setPriceRange((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
+    };
 
+    // Handle price range validation before fetching
+    const validatePriceRange = useCallback(() => {
+        const min = priceRange.min ? parseInt(priceRange.min, 10) : null;
+        const max = priceRange.max ? parseInt(priceRange.max, 10) : null;
+
+        if (min !== null && max !== null && min > max) {
+            return false;
+        }
+        return true;
+    }, [priceRange.min, priceRange.max]);
+
+    // Hàm fetchProduct với kiểm tra giá
     const fetchProduct = useCallback(
         async (isInitialLoad = false) => {
             if (isInitialLoad) {
@@ -56,36 +82,60 @@ const ProductListPage = () => {
             }
 
             try {
+                const requestData = {
+                    categoryId,
+                    page: isInitialLoad ? 1 : page,
+                    limit: 12,
+                    sort: sortBy,
+                };
+
+                // Only add price filters if they have valid values
+                const minPrice = priceRange.min?.trim();
+                const maxPrice = priceRange.max?.trim();
+
+                if (minPrice) {
+                    requestData.minPrice = parseInt(minPrice, 10);
+                }
+                if (maxPrice) {
+                    requestData.maxPrice = parseInt(maxPrice, 10);
+                }
+
                 const response = await Axios({
                     ...SummaryApi.get_product_by_category_list,
-                    data: {
-                        categoryId,
-                        page: isInitialLoad ? 1 : page,
-                        limit: 12,
-                        sort: sortBy,
-                        ...(priceRange.min !== '' && {
-                            minPrice: parseInt(priceRange.min),
-                        }),
-                        ...(priceRange.max !== '' && {
-                            maxPrice: parseInt(priceRange.max),
-                        }),
-                    },
+                    data: requestData,
                 });
 
                 const { data: responseData } = response;
 
-                if (responseData.success) {
+                if (responseData?.success) {
                     setData((prev) =>
                         isInitialLoad
-                            ? [...responseData.data]
-                            : [...prev, ...responseData.data]
+                            ? [...(responseData.data || [])]
+                            : [...prev, ...(responseData.data || [])]
                     );
-                    setTotalCount(responseData.totalCount);
-                    setHasMore(responseData.data.length === 12);
+                    setTotalCount(responseData.totalCount || 0);
+                    setHasMore((responseData.data?.length || 0) === 12);
+                } else {
+                    // Only show error toast if there's a meaningful message
+                    const errorMessage = responseData?.message?.trim();
+                    if (errorMessage && errorMessage.length > 0) {
+                        AxiosToastError({ message: errorMessage });
+                    }
                 }
             } catch (error) {
                 console.error('Lỗi khi tải sản phẩm:', error);
-                AxiosToastError(error);
+                // Only show error toast if there's a meaningful message
+                const errorMessage =
+                    error.response?.data?.message?.trim() ||
+                    error.message?.trim();
+
+                if (errorMessage && errorMessage.length > 0) {
+                    AxiosToastError({
+                        message: errorMessage || 'Đã xảy ra lỗi không xác định',
+                    });
+                } else {
+                    console.warn('API error but no meaningful message');
+                }
             } finally {
                 setLoading(false);
                 setLoadingMore(false);
@@ -94,12 +144,46 @@ const ProductListPage = () => {
         [categoryId, page, sortBy, priceRange.min, priceRange.max]
     );
 
-    // Handle scroll to top
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    // Update the filter effect to validate before fetching
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // Only validate if both fields have values
+            if (priceRange.min && priceRange.max) {
+                if (!validatePriceRange()) {
+                    AxiosToastError({
+                        message: 'Giá tối thiểu không được lớn hơn giá tối đa',
+                    });
+                    return;
+                }
+            }
 
-    // Scroll event listener for back to top button
+            // Reset to first page when filters change
+            setPage(1);
+            // Clear existing data
+            setData([]);
+            setHasMore(true);
+            // Fetch new data with updated filters
+            fetchProduct(true);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [
+        priceRange.min,
+        priceRange.max,
+        sortBy,
+        categoryId,
+        validatePriceRange,
+        fetchProduct,
+    ]);
+
+    // Load thêm sản phẩm khi page thay đổi
+    useEffect(() => {
+        if (page > 1) {
+            fetchProduct();
+        }
+    }, [page, fetchProduct]);
+
+    // Xử lý cuộn để hiển thị nút "Lên đầu trang"
     useEffect(() => {
         const handleScroll = () => {
             setShowScrollToTop(window.pageYOffset > 300);
@@ -108,72 +192,32 @@ const ProductListPage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Update this useEffect to reset data when filters change
-    useEffect(() => {
-        setPage(1);
-        setData([]); // Reset data when filters change
-        setHasMore(true);
-        fetchProduct(true);
-    }, [params.category, sortBy, priceRange.min, priceRange.max]);
-
-    // Load more when page changes
-    useEffect(() => {
-        if (page > 1) {
-            fetchProduct();
-        }
-    }, [page]);
-
+    // Cập nhật danh mục hiển thị
     useEffect(() => {
         setDisplayCategory(AllCategory);
     }, [AllCategory]);
 
-    const handlePriceChange = (e) => {
-        const { name, value } = e.target;
-        // Chỉ cho phép nhập số dương
-        if (value === '' || /^[0-9]\d*$/.test(value)) {
-            setPriceRange((prev) => ({
-                ...prev,
-                [name]: value,
-            }));
-        }
-    };
-
-    // Cập nhật useEffect cho price range
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (priceRange.min !== '' || priceRange.max !== '') {
-                setIsFiltering(true);
-                setPage(1);
-                setData([]);
-                setHasMore(true);
-                fetchProduct(true).finally(() => setIsFiltering(false));
-            } else if (priceRange.min === '' && priceRange.max === '') {
-                // Nếu cả min và max đều trống, reset filter
-                setIsFiltering(true);
-                setPage(1);
-                setData([]);
-                setHasMore(true);
-                fetchProduct(true).finally(() => setIsFiltering(false));
-            }
-        }, 800); // Tăng thời gian debounce lên 800ms
-
-        return () => clearTimeout(timer);
-    }, [priceRange.min, priceRange.max]);
-
+    // Xử lý thay đổi sắp xếp
     const handleSortChange = (e) => {
         setSortBy(e.target.value);
     };
 
+    // Xử lý lỗi hình ảnh
     const handleImageError = (e) => {
         e.target.onerror = null;
         e.target.src = '/placeholder-category.jpg';
+    };
+
+    // Cuộn lên đầu trang
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
         <section className="bg-gray-50 min-h-screen pt-4">
             <div className="container mx-auto px-2 sm:px-4">
                 <div className="flex flex-col lg:flex-row gap-4">
-                    {/* Mobile Toggle Button - Only on small screens */}
+                    {/* Mobile Toggle Button */}
                     <button
                         onClick={() => setShowSidebar(!showSidebar)}
                         className="lg:hidden flex items-center justify-between w-full p-3 bg-white rounded-lg shadow-sm mb-2"
@@ -186,7 +230,7 @@ const ProductListPage = () => {
                         />
                     </button>
 
-                    {/* Category Sidebar - Collapsible on mobile */}
+                    {/* Category Sidebar */}
                     <div
                         className={`${
                             showSidebar ? 'block' : 'hidden'
@@ -233,7 +277,7 @@ const ProductListPage = () => {
                         </div>
                     </div>
 
-                    {/** Product List - Full width on mobile, auto on larger screens */}
+                    {/* Product List */}
                     <div className="w-full">
                         <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -403,7 +447,7 @@ const ProductListPage = () => {
             {showScrollToTop && (
                 <button
                     onClick={scrollToTop}
-                    className="fixed bottom-6 right-6 bg-rose-500 text-white p-3 rounded-full shadow-lg hover:bg-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
+                    className="fixed bottom-6 right-ange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
                     aria-label="Lên đầu trang"
                 >
                     <FaArrowUp />

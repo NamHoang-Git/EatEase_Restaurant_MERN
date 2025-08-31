@@ -142,34 +142,61 @@ export const getProductByCategoryHome = async (request, response) => {
 
 export const getProductByCategoryList = async (request, response) => {
     try {
-        let { categoryId, page, limit } = request.body;
+        let { categoryId, page, limit, sort, minPrice, maxPrice } = request.body;
 
         if (!categoryId) {
             return response.status(400).json({
-                message: "Provide categoryId",
+                message: "Vui lòng chọn danh mục sản phẩm",
                 error: true,
                 success: false
             });
         }
 
-        if (!page) {
-            page = 1;
-        }
-
-        if (!limit) {
-            limit = 10;
-        }
-
+        // Set default values
+        page = page || 1;
+        limit = limit || 10;
+        
+        // Build query
         const query = {
             category: { $in: Array.isArray(categoryId) ? categoryId : [categoryId] }
         };
 
+        // Add price range filter if provided
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            query.price = {};
+            if (minPrice !== undefined) {
+                query.price.$gte = Number(minPrice);
+            }
+            if (maxPrice !== undefined) {
+                query.price.$lte = Number(maxPrice);
+            }
+        }
+
+        // Build sort options
+        let sortOptions = { createdAt: -1 }; // Default sort
+        if (sort) {
+            switch (sort) {
+                case 'price_asc':
+                    sortOptions = { price: 1 };
+                    break;
+                case 'price_desc':
+                    sortOptions = { price: -1 };
+                    break;
+                case 'name_asc':
+                    sortOptions = { name: 1 };
+                    break;
+                case 'newest':
+                default:
+                    sortOptions = { createdAt: -1 };
+            }
+        }
+
         const skip = (page - 1) * limit;
 
-        const [data, dataCount] = await Promise.all([
+        const [data, totalCount] = await Promise.all([
             ProductModel.find(query)
                 .populate('category')
-                .sort({ createdAt: -1 })
+                .sort(sortOptions)
                 .skip(skip)
                 .limit(limit),
             ProductModel.countDocuments(query)
@@ -178,7 +205,7 @@ export const getProductByCategoryList = async (request, response) => {
         return response.json({
             message: "Danh sách sản phẩm",
             data: data,
-            totalCount: dataCount,
+            totalCount: totalCount,
             page: page,
             limit: limit,
             success: true,
@@ -186,8 +213,9 @@ export const getProductByCategoryList = async (request, response) => {
         });
 
     } catch (error) {
+        console.error('Lỗi khi lấy danh sách sản phẩm:', error);
         return response.status(500).json({
-            message: error.message || error,
+            message: "Đã xảy ra lỗi khi tải danh sách sản phẩm",
             error: true,
             success: false
         });
