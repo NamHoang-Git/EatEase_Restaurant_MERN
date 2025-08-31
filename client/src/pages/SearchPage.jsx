@@ -6,36 +6,169 @@ import AxiosToastError from './../utils/AxiosToastError';
 import CardProduct from './../components/CardProduct';
 import CardLoading from './../components/CardLoading';
 import { debounce } from 'lodash';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FaFilter, FaSortAmountDown } from 'react-icons/fa';
+import { FaArrowUp } from 'react-icons/fa6';
 
 const SearchPage = () => {
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPage, setTotalPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [initialProducts, setInitialProducts] = useState([]);
+    const [loadingInitial, setLoadingInitial] = useState(true);
+    const [initialPage, setInitialPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState({
+        minPrice: '',
+        maxPrice: '',
+        sortBy: 'newest',
+    });
+    const [showScrollToTop, setShowScrollToTop] = useState(false);
 
     const params = useLocation();
     const navigate = useNavigate();
 
-    // Extract search query from URL
-    useEffect(() => {
-        const query = new URLSearchParams(params.search).get('q') || '';
-        setSearchQuery(query);
-        if (query) {
-            setPage(1);
-            fetchData(query, 1);
-        } else {
-            setData([]);
-            setLoading(false);
+    // Handle filter changes
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        // Only allow numbers or empty string for price inputs
+        if (
+            (name === 'minPrice' || name === 'maxPrice') &&
+            value !== '' &&
+            !/^\d*$/.test(value)
+        ) {
+            return;
         }
-    }, [params.search]);
+        setFilters((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    // Validate price range
+    const validatePriceRange = () => {
+        const { minPrice, maxPrice } = filters;
+        if (minPrice && maxPrice && parseInt(minPrice) > parseInt(maxPrice)) {
+            return false;
+        }
+        return true;
+    };
+
+    // Fetch initial products with filters
+    const fetchInitialProducts = useCallback(async () => {
+        try {
+            if (initialPage === 1) {
+                setLoadingInitial(true);
+            }
+
+            const requestData = {
+                page: initialPage,
+                limit: 12,
+                ...(filters.minPrice && {
+                    minPrice: parseInt(filters.minPrice),
+                }),
+                ...(filters.maxPrice && {
+                    maxPrice: parseInt(filters.maxPrice),
+                }),
+                sort: filters.sortBy,
+            };
+
+            const response = await Axios({
+                ...SummaryApi.get_initial_products,
+                data: requestData,
+            });
+
+            if (response.data.success) {
+                setInitialProducts((prev) =>
+                    initialPage === 1
+                        ? response.data.data
+                        : [...prev, ...response.data.data]
+                );
+                setHasMore(response.data.data.length === 12);
+            }
+        } catch (error) {
+            console.error('Error fetching initial products:', error);
+        } finally {
+            setLoadingInitial(false);
+        }
+    }, [initialPage, filters]);
+
+    // Update search function to include filters
+    const searchProduct = useCallback(
+        debounce(async (query, pageNum = 1) => {
+            try {
+                setLoading(true);
+                const response = await Axios({
+                    ...SummaryApi.search_product,
+                    data: {
+                        search: query,
+                        page: pageNum,
+                        limit: 12,
+                        ...(filters.minPrice && {
+                            minPrice: parseInt(filters.minPrice),
+                        }),
+                        ...(filters.maxPrice && {
+                            maxPrice: parseInt(filters.maxPrice),
+                        }),
+                        sort: filters.sortBy,
+                    },
+                });
+
+                if (response.data.success) {
+                    setData((prev) =>
+                        pageNum === 1
+                            ? response.data.data
+                            : [...prev, ...response.data.data]
+                    );
+                    setTotalPage(response.data.totalPage);
+                    setTotalCount(response.data.totalCount);
+                    setHasMore(pageNum < response.data.totalPage);
+                }
+            } catch (error) {
+                console.error('Error searching products:', error);
+                AxiosToastError(error);
+            } finally {
+                setLoading(false);
+                setIsTyping(false);
+            }
+        }, 500),
+        [filters]
+    );
+
+    // Reset to first page when filters change
+    useEffect(() => {
+        if (searchQuery) {
+            setPage(1);
+            searchProduct(searchQuery, 1);
+        } else {
+            setInitialPage(1);
+            setInitialProducts([]);
+        }
+    }, [filters]);
+
+    // Fetch initial products when initialPage or filters change
+    useEffect(() => {
+        if (!searchQuery) {
+            fetchInitialProducts();
+        }
+    }, [initialPage, filters, searchQuery]);
+
+    // Load more initial products
+    const loadMoreInitialProducts = () => {
+        if (hasMore && !loadingInitial) {
+            setInitialPage((prev) => prev + 1);
+        }
+    };
 
     // Debounced search function
     const debouncedSearch = useCallback(
         debounce((query, pageNum) => {
-            fetchData(query, pageNum);
+            searchProduct(query, pageNum);
         }, 500),
         []
     );
@@ -46,7 +179,6 @@ const SearchPage = () => {
         setSearchQuery(query);
         setIsTyping(true);
 
-        // Update URL without page reload
         const searchParams = new URLSearchParams();
         if (query) {
             searchParams.set('q', query);
@@ -55,10 +187,8 @@ const SearchPage = () => {
             navigate('/search', { replace: true });
         }
 
-        // Reset to first page when search changes
         setPage(1);
 
-        // Only search if query is not empty
         if (query.trim()) {
             debouncedSearch(query, 1);
         } else {
@@ -67,52 +197,12 @@ const SearchPage = () => {
         }
     };
 
-    // Fetch data function
-    const fetchData = async (query, pageNum) => {
-        if (!query.trim()) {
-            setData([]);
-            setLoading(false);
-            setIsTyping(false);
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const response = await Axios({
-                ...SummaryApi.search_product,
-                data: {
-                    search: query,
-                    page: pageNum,
-                    limit: 12, // Adjust limit as needed
-                },
-            });
-
-            const { data: responseData } = response;
-
-            if (responseData.success) {
-                if (pageNum === 1) {
-                    setData(responseData.data);
-                    setTotalCount(responseData.totalCount || 0);
-                } else {
-                    setData((prevData) => [...prevData, ...responseData.data]);
-                }
-                setTotalPage(responseData.totalPage || 1);
-            }
-        } catch (error) {
-            console.error('Search error:', error);
-            AxiosToastError(error);
-        } finally {
-            setLoading(false);
-            setIsTyping(false);
-        }
-    };
-
     // Load more results
     const loadMore = () => {
-        if (page < totalPage && !loading) {
+        if (page < totalPage && !loading && searchQuery) {
             const nextPage = page + 1;
             setPage(nextPage);
-            fetchData(searchQuery, nextPage);
+            searchProduct(searchQuery, nextPage);
         }
     };
 
@@ -122,11 +212,12 @@ const SearchPage = () => {
             window.innerHeight + document.documentElement.scrollTop + 1 >=
                 document.documentElement.scrollHeight - 100 &&
             !loading &&
-            page < totalPage
+            page < totalPage &&
+            searchQuery
         ) {
             loadMore();
         }
-    }, [loading, page, totalPage]);
+    }, [loading, page, totalPage, searchQuery]);
 
     // Add scroll event listener
     useEffect(() => {
@@ -134,10 +225,97 @@ const SearchPage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
 
+    // Add filter UI component
+    const renderFilterControls = () => (
+        <div className="mb-6 bg-white sm:p-4 p-2 rounded-lg shadow-lg">
+            <div className="flex flex-wrap items-center justify-between gap-6 text-secondary-200">
+                <div className="flex items-center gap-2">
+                    <label className="text-sm font-semibold">Giá từ</label>
+                    <input
+                        type="text"
+                        name="minPrice"
+                        value={filters.minPrice}
+                        onChange={handleFilterChange}
+                        placeholder="Thấp nhất"
+                        className="w-24 p-2 border rounded text-[14px]"
+                    />
+                    <span>-</span>
+                    <input
+                        type="text"
+                        name="maxPrice"
+                        value={filters.maxPrice}
+                        onChange={handleFilterChange}
+                        placeholder="Cao nhất"
+                        className="w-24 p-2 border rounded text-[14px]"
+                    />
+                    <span className="text-[14px]">VNĐ</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <label className="text-sm font-semibold">Sắp xếp</label>
+                    <select
+                        name="sortBy"
+                        value={filters.sortBy}
+                        onChange={handleFilterChange}
+                        className="p-2 border rounded text-[14px]"
+                    >
+                        <option value="newest">Mới nhất</option>
+                        <option value="price_asc">Giá tăng dần</option>
+                        <option value="price_desc">Giá giảm dần</option>
+                        <option value="name_asc">Tên A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    );
+
+    // Extract search query from URL
+    useEffect(() => {
+        const query = new URLSearchParams(params.search).get('q') || '';
+        setSearchQuery(query);
+        if (query) {
+            setPage(1);
+            searchProduct(query, 1);
+        } else {
+            setData([]);
+            setLoading(false);
+        }
+    }, [params.search]);
+
+    // Cuộn lên đầu trang
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setShowScrollToTop(window.pageYOffset > 100);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
         <div className="container mx-auto px-4 py-6">
-            <div className="w-full mx-auto mb-3">
-                {/* Display search result count */}
+            {/* Filter Controls */}
+            <div className="mb-4">
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2 px-4 py-2 bg-secondary-200 text-white hover:opacity-80 rounded-lg
+                text-sm font-medium mb-2 shadow-lg"
+                >
+                    <FaFilter /> Bộ lọc
+                </button>
+                {showFilters && renderFilterControls()}
+            </div>
+
+            <div
+                className={`w-full mx-auto mb-3 ${
+                    !loading && searchQuery && data.length > 0
+                        ? 'block'
+                        : 'hidden'
+                }`}
+            >
                 {!loading && searchQuery && data.length > 0 && (
                     <p className="mt-2 text-sm text-gray-600">
                         Tìm thấy{' '}
@@ -149,46 +327,94 @@ const SearchPage = () => {
                 )}
             </div>
 
-            {loading && page === 1 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {Array(10)
-                        .fill(null)
-                        .map((_, index) => (
-                            <CardLoading key={index} />
-                        ))}
-                </div>
-            ) : data.length > 0 ? (
-                <>
+            {/* Search Results */}
+            {searchQuery ? (
+                loading && page === 1 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {data.map((product) => (
-                            <CardProduct key={product._id} data={product} />
-                        ))}
+                        {Array(6)
+                            .fill(null)
+                            .map((_, index) => (
+                                <CardLoading key={index} />
+                            ))}
                     </div>
-                    {loading && page > 1 && (
-                        <div className="flex justify-center mt-8">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-600"></div>
+                ) : data.length > 0 ? (
+                    <>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {data.map((product) => (
+                                <CardProduct key={product._id} data={product} />
+                            ))}
                         </div>
-                    )}
-                </>
-            ) : searchQuery ? (
-                <div className="text-center py-4 grid gap-2">
-                    <h3 className="text-xl font-semibold text-gray-700">
-                        Không tìm thấy sản phẩm
-                    </h3>
-                    <p className="text-gray-500">
-                        Không có sản phẩm nào phù hợp với từ khóa "{searchQuery}
-                        "
-                    </p>
-                </div>
+                        {loading && page > 1 && (
+                            <div className="flex justify-center mt-8">
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-600"></div>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div className="text-center py-4 grid gap-2">
+                        <h3 className="text-xl font-semibold text-gray-700">
+                            Không tìm thấy sản phẩm
+                        </h3>
+                        <p className="text-gray-500">
+                            Không có sản phẩm nào phù hợp với từ khóa "
+                            {searchQuery}"
+                        </p>
+                    </div>
+                )
             ) : (
-                <div className="text-center py-4 grid gap-2">
-                    <h3 className="text-xl font-semibold text-gray-700">
-                        Nhập từ khóa để tìm kiếm
-                    </h3>
-                    <p className="text-gray-500">
-                        Tìm kiếm sản phẩm theo tên, mô tả hoặc thương hiệu
-                    </p>
-                </div>
+                /* Initial products display */
+                <InfiniteScroll
+                    dataLength={initialProducts.length}
+                    next={loadMoreInitialProducts}
+                    hasMore={hasMore}
+                >
+                    <div className="bg-white rounded-md pb-2">
+                        <h2
+                            className="px-4 py-2 bg-primary-4 rounded-md shadow-md shadow-secondary-100
+                        font-bold text-secondary-200 sm:text-lg text-sm"
+                        >
+                            Sản phẩm nổi bật
+                        </h2>
+                        <div className="text-center pt-6 pb-4 grid gap-2">
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-500">
+                                Nhập từ khóa để tìm kiếm
+                            </h3>
+                            <p className="text-sm sm:text-base text-gray-500">
+                                Tìm kiếm sản phẩm theo tên
+                            </p>
+                        </div>
+                        {loadingInitial ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-2 px-4">
+                                {Array(6)
+                                    .fill(null)
+                                    .map((_, index) => (
+                                        <CardLoading key={index} />
+                                    ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-2 px-4">
+                                {initialProducts.map((product) => (
+                                    <CardProduct
+                                        key={product._id}
+                                        data={product}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </InfiniteScroll>
+            )}
+
+            {showScrollToTop && (
+                <button
+                    onClick={scrollToTop}
+                    className="fixed bottom-32 sm:bottom-28 right-4 sm:right-8 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2
+                                focus:ring-rose-500 bg-secondary-200 rounded-full p-3 sm:p-4 md:p-4 hover:bg-secondary-100 text-white z-50"
+                    aria-label="Lên đầu trang"
+                >
+                    <FaArrowUp size={24} className="hidden sm:block" />
+                    <FaArrowUp className="block sm:hidden" />
+                </button>
             )}
         </div>
     );

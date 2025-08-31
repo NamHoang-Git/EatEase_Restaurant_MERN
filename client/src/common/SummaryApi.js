@@ -49,6 +49,10 @@ const SummaryApi = {
         url: '/api/user/change-password',
         method: 'put'
     },
+    get_initial_products: {
+        url: '/api/product/initial-products',
+        method: 'post'
+    },
 
     // Category
     add_category: {

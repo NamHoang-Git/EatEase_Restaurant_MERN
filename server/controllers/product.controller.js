@@ -55,32 +55,64 @@ export const addProductController = async (req, res) => {
 
 export const getProductController = async (req, res) => {
     try {
-        let { page, limit, search } = req.body
+        let { page, limit, search, minPrice, maxPrice, sort, category } = req.body;
 
-        if (!page) {
-            page = 2
+        if (!page) page = 1;
+        if (!limit) limit = 10;
+
+        // Build query object
+        const query = {};
+        
+        // Add search query if provided
+        if (search) {
+            query.$text = { $search: search };
         }
 
-        if (!limit) {
-            limit = 10
+        // Add price range filter
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
-        const query = search ? {
-            $text: {
-                $search: search
-            }
-        } : {}
+        // Add category filter
+        if (category && category !== 'all') {
+            query.category = new mongoose.Types.ObjectId(category);
+        }
 
-        const skip = (page - 1) * limit
+        // Build sort object
+        let sortOptions = {};
+        
+        // Apply sorting based on the sort parameter
+        switch (sort) {
+            case 'price_asc':
+                sortOptions = { price: 1 };
+                break;
+            case 'price_desc':
+                sortOptions = { price: -1 };
+                break;
+            case 'name_asc':
+                sortOptions = { name: 1 };
+                break;
+            default: // 'newest' or any other value
+                sortOptions = { createdAt: -1 };
+        }
+
+        console.log('Sort options:', sortOptions);
+        console.log('Sort parameter received:', sort);
+
+        const skip = (page - 1) * limit;
 
         const [data, totalCount] = await Promise.all([
             ProductModel.find(query)
                 .populate('category')
-                .sort({ createdAt: -1 })
+                .sort(sortOptions)
                 .skip(skip)
                 .limit(limit),
             ProductModel.countDocuments(query)
         ]);
+
+        console.log('First product in results:', data[0]?.name, data[0]?.price);
 
         return res.json({
             message: 'Danh sách sản phẩm',
@@ -89,14 +121,15 @@ export const getProductController = async (req, res) => {
             totalNoPage: Math.ceil(totalCount / limit),
             error: false,
             success: true
-        })
+        });
 
     } catch (error) {
+        console.error('Error in getProductController:', error);
         return res.status(500).json({
-            message: error.message || error,
+            message: error.message || 'Lỗi server',
             error: true,
             success: false
-        })
+        });
     }
 }
 
@@ -173,23 +206,25 @@ export const getProductByCategoryList = async (request, response) => {
         }
 
         // Build sort options
-        let sortOptions = { createdAt: -1 }; // Default sort
-        if (sort) {
-            switch (sort) {
-                case 'price_asc':
-                    sortOptions = { price: 1 };
-                    break;
-                case 'price_desc':
-                    sortOptions = { price: -1 };
-                    break;
-                case 'name_asc':
-                    sortOptions = { name: 1 };
-                    break;
-                case 'newest':
-                default:
-                    sortOptions = { createdAt: -1 };
-            }
+        let sortOptions = {};
+        
+        // Apply sorting based on the sort parameter
+        switch (sort) {
+            case 'price_asc':
+                sortOptions = { price: 1 };
+                break;
+            case 'price_desc':
+                sortOptions = { price: -1 };
+                break;
+            case 'name_asc':
+                sortOptions = { name: 1 };
+                break;
+            default: // 'newest' or any other value
+                sortOptions = { createdAt: -1 };
         }
+
+        console.log('Sort options:', sortOptions);
+        console.log('Sort parameter received:', sort);
 
         const skip = (page - 1) * limit;
 
@@ -201,6 +236,8 @@ export const getProductByCategoryList = async (request, response) => {
                 .limit(limit),
             ProductModel.countDocuments(query)
         ]);
+
+        console.log('First product in results:', data[0]?.name, data[0]?.price);
 
         return response.json({
             message: "Danh sách sản phẩm",
@@ -327,60 +364,154 @@ export const deleteProductDetails = async (request, response) => {
 // Search Product
 export const searchProduct = async (request, response) => {
     try {
-        let { search, page, limit } = request.body;
+        const { search, page = 1, limit = 12, minPrice, maxPrice, sort = 'newest' } = request.body;
+        const skip = (page - 1) * limit;
 
-        if (!page) page = 1;
-        if (!limit) limit = 15;
         if (!search || search.trim() === '') {
             return response.status(400).json({
                 message: 'Vui lòng nhập từ khóa tìm kiếm',
                 error: true,
-                success: false
+                success: false,
             });
         }
 
-        const skip = (page - 1) * limit;
-        
-        // Create a regex pattern for partial matching
-        const searchRegex = new RegExp(search, 'i');
-        
-        // Build the query to search in name and description
+        // Build the query
         const query = {
             $or: [
-                { name: { $regex: searchRegex } },
-                { description: { $regex: searchRegex } },
-                { 'more_details.brand': { $regex: searchRegex } },
-                { 'more_details.model': { $regex: searchRegex } }
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { 'category.name': { $regex: search, $options: 'i' } },
             ],
-            publish: true // Only search published products
         };
 
-        // Execute search with pagination
-        const [data, totalCount] = await Promise.all([
+        // Add price range filter if provided
+        const priceFilter = {};
+        if (minPrice) priceFilter.$gte = Number(minPrice);
+        if (maxPrice) priceFilter.$lte = Number(maxPrice);
+        if (Object.keys(priceFilter).length > 0) {
+            query.price = priceFilter;
+        }
+
+        // Build sort object based on sort parameter
+        let sortOptions = {};
+        
+        // Apply sorting based on the sort parameter
+        switch (sort) {
+            case 'price_asc':
+                sortOptions = { price: 1 };
+                break;
+            case 'price_desc':
+                sortOptions = { price: -1 };
+                break;
+            case 'name_asc':
+                sortOptions = { name: 1 };
+                break;
+            case 'newest':
+            default:
+                sortOptions = { createdAt: -1 };
+                break;
+        }
+
+        console.log('Sort options:', sortOptions);
+        console.log('Sort parameter received:', sort);
+
+        const [products, total] = await Promise.all([
             ProductModel.find(query)
-                .populate('category')
-                .sort({ name: 1 })
+                .sort(sortOptions)
                 .skip(skip)
-                .limit(parseInt(limit)),
-            ProductModel.countDocuments(query)
+                .limit(limit)
+                .populate('category', 'name'),
+            ProductModel.countDocuments(query),
         ]);
 
+        console.log('First product in results:', products[0]?.name, products[0]?.price);
+
+        const totalPage = Math.ceil(total / limit);
+
         return response.json({
-            data: data,
-            totalCount: totalCount,
-            page: parseInt(page),
-            limit: parseInt(limit),
-            totalPage: Math.ceil(totalCount / limit),
+            message: 'Tìm kiếm sản phẩm thành công',
+            data: products,
+            totalPage,
+            totalCount: total,
             success: true,
             error: false
         });
-
     } catch (error) {
-        console.error('Search error:', error);
         return response.status(500).json({
-            message: 'Đã xảy ra lỗi khi tìm kiếm sản phẩm',
+            message: error.message || error,
             error: true,
             success: false
         });
     }
 }
+
+// Get initial products for homepage
+export const getInitialProducts = async (req, res) => {
+    try {
+        const { page = 1, limit = 12, minPrice, maxPrice, sort = 'newest' } = req.body;
+        const skip = (page - 1) * limit;
+
+        // Build the query
+        const query = { publish: true }; // Only get published products
+
+        // Add price range filter if provided
+        const priceFilter = {};
+        if (minPrice) priceFilter.$gte = Number(minPrice);
+        if (maxPrice) priceFilter.$lte = Number(maxPrice);
+        if (Object.keys(priceFilter).length > 0) {
+            query.price = priceFilter;
+        }
+
+        // Build sort object based on sort parameter
+        let sortOptions = {};
+        
+        // Apply sorting based on the sort parameter
+        switch (sort) {
+            case 'price_asc':
+                sortOptions = { price: 1 };
+                break;
+            case 'price_desc':
+                sortOptions = { price: -1 };
+                break;
+            case 'name_asc':
+                sortOptions = { name: 1 };
+                break;
+            case 'newest':
+            default:
+                sortOptions = { createdAt: -1 };
+                break;
+        }
+
+        console.log('Sort options:', sortOptions);
+        console.log('Sort parameter received:', sort);
+
+        const [products, total] = await Promise.all([
+            ProductModel.find(query)
+                .sort(sortOptions)
+                .skip(skip)
+                .limit(limit)
+                .select('name price image discount category')
+                .populate('category', 'name'),
+            ProductModel.countDocuments(query),
+        ]);
+
+        console.log('First product in results:', products[0]?.name, products[0]?.price);
+
+        const totalPage = Math.ceil(total / limit);
+
+        return res.json({
+            message: 'Lấy sản phẩm thành công',
+            data: products,
+            totalPage,
+            totalCount: total,
+            success: true,
+            error: false,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false,
+        });
+    }
+};

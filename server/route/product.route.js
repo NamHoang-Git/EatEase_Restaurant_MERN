@@ -9,7 +9,8 @@ import {
     getProductController,
     getProductDetails,
     searchProduct,
-    updateProductDetails
+    updateProductDetails,
+    getInitialProducts
 } from "../controllers/product.controller.js";
 
 const productRouter = Router()
@@ -19,6 +20,9 @@ productRouter.post('/get-product', getProductController)
 productRouter.post('/get-product-by-category-home', getProductByCategoryHome)
 productRouter.post('/get-product-by-category-list', getProductByCategoryList)
 productRouter.post('/get-product-details', getProductDetails)
+
+// Initial products for homepage
+productRouter.post('/initial-products', getInitialProducts)
 
 //update product
 productRouter.put('/update-product-details', auth, admin, updateProductDetails)

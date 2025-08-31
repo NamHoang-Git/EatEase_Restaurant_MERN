@@ -389,7 +389,7 @@ const ProductListPage = () => {
                         </div>
 
                         {loading ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
                                 {Array(9)
                                     .fill(null)
                                     .map((_, index) => (
@@ -428,7 +428,7 @@ const ProductListPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-5 p-4">
                                 {data.map((product, index) => (
                                     <div
                                         key={product._id}
