@@ -132,7 +132,7 @@ export async function paymentController(request, response) {
             });
         }
 
-        // Tạo order tạm thời
+        // Tạo order tạm thởi
         const tempOrder = await OrderModel.insertMany(
             list_items.map(el => {
                 const quantity = Number(el.quantity) || 1;
@@ -277,21 +277,6 @@ export async function webhookStripe(request, response) {
             console.log('No event data found');
         }
 
-        // Tạm thởi bỏ qua signature verification để debug
-        // if (endPointSecret) {
-        //     const signature = request.headers['stripe-signature'];
-        //     try {
-        //         event = Stripe.webhooks.constructEvent(request.rawBody, signature, endPointSecret);
-        //     } catch (error) {
-        //         console.error('Webhook signature verification failed:', error);
-        //         return response.status(400).json({
-        //             message: 'Webhook signature verification failed',
-        //             error: true,
-        //             success: false
-        //         });
-        //     }
-        // }
-
         if (!event || !event.type) {
             console.error('Invalid event structure');
             return response.status(200).json({ received: true, message: 'Invalid event' });
@@ -369,15 +354,22 @@ export async function webhookStripe(request, response) {
 export async function getOrderDetailsController(request, response) {
     try {
         const userId = request.userId;
+        // Check if user is admin
+        const user = await UserModel.findById(userId);
+        const isAdmin = user?.role === 'admin';
 
-        const orderlist = await OrderModel.find({ userId: userId })
+        // Build query - if not admin, only show user's orders
+        const query = isAdmin ? {} : { userId };
+
+        const orderlist = await OrderModel.find(query)
             .sort({ createdAt: -1 })
+            .populate('userId', 'name mobile email') // Added email for admin view
             .populate('delivery_address');
 
-        console.log('Order list retrieved:', orderlist);
+        console.log(`Fetched ${orderlist.length} orders for ${isAdmin ? 'admin' : 'user'}:`, userId);
 
         return response.json({
-            message: "Danh sách đơn hàng",
+            message: isAdmin ? "Tất cả đơn hàng" : "Danh sách đơn hàng của bạn",
             data: orderlist,
             error: false,
             success: true
