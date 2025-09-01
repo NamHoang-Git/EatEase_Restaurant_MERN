@@ -137,6 +137,34 @@ const UserMenu = ({ close }) => {
                     </Link>
                 )}
 
+                {isAdmin(user.role) && (
+                    <Link
+                        onClick={handleClose}
+                        to={'/dashboard/bill'}
+                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                            isActive('/dashboard/bill')
+                                ? 'bg-primary-100 text-secondary-200'
+                                : ''
+                        }`}
+                    >
+                        Hóa đơn
+                    </Link>
+                )}
+
+                {isAdmin(user.role) && (
+                    <Link
+                        onClick={handleClose}
+                        to={'/dashboard/report'}
+                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                            isActive('/dashboard/report')
+                                ? 'bg-primary-100 text-secondary-200'
+                                : ''
+                        }`}
+                    >
+                        Báo cáo
+                    </Link>
+                )}
+
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/address'}

@@ -24,6 +24,8 @@ import Cancel from './../pages/Cancel';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import CartPage from '../pages/CartPage';
+import BillPage from './../pages/BillPage';
+import ReportPage from './../pages/ReportPage';
 
 const router = createBrowserRouter([
     {
@@ -111,6 +113,22 @@ const router = createBrowserRouter([
                         element: (
                             <AdminPermission>
                                 <ProductAdmin />
+                            </AdminPermission>
+                        ),
+                    },
+                    {
+                        path: 'bill',
+                        element: (
+                            <AdminPermission>
+                                <BillPage />
+                            </AdminPermission>
+                        ),
+                    },
+                    {
+                        path: 'report',
+                        element: (
+                            <AdminPermission>
+                                <ReportPage />
                             </AdminPermission>
                         ),
                     },
