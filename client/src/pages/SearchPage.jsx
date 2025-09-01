@@ -8,6 +8,7 @@ import { debounce } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FaFilter } from 'react-icons/fa';
 import { FaArrowUp } from 'react-icons/fa6';
+import { IoFilter } from 'react-icons/io5';
 
 const SearchPage = () => {
     const [data, setData] = useState([]);
@@ -239,12 +240,15 @@ const SearchPage = () => {
 
     // Add filter UI component
     const renderFilterControls = () => (
-        <div className="mb-6 bg-white sm:p-4 p-2 rounded-lg shadow-lg">
+        <div className="mb-6 bg-white sm:p-4 p-3 rounded-lg shadow-lg mt-3">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Bộ lọc</h2>
+                <h2 className="text-base sm:text-lg font-bold text-secondary-200">
+                    Bộ lọc
+                </h2>
                 <button
                     onClick={resetFilters}
-                    className="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors"
+                    className="px-3 py-1 text-sm text-white bg-secondary-200 rounded-md hover:opacity-80
+                transition-colors"
                 >
                     Đặt lại bộ lọc
                 </button>
@@ -339,10 +343,11 @@ const SearchPage = () => {
             <div className="mb-4">
                 <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 px-4 py-2 bg-secondary-200 text-white hover:opacity-80 rounded-lg
-                text-sm font-medium mb-2 shadow-lg"
+                    className="h-10 flex items-center gap-1 px-4 py-2 bg-primary-5 text-secondary-200 rounded-md
+                hover:bg-gray-100 transition-colors text-sm sm:text-base font-medium shadow-md shadow-secondary-100"
                 >
-                    <FaFilter /> Bộ lọc
+                    <IoFilter className="mb-[3px]" />
+                    <span className="font-bold">Lọc</span>
                 </button>
                 {showFilters && renderFilterControls()}
             </div>

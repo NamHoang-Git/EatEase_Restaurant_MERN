@@ -2,13 +2,13 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { valideURLConvert } from '../utils/valideURLConvert';
-import Loading from '../components/Loading';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
-import { FaArrowUp, FaFilter, FaSort, FaChevronDown } from 'react-icons/fa';
+import { FaArrowUp, FaSort, FaChevronDown } from 'react-icons/fa';
 import CardProduct from '../components/CardProduct';
 import CardLoading from '../components/CardLoading';
+import { IoFilter } from 'react-icons/io5';
 
 const ProductListPage = () => {
     const [data, setData] = useState([]);
@@ -293,29 +293,27 @@ const ProductListPage = () => {
                                 </h1>
 
                                 {/* Filter */}
-                                <div className="flex flex-col sm:flex-row sm:gap-2 gap-3 w-full sm:w-auto text-sm">
+                                <div className="flex flex-row sm:gap-2 gap-3 w-full sm:w-auto text-sm">
                                     <button
                                         onClick={() =>
                                             setShowFilters(!showFilters)
                                         }
-                                        className="h-full sm:h-[38px] w-full mx-auto sm:mr-0 min-w-16 lg:min-w-24 bg-white px-4 py-2
-                                    flex items-center sm:justify-center gap-2 rounded-xl shadow-md shadow-secondary-100 focus-within:border-secondary-200"
+                                        className="h-8 sm:h-[38px] sm:w-auto w-full mx-auto sm:mr-0 min-w-16 lg:min-w-24 bg-white px-4 py-2
+                                    flex items-center sm:justify-center gap-2 rounded-xl shadow-md shadow-secondary-100
+                                    focus-within:border-secondary-200"
                                     >
-                                        <FaFilter
-                                            size={12}
-                                            className="mb-[2px]"
-                                        />
-                                        <span>Bộ lọc</span>
+                                        <IoFilter className="mb-[2px]" />
+                                        <span className="font-bold">Lọc</span>
                                     </button>
 
                                     <div
-                                        className="relative h-full sm:h-[38px] w-full mx-auto sm:mr-0 min-w-16 lg:min-w-24 bg-white px-4
+                                        className="h-8 sm:h-[38px] sm:w-40 w-full mx-auto sm:mr-0 min-w-16 lg:min-w-24 bg-white px-4
                                     flex items-center gap-2 rounded-xl shadow-md shadow-secondary-100 focus-within:border-secondary-200"
                                     >
                                         <select
                                             value={sortBy}
                                             onChange={handleSortChange}
-                                            className="w-full py-2 bg-white focus:outline-none focus:border-transparent cursor-pointer appearance-none"
+                                            className="w-full px-2 bg-white focus:outline-none focus:border-transparent cursor-pointer appearance-none"
                                         >
                                             <option value="newest">
                                                 Mới nhất
@@ -330,15 +328,15 @@ const ProductListPage = () => {
                                                 Phổ biến
                                             </option>
                                         </select>
-                                        <FaSort className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+                                        <FaSort />
                                     </div>
                                 </div>
                             </div>
 
                             {showFilters && (
                                 <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md shadow-secondary-100">
-                                    <div className="flex justify-between text-base items-center mb-3 font-bold text-secondary-200">
-                                        <h4 className="">
+                                    <div className="flex justify-between text-base items-center mb-3 text-secondary-200">
+                                        <h4 className="font-semibold">
                                             {isFiltering
                                                 ? 'Đang lọc...'
                                                 : 'Lọc theo giá'}
@@ -351,7 +349,8 @@ const ProductListPage = () => {
                                                 });
                                                 setSortBy('newest');
                                             }}
-                                            className="hover:text-secondary-100 text-base underline"
+                                            className="hover:opacity-80 text-sm text-white bg-secondary-200 px-4 py-[6px]
+                                        rounded-md font-medium"
                                         >
                                             Đặt lại bộ lọc
                                         </button>

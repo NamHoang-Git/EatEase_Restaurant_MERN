@@ -42,7 +42,7 @@ const CardProduct = ({ data }) => {
             {/* Info */}
             <div className="px-2 pt-2 pb-2 md:px-3 md:pt-4 md:pb-5 flex flex-col gap-2 lg:gap-2">
                 {/* Tên sản phẩm */}
-                <h2 className="font-semibold line-clamp-2 text-xs sm:text-base h-7 sm:h-11 md:h-10 lg:h-12">
+                <h2 className="font-semibold line-clamp-2 text-xs sm:text-base h-7 sm:h-11 md:h-11 lg:h-12">
                     {data.name}
                 </h2>
 

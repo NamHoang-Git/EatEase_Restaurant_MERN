@@ -174,20 +174,21 @@ const ProductAdmin = () => {
         return () => debouncedSearch.cancel();
     }, [search]);
 
+    // Render filter controls
     const renderFilterControls = () => (
-        <div className="bg-white p-4 rounded-lg shadow-md mb-4 border border-gray-200">
+        <div className="bg-white p-4 rounded-lg shadow-lg mb-4 border border-secondary-100 text-secondary-200">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-700">Bộ lọc</h3>
+                <h3 className="font-bold">Bộ lọc</h3>
                 <button
                     onClick={() => setShowFilters(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-secondary-200"
                 >
                     <IoClose size={24} />
                 </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="grid gap-1">
+                    <label className="block text-sm font-medium text-secondary-200">
                         Giá từ
                     </label>
                     <div className="flex items-center gap-2">
@@ -211,15 +212,15 @@ const ProductAdmin = () => {
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="grid gap-1">
+                    <label className="block text-sm font-medium text-secondary-200">
                         Sắp xếp
                     </label>
                     <select
                         name="sortBy"
                         value={filters.sortBy}
                         onChange={handleFilterChange}
-                        className="w-full p-2 border rounded text-sm"
+                        className="w-full p-2 border rounded text-sm text-secondary-100"
                     >
                         <option value="newest">Mới nhất</option>
                         <option value="price_asc">Giá tăng dần</option>
@@ -228,15 +229,15 @@ const ProductAdmin = () => {
                     </select>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="grid gap-1">
+                    <label className="block text-sm font-medium text-secondary-200">
                         Danh mục
                     </label>
                     <select
                         name="category"
                         value={filters.category}
                         onChange={handleFilterChange}
-                        className="w-full p-2 border rounded text-sm"
+                        className="w-full p-2 border rounded text-sm text-secondary-100"
                     >
                         <option value="all">Tất cả danh mục</option>
                         {categories.map((category) => (
@@ -250,7 +251,8 @@ const ProductAdmin = () => {
                 <div className="flex items-end">
                     <button
                         onClick={resetFilters}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm font-medium"
+                        className="px-4 py-2 bg-primary-2 text-secondary-200 rounded hover:opacity-80 transition-colors
+                    text-sm font-semibold shadow-lg"
                     >
                         Đặt lại bộ lọc
                     </button>
@@ -268,8 +270,7 @@ const ProductAdmin = () => {
             >
                 <div className="flex-row sm:flex-col flex items-center sm:items-start gap-2 sm:gap-1">
                     <h2 className="text-ellipsis uppercase">Sản phẩm</h2>
-                    <div className="w-[14px] h-[2px] bg-secondary-200 sm:hidden mb-[1px]"></div>
-                    <p className="text-[12px] sm:text-base text-secondary-100">
+                    <p className="hidden sm:block sm:text-base text-secondary-100">
                         Quản lý sản phẩm của bạn
                     </p>
                 </div>
@@ -278,16 +279,16 @@ const ProductAdmin = () => {
                     {/* Filter Button */}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-1 px-3 py-2 bg-white text-secondary-200 rounded-md
-                        hover:bg-gray-100 transition-colors text-sm font-medium"
+                        className="sm:h-[42px] h-11 flex items-center gap-1 px-3 py-2 bg-white text-secondary-200 rounded-md
+                        hover:bg-gray-100 transition-colors text-sm font-medium shadow-md shadow-secondary-100"
                     >
-                        <IoFilter />
+                        <IoFilter className="mb-[2px]" />
                         <span>Lọc</span>
                     </button>
 
                     {/* Search */}
                     <div
-                        className="h-full max-w-64 w-full min-w-16 lg:min-w-24 bg-white px-4 sm:py-3 py-[6px]
+                        className="sm:h-[42px] h-11 max-w-64 w-full min-w-16 lg:min-w-24 bg-white px-4 sm:py-3 py-[6px]
                         flex items-center gap-3 rounded-xl shadow-md shadow-secondary-100 focus-within:border-secondary-200"
                     >
                         <IoSearch size={22} className="mb-[3px]" />
