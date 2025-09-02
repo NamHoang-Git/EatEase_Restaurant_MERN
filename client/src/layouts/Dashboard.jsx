@@ -3,24 +3,27 @@ import UserMenu from '../components/UserMenu';
 import { Outlet } from 'react-router-dom';
 
 const Dashboard = () => {
-
     return (
-        <section className="bg-white">
-            <div className="container mx-auto p-2 gap-4 grid lg:grid-cols-[250px,1fr]">
-                {/* Left for menu */}
-                <div
-                    className="py-4 px-3 static top-24 max-h-[calc(100vh - 96px)]
-                    overflow-y-auto hidden lg:block border-r"
-                >
-                    <UserMenu />
+        <div className="min-h-screen flex flex-col bg-white">
+            {/* Header will be rendered here by the layout */}
+            <div className="flex-1 flex overflow-hidden">
+                {/* Sidebar */}
+                <div className="hidden lg:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
+                    <div className="p-4">
+                        <UserMenu />
+                    </div>
                 </div>
 
-                {/* Right for menu */}
-                <div className="bg-white p-4 min-h-[80vh]">
-                    <Outlet />
+                {/* Main content */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 p-4">
+                        <div className="max-w-full mx-auto">
+                            <Outlet />
+                        </div>
+                    </main>
                 </div>
             </div>
-        </section>
+        </div>
     );
 };
 

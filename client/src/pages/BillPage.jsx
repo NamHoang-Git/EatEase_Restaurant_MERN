@@ -403,23 +403,19 @@ const BillPage = () => {
 
     return (
         <div className="w-full">
-            <div
-                className="p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200
-            sm:text-lg text-sm uppercase flex justify-between items-center gap-2"
-            >
-                <h2 className="text-ellipsis line-clamp-1">Quản lý hóa đơn</h2>
+            <div className="p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
+                <h2 className="text-ellipsis line-clamp-1">Quản lý Hóa đơn</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-white rounded-lg shadow p-4">
                     <div className="flex items-center">
                         <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
                             <FaFileInvoice className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">
-                                Tổng số hóa đơn
-                            </p>
+                            <p className="text-sm text-gray-500">Tổng số hóa đơn</p>
                             <p className="text-2xl font-bold">{orderCount}</p>
                         </div>
                     </div>
@@ -431,12 +427,8 @@ const BillPage = () => {
                             <FaFileInvoice className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">
-                                Tổng doanh thu
-                            </p>
-                            <p className="text-2xl font-bold">
-                                {DisplayPriceInVND(totalRevenue)}
-                            </p>
+                            <p className="text-sm text-gray-500">Tổng doanh thu</p>
+                            <p className="text-2xl font-bold">{DisplayPriceInVND(totalRevenue)}</p>
                         </div>
                     </div>
                 </div>
@@ -447,20 +439,18 @@ const BillPage = () => {
                             <FaFilter className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">
-                                Đang hiển thị
-                            </p>
+                            <p className="text-sm text-gray-500">Đang hiển thị</p>
                             <p className="text-2xl font-bold">
-                                {filteredAndSortedOrders.length} /{' '}
-                                {orders.length}
+                                {filteredAndSortedOrders.length} / {orders.length}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* Filter Section */}
             <div className="bg-white rounded-lg shadow p-4 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Tìm kiếm
@@ -469,11 +459,10 @@ const BillPage = () => {
                             <input
                                 type="text"
                                 name="search"
-                                placeholder="Tìm kiếm theo mã HĐ, tên KH, SĐT, sản phẩm..."
-                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                onChange={(e) =>
-                                    handleSearchChange(e.target.value)
-                                }
+                                placeholder="Tìm kiếm..."
+                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={filters.search}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                             />
                             <FaSearch className="absolute left-3 top-3 text-gray-400" />
                         </div>
@@ -481,14 +470,15 @@ const BillPage = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Trạng thái thanh toán
+                            Trạng thái
                         </label>
                         <select
                             name="status"
+                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={filters.status}
                             onChange={handleFilterChange}
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
+                            <option value="">Tất cả</option>
                             {statusOptions.map((option) => (
                                 <option key={option.value} value={option.value}>
                                     {option.label}
@@ -504,9 +494,9 @@ const BillPage = () => {
                         <input
                             type="date"
                             name="startDate"
+                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={filters.startDate}
                             onChange={handleFilterChange}
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
 
@@ -517,14 +507,14 @@ const BillPage = () => {
                         <input
                             type="date"
                             name="endDate"
+                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={filters.endDate}
                             onChange={handleFilterChange}
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
                 </div>
 
-                <div className="flex justify-end mt-4 space-x-2">
+                <div className="flex flex-wrap justify-end mt-4 gap-2">
                     <button
                         onClick={() =>
                             setFilters({
@@ -541,7 +531,7 @@ const BillPage = () => {
 
                     <button
                         onClick={exportToExcel}
-                        className="flex items-center px-4 py-2 text-sm font-medium text-green-700 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200"
+                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
                     >
                         <FaFileExcel className="mr-2" />
                         Xuất Excel
@@ -549,7 +539,7 @@ const BillPage = () => {
 
                     <button
                         onClick={exportToPDF}
-                        className="flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200"
+                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
                     >
                         <FaFilePdf className="mr-2" />
                         Xuất PDF
@@ -557,196 +547,114 @@ const BillPage = () => {
                 </div>
             </div>
 
+            {/* Table Container */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('orderId')}
-                                >
-                                    <div className="flex items-center">
-                                        Mã HĐ
-                                        {renderSortIcon('orderId')}
-                                    </div>
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Khách hàng
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Sản phẩm
-                                </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('quantity')}
-                                >
-                                    <div className="flex items-center">
-                                        Số lượng
-                                        {renderSortIcon('quantity')}
-                                    </div>
-                                </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('totalAmt')}
-                                >
-                                    <div className="flex items-center">
-                                        Tổng tiền
-                                        {renderSortIcon('totalAmt')}
-                                    </div>
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Trạng thái
-                                </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('createdAt')}
-                                >
-                                    <div className="flex items-center">
-                                        Ngày tạo
-                                        {renderSortIcon('createdAt')}
-                                    </div>
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Hành động
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {loading ? (
+                    <div className="min-w-full" style={{ minWidth: '1024px' }}>
+                        <table className="w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                    <td
-                                        colSpan="8"
-                                        className="px-6 py-4 text-center"
-                                    >
-                                        <div className="flex justify-center">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div className="flex items-center">
+                                            Mã HĐ
+                                            <button 
+                                                onClick={() => handleSort('orderId')}
+                                                className="ml-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('orderId')}
+                                            </button>
                                         </div>
-                                    </td>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Khách hàng
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Sản phẩm
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div className="flex items-center">
+                                            Số lượng
+                                            <button 
+                                                onClick={() => handleSort('quantity')}
+                                                className="ml-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('quantity')}
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div className="flex items-center">
+                                            Tổng tiền
+                                            <button 
+                                                onClick={() => handleSort('totalAmt')}
+                                                className="ml-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('totalAmt')}
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Thao tác
+                                    </th>
                                 </tr>
-                            ) : filteredAndSortedOrders.length > 0 ? (
-                                filteredAndSortedOrders.map((order, index) => (
-                                    <tr
-                                        key={order._id || index}
-                                        className="hover:bg-gray-50"
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {order.orderId}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {order.userId?.name ||
-                                                    'Khách vãng lai'}
-                                            </div>
-                                            {order.userId?.email && (
-                                                <div className="text-sm text-gray-500">
-                                                    {order.userId.email}
-                                                </div>
-                                            )}
-                                            {order.userId?.mobile && (
-                                                <div className="text-sm text-gray-500">
-                                                    {order.userId.mobile}
-                                                </div>
-                                            )}
-                                            {order.delivery_address?.city && (
-                                                <div className="text-sm text-gray-500">
-                                                    {
-                                                        order.delivery_address
-                                                            .city
-                                                    }
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0 h-10 w-10">
-                                                    <img
-                                                        className="h-10 w-10 rounded-full object-cover"
-                                                        src={
-                                                            order
-                                                                .product_details
-                                                                ?.image?.[0] ||
-                                                            '/placeholder-product.png'
-                                                        }
-                                                        alt={
-                                                            order
-                                                                .product_details
-                                                                ?.name
-                                                        }
-                                                    />
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {
-                                                            order
-                                                                .product_details
-                                                                ?.name
-                                                        }
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        SL: {order.quantity}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {order.quantity}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {DisplayPriceInVND(
-                                                order.totalAmt || 0
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge
-                                                status={order.payment_status}
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {format(
-                                                new Date(order.createdAt),
-                                                'dd/MM/yyyy HH:mm',
-                                                { locale: vi }
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex justify-end space-x-2">
-                                                <button
-                                                    onClick={() =>
-                                                        printBill(order)
-                                                    }
-                                                    className="text-blue-600 hover:text-blue-900"
-                                                    title="In hóa đơn"
-                                                >
-                                                    <FaPrint className="h-4 w-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/order/${order._id}`
-                                                        )
-                                                    }
-                                                    className="text-green-600 hover:text-green-900"
-                                                    title="Xem chi tiết"
-                                                >
-                                                    <FaEye className="h-4 w-4" />
-                                                </button>
-                                            </div>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="7" className="px-6 py-4 text-center">
+                                            Đang tải...
                                         </td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan="8"
-                                        className="px-6 py-4 text-center text-sm text-gray-500"
-                                    >
-                                        Không có hóa đơn nào
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                ) : filteredAndSortedOrders.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                                            Không tìm thấy hóa đơn nào phù hợp
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredAndSortedOrders.map((order) => (
+                                        <tr key={order._id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {order.orderId}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {order.userId?.name || 'Khách vãng lai'}
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-gray-500">
+                                                {order.product_details?.name || 'N/A'}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {order.quantity}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {DisplayPriceInVND(order.totalAmt)}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap">
+                                                <StatusBadge status={order.payment_status} />
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() => navigate(`/order/${order._id}`)}
+                                                    className="text-blue-600 hover:text-blue-900 mr-3"
+                                                >
+                                                    <FaEye className="h-5 w-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => printBill(order)}
+                                                    className="text-green-600 hover:text-green-900"
+                                                >
+                                                    <FaPrint className="h-5 w-5" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
