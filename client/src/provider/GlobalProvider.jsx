@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { pricewithDiscount } from '../utils/PriceWithDiscount';
 import { handleAddItemCart } from '../store/cartProduct';
 import { handleAddAddress } from '../store/addressSlice';
-import { setOrder } from '../store/orderSlice';
+import { setOrder, setAllOrders } from '../store/orderSlice';
 
 export const GlobalContext = createContext(null);
 
@@ -25,10 +25,13 @@ const GlobalProvider = ({ children }) => {
         // Kiểm tra token và user._id
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken || !user?._id) {
-            console.log('❌ fetchCartItem blocked - no auth:', { accessToken: !!accessToken, userId: user?._id });
+            console.log('❌ fetchCartItem blocked - no auth:', {
+                accessToken: !!accessToken,
+                userId: user?._id,
+            });
             return;
         }
-        
+
         console.log('✅ fetchCartItem proceeding with auth');
         try {
             const response = await Axios({
@@ -122,10 +125,13 @@ const GlobalProvider = ({ children }) => {
         // Kiểm tra token và user._id
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken || !user?._id) {
-            console.log('❌ fetchAddress blocked - no auth:', { accessToken: !!accessToken, userId: user?._id });
+            console.log('❌ fetchAddress blocked - no auth:', {
+                accessToken: !!accessToken,
+                userId: user?._id,
+            });
             return;
         }
-        
+
         console.log('✅ fetchAddress proceeding with auth');
         try {
             const response = await Axios({
@@ -147,14 +153,18 @@ const GlobalProvider = ({ children }) => {
     const fetchOrder = () => async (dispatch, getState) => {
         // Chuyển thành thunk action
         const { user } = getState();
-        
+
         // Kiểm tra token và user._id (sửa lại structure)
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken || !user?._id) {
-            console.log('❌ fetchOrder blocked - no auth:', { accessToken: !!accessToken, userId: user?._id, userState: user });
+            console.log('❌ fetchOrder blocked - no auth:', {
+                accessToken: !!accessToken,
+                userId: user?._id,
+                userState: user,
+            });
             return;
         }
-        
+
         console.log('✅ fetchOrder proceeding with auth', { userId: user._id });
         try {
             const response = await Axios({
@@ -163,7 +173,10 @@ const GlobalProvider = ({ children }) => {
             const { data: responseData } = response;
 
             if (responseData.success) {
-                console.log('✅ fetchOrder success, orders:', responseData.data);
+                console.log(
+                    '✅ fetchOrder success, orders:',
+                    responseData.data
+                );
                 dispatch(setOrder(responseData.data)); // Dispatch action
             } else {
                 console.log('❌ fetchOrder failed:', responseData.message);
@@ -179,18 +192,68 @@ const GlobalProvider = ({ children }) => {
         }
     };
 
+    const fetchAllOrders =
+        (filters = {}) =>
+        async (dispatch, getState) => {
+            const { user } = getState();
+            const accessToken = localStorage.getItem('accesstoken');
+
+            if (!accessToken || !user?._id || user?.role !== 'ADMIN') {
+                console.log('❌ fetchAllOrders blocked - not admin or no auth');
+                throw new Error('Bạn không có quyền truy cập');
+            }
+
+            try {
+                const response = await Axios({
+                    ...SummaryApi.all_orders,
+                    params: {
+                        search: filters.search,
+                        status: filters.status,
+                        startDate: filters.startDate,
+                        endDate: filters.endDate,
+                    },
+                });
+
+                const { data: responseData } = response;
+                if (responseData.success) {
+                    console.log(
+                        '✅ fetchAllOrders success, total:',
+                        responseData.data?.length || 0
+                    );
+                    dispatch(setAllOrders(responseData.data || []));
+                    return { data: responseData.data };
+                } else {
+                    throw new Error(
+                        responseData.message || 'Lỗi khi tải danh sách đơn hàng'
+                    );
+                }
+            } catch (error) {
+                console.error('❌ fetchAllOrders error:', error);
+                throw error;
+            }
+        };
+
     // Chỉ fetch dữ liệu khi user thay đổi, không logout ngay
     useEffect(() => {
         const accessToken = localStorage.getItem('accesstoken');
         // Fetch khi có user._id và accessToken
         if (user?._id && accessToken) {
-            console.log('🟢 User authenticated, fetching data...', { userId: user._id, hasToken: !!accessToken });
+            console.log('🟢 User authenticated, fetching data...', {
+                userId: user._id,
+                hasToken: !!accessToken,
+            });
             fetchCartItem();
             fetchAddress();
             dispatch(fetchOrder()); // Sử dụng dispatch với thunk
+            if (user?.role === 'ADMIN') {
+                dispatch(fetchAllOrders());
+            }
         } else if (user === null || !accessToken) {
             // Clear Redux state khi user logout hoặc không có token
-            console.log('🔴 User not authenticated, clearing data...', { user, hasToken: !!accessToken });
+            console.log('🔴 User not authenticated, clearing data...', {
+                user,
+                hasToken: !!accessToken,
+            });
             dispatch(handleAddItemCart([])); // Clear cart items
         }
         // Không làm gì nếu user vẫn đang undefined (đang load)
@@ -203,16 +266,27 @@ const GlobalProvider = ({ children }) => {
         try {
             // FORCE selective cleanup - luôn lấy từ localStorage nếu có
             let finalSelectedProductIds = selectedProductIds;
-            
+
             // Nếu không có selectedProductIds, thử lấy từ localStorage
-            if (!finalSelectedProductIds || finalSelectedProductIds.length === 0) {
-                const storedSelectedItems = localStorage.getItem('checkoutSelectedItems');
+            if (
+                !finalSelectedProductIds ||
+                finalSelectedProductIds.length === 0
+            ) {
+                const storedSelectedItems = localStorage.getItem(
+                    'checkoutSelectedItems'
+                );
                 if (storedSelectedItems) {
                     try {
                         const parsedItems = JSON.parse(storedSelectedItems);
-                        if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+                        if (
+                            Array.isArray(parsedItems) &&
+                            parsedItems.length > 0
+                        ) {
                             finalSelectedProductIds = parsedItems;
-                            console.log('🔄 Retrieved selectedProductIds from localStorage:', finalSelectedProductIds);
+                            console.log(
+                                '🔄 Retrieved selectedProductIds from localStorage:',
+                                finalSelectedProductIds
+                            );
                         }
                     } catch (e) {
                         console.error('Error parsing stored selectedItems:', e);
@@ -261,6 +335,7 @@ const GlobalProvider = ({ children }) => {
                 totalQty,
                 notDiscountTotalPrice,
                 fetchOrder, // Giữ nguyên để component gọi
+                fetchAllOrders,
                 reloadAfterPayment,
             }}
         >

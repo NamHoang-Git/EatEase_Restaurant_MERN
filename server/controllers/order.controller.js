@@ -354,28 +354,83 @@ export async function webhookStripe(request, response) {
 export async function getOrderDetailsController(request, response) {
     try {
         const userId = request.userId;
-        // Check if user is admin
-        const user = await UserModel.findById(userId);
-        const isAdmin = user?.role === 'admin';
-
-        // Build query - if not admin, only show user's orders
-        const query = isAdmin ? {} : { userId };
-
-        const orderlist = await OrderModel.find(query)
+        const orderlist = await OrderModel.find({ userId })
             .sort({ createdAt: -1 })
-            .populate('userId', 'name mobile email') // Added email for admin view
+            .populate('userId', 'name mobile email')
             .populate('delivery_address');
 
-        console.log(`Fetched ${orderlist.length} orders for ${isAdmin ? 'admin' : 'user'}:`, userId);
+        console.log(`Fetched ${orderlist.length} orders for user:`, userId);
 
         return response.json({
-            message: isAdmin ? "Tất cả đơn hàng" : "Danh sách đơn hàng của bạn",
+            message: "Danh sách đơn hàng của bạn",
             data: orderlist,
             error: false,
             success: true
         });
     } catch (error) {
         console.error('getOrderDetailsController Error:', error);
+        return response.status(500).json({
+            message: error.message || "Lỗi Server",
+            error: true,
+            success: false
+        });
+    }
+}
+
+export async function getAllOrdersController(request, response) {
+    try {
+        const userId = request.userId;
+        const user = await UserModel.findById(userId);
+        if (user?.role !== 'ADMIN') {
+            return response.status(403).json({
+                message: "Truy cập bị từ chối. Chỉ admin mới được phép xem tất cả đơn hàng.",
+                error: true,
+                success: false
+            });
+        }
+
+        const { search, status, startDate, endDate } = request.query;
+        let query = {};
+
+        if (search) {
+            query.$or = [
+                { orderId: { $regex: search, $options: 'i' } },
+                { 'userId.name': { $regex: search, $options: 'i' } },
+                { 'userId.mobile': { $regex: search, $options: 'i' } },
+                { 'product_details.name': { $regex: search, $options: 'i' } },
+                { payment_status: { $regex: search, $options: 'i' } },
+                { 'delivery_address.city': { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        if (status) {
+            query.payment_status = status;
+        }
+
+        if (startDate) {
+            query.createdAt = { $gte: new Date(startDate) };
+        }
+
+        if (endDate) {
+            query.createdAt = {
+                ...query.createdAt,
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+            };
+        }
+
+        const orderlist = await OrderModel.find(query)
+            .sort({ createdAt: -1 })
+            .populate('userId', 'name mobile email')
+            .populate('delivery_address');
+
+        return response.json({
+            message: "Tất cả đơn hàng",
+            data: orderlist,
+            error: false,
+            success: true
+        });
+    } catch (error) {
+        console.error('getAllOrdersController Error:', error);
         return response.status(500).json({
             message: error.message || "Lỗi Server",
             error: true,

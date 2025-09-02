@@ -166,6 +166,10 @@ const SummaryApi = {
     get_order_items: {
         url: '/api/order/order-list',
         method: 'get'
+    },
+    all_orders: {
+        url: '/api/order/all-orders',
+        method: 'get'
     }
 }
 

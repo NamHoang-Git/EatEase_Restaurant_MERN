@@ -36,11 +36,20 @@ const debounce = (func, delay) => {
 const BillPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { fetchOrder } = useGlobalContext();
-    const { data: orders = [], loading } = useSelector((state) => state.orders);
-    const { user } = useSelector((state) => state.auth || {});
-    const isAdmin = user?.role === 'admin';
+    const { fetchAllOrders } = useGlobalContext();
+    const { allOrders: orders = [], loading } = useSelector(
+        (state) => state.orders
+    );
+    // Fix: Access user data directly from the user slice
+    const user = useSelector((state) => state.user);
+    const isAdmin = user?.role === 'ADMIN';
 
+    // Debug logs
+    console.log(
+        'Redux state:',
+        useSelector((state) => state)
+    );
+    console.log('User object from Redux:', user);
     console.log('User role:', user?.role);
     console.log('Is admin:', isAdmin);
 
@@ -56,25 +65,29 @@ const BillPage = () => {
         direction: 'desc',
     });
 
-    // Fetch orders on component mount
     useEffect(() => {
         const loadOrders = async () => {
             const accessToken = localStorage.getItem('accesstoken');
-            if (!accessToken) return;
+            if (!accessToken || !isAdmin) {
+                navigate('/dashboard/my-orders');
+                return;
+            }
 
             try {
-                await dispatch(fetchOrder());
+                await dispatch(fetchAllOrders(filters)).unwrap();
             } catch (error) {
-                toast.error(
-                    'Không thể tải danh sách hóa đơn: ' +
-                        (error.message || 'Lỗi không xác định')
-                );
+                console.error('Error in loadOrders:', error);
+                if (error?.response?.status !== 401) {
+                    toast.error(
+                        error.message || 'Có lỗi xảy ra khi tải đơn hàng'
+                    );
+                }
             }
         };
-        loadOrders();
-    }, [dispatch, fetchOrder]);
 
-    // Handle filter changes
+        loadOrders();
+    }, [dispatch, isAdmin, navigate, filters]);
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters((prev) => ({
@@ -83,7 +96,6 @@ const BillPage = () => {
         }));
     };
 
-    // Handle sort
     const handleSort = (key) => {
         setSortConfig((prev) => ({
             key,
@@ -92,15 +104,12 @@ const BillPage = () => {
         }));
     };
 
-    // Enhanced filter logic
     const filteredAndSortedOrders = React.useMemo(() => {
         let result = [...orders];
 
-        // Apply search filter
         if (filters.search) {
             const searchLower = filters.search.toLowerCase().trim();
             result = result.filter((order) => {
-                // Search in multiple fields
                 const searchFields = [
                     order.orderId?.toLowerCase() || '',
                     order.userId?.name?.toLowerCase() || '',
@@ -109,14 +118,12 @@ const BillPage = () => {
                     order.payment_status?.toLowerCase() || '',
                     order.delivery_address?.city?.toLowerCase() || '',
                 ];
-
                 return searchFields.some((field) =>
                     field.includes(searchLower)
                 );
             });
         }
 
-        // Apply filters
         if (filters.status) {
             result = result.filter(
                 (order) => order.payment_status === filters.status
@@ -136,13 +143,11 @@ const BillPage = () => {
             result = result.filter((order) => new Date(order.createdAt) <= end);
         }
 
-        // Apply sorting
         if (sortConfig.key) {
             result.sort((a, b) => {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
 
-                // Handle nested properties
                 if (sortConfig.key.includes('.')) {
                     const keys = sortConfig.key.split('.');
                     aValue = keys.reduce((obj, key) => obj?.[key], a);
@@ -162,7 +167,6 @@ const BillPage = () => {
         return result;
     }, [orders, filters, sortConfig]);
 
-    // Calculate totals
     const { totalRevenue, orderCount } = React.useMemo(() => {
         return filteredAndSortedOrders.reduce(
             (acc, order) => ({
@@ -173,7 +177,6 @@ const BillPage = () => {
         );
     }, [filteredAndSortedOrders]);
 
-    // Export to Excel
     const exportToExcel = () => {
         const data = filteredAndSortedOrders.map((order) => ({
             'Mã hóa đơn': order.orderId,
@@ -197,15 +200,12 @@ const BillPage = () => {
         );
     };
 
-    // Export to PDF
     const exportToPDF = () => {
         const doc = new jsPDF();
 
-        // Add title
         doc.setFontSize(18);
         doc.text('DANH SÁCH HÓA ĐƠN', 105, 15, { align: 'center' });
 
-        // Add date
         doc.setFontSize(10);
         doc.text(
             `Ngày xuất: ${format(new Date(), 'dd/MM/yyyy HH:mm', {
@@ -215,7 +215,6 @@ const BillPage = () => {
             25
         );
 
-        // Add table
         const headers = [
             'Mã HĐ',
             'Ngày tạo',
@@ -254,7 +253,6 @@ const BillPage = () => {
             },
         });
 
-        // Add summary
         doc.setFontSize(10);
         doc.text(
             `Tổng số hóa đơn: ${orderCount}`,
@@ -272,7 +270,6 @@ const BillPage = () => {
         );
     };
 
-    // Print bill
     const printBill = (order) => {
         const printWindow = window.open('', '_blank');
 
@@ -382,7 +379,6 @@ const BillPage = () => {
         printWindow.document.close();
     };
 
-    // Render sort icon
     const renderSortIcon = (key) => {
         if (sortConfig.key !== key) {
             return <FaSort className="ml-1 text-gray-400" />;
@@ -404,7 +400,6 @@ const BillPage = () => {
         { value: 'Đã thanh toán', label: 'Đã thanh toán' },
     ];
 
-    // Update the search filter with debouncing
     const handleSearchChange = debounce((value) => {
         setFilters((prev) => ({
             ...prev,
@@ -416,7 +411,6 @@ const BillPage = () => {
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-6">Quản lý hóa đơn</h1>
 
-            {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white rounded-lg shadow p-4">
                     <div className="flex items-center">
@@ -466,7 +460,6 @@ const BillPage = () => {
                 </div>
             </div>
 
-            {/* Filters */}
             <div className="bg-white rounded-lg shadow p-4 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
@@ -565,13 +558,12 @@ const BillPage = () => {
                 </div>
             </div>
 
-            {/* Orders Table */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th 
+                                <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('orderId')}
                                 >
@@ -586,7 +578,7 @@ const BillPage = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Sản phẩm
                                 </th>
-                                <th 
+                                <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('quantity')}
                                 >
@@ -595,7 +587,7 @@ const BillPage = () => {
                                         {renderSortIcon('quantity')}
                                     </div>
                                 </th>
-                                <th 
+                                <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('totalAmt')}
                                 >
@@ -607,7 +599,7 @@ const BillPage = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Trạng thái
                                 </th>
-                                <th 
+                                <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                     onClick={() => handleSort('createdAt')}
                                 >
@@ -625,7 +617,7 @@ const BillPage = () => {
                             {loading ? (
                                 <tr>
                                     <td
-                                        colSpan="7"
+                                        colSpan="8"
                                         className="px-6 py-4 text-center"
                                     >
                                         <div className="flex justify-center">
@@ -747,7 +739,7 @@ const BillPage = () => {
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan="7"
+                                        colSpan="8"
                                         className="px-6 py-4 text-center text-sm text-gray-500"
                                     >
                                         Không có hóa đơn nào

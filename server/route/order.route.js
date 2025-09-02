@@ -5,7 +5,8 @@ import {
     CashOnDeliveryOrderController,
     getOrderDetailsController,
     paymentController,
-    webhookStripe
+    webhookStripe,
+    getAllOrdersController
 } from '../controllers/order.controller.js';
 
 const orderRouter = Router();
@@ -18,5 +19,6 @@ orderRouter.get('/webhook-test', (req, res) => {
     res.json({ message: 'Webhook endpoint is working', timestamp: new Date() });
 });
 orderRouter.get('/order-list', auth, getOrderDetailsController);
+orderRouter.get('/all-orders', auth, getAllOrdersController);
 
 export default orderRouter;
