@@ -14,18 +14,23 @@ export const fetchAllOrders = createAsyncThunk(
                 throw new Error('Bạn không có quyền truy cập');
             }
 
+            // Remove search from params since we'll handle it client-side
+            const { search, ...apiFilters } = filters;
+
             const response = await Axios({
                 ...SummaryApi.all_orders,
                 params: {
-                    search: filters.search,
-                    status: filters.status,
-                    startDate: filters.startDate,
-                    endDate: filters.endDate,
+                    ...apiFilters,
+                    // Don't send search to the server
+                    status: filters.status || undefined,
+                    startDate: filters.startDate || undefined,
+                    endDate: filters.endDate || undefined,
                 },
             });
 
             if (response.data.success) {
-                return response.data.data || [];
+                const orders = response.data.data || [];
+                return { orders, filters };
             }
             throw new Error(response.data.message || 'Lỗi khi tải danh sách đơn hàng');
         } catch (error) {
@@ -39,6 +44,7 @@ const initialState = {
     allOrders: [],  // tất cả orders (chỉ admin mới dùng)
     loading: false,
     error: null,
+    filters: {},
 };
 
 const orderSlice = createSlice({
@@ -60,7 +66,8 @@ const orderSlice = createSlice({
             })
             .addCase(fetchAllOrders.fulfilled, (state, action) => {
                 state.loading = false;
-                state.allOrders = action.payload;
+                state.allOrders = action.payload.orders;
+                state.filters = action.payload.filters;
             })
             .addCase(fetchAllOrders.rejected, (state, action) => {
                 state.loading = false;

@@ -37,7 +37,7 @@ const MyOrders = () => {
     }, [dispatch, fetchOrder]);
 
     return (
-        <div className="">
+        <div className="w-full">
             <div className="p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
                 <h2 className="text-ellipsis line-clamp-1">Đơn hàng của tôi</h2>
             </div>

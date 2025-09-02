@@ -42,15 +42,6 @@ const BillPage = () => {
     const user = useSelector((state) => state.user);
     const isAdmin = user?.role === 'ADMIN';
 
-    // Debug logs
-    console.log(
-        'Redux state:',
-        useSelector((state) => state)
-    );
-    console.log('User object from Redux:', user);
-    console.log('User role:', user?.role);
-    console.log('Is admin:', isAdmin);
-
     const [filters, setFilters] = useState({
         search: '',
         status: '',
@@ -74,7 +65,6 @@ const BillPage = () => {
             try {
                 await dispatch(fetchAllOrders(filters)).unwrap();
             } catch (error) {
-                console.error('Error in loadOrders:', error);
                 if (error?.response?.status !== 401) {
                     toast.error(error || 'Có lỗi xảy ra khi tải đơn hàng');
                 }
@@ -104,18 +94,26 @@ const BillPage = () => {
         let result = [...orders];
 
         if (filters.search) {
-            const searchLower = filters.search.toLowerCase().trim();
+            const searchLower = filters.search.trim().toLowerCase();
+
             result = result.filter((order) => {
+                // Get all searchable fields
                 const searchFields = [
-                    order.orderId?.toLowerCase() || '',
-                    order.userId?.name?.toLowerCase() || '',
-                    order.userId?.mobile?.toLowerCase() || '',
-                    order.product_details?.name?.toLowerCase() || '',
-                    order.payment_status?.toLowerCase() || '',
-                    order.delivery_address?.city?.toLowerCase() || '',
-                ];
-                return searchFields.some((field) =>
-                    field.includes(searchLower)
+                    order.orderId?.toLowerCase(),
+                    order.userId?.name?.toLowerCase(),
+                    order.userId?.email?.toLowerCase(),
+                    order.userId?.mobile?.toLowerCase(),
+                    order.product_details?.name?.toLowerCase(),
+                    order.payment_status?.toLowerCase(),
+                    order.delivery_address?.city?.toLowerCase(),
+                    order.delivery_address?.district?.toLowerCase(),
+                    order.delivery_address?.ward?.toLowerCase(),
+                    order.delivery_address?.address?.toLowerCase(),
+                ].filter(Boolean);
+
+                // Check if any field includes the search term
+                return searchFields.some(
+                    (field) => field && field.includes(searchLower)
                 );
             });
         }
@@ -404,8 +402,13 @@ const BillPage = () => {
     }, 300);
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-6">Quản lý hóa đơn</h1>
+        <div className="w-full">
+            <div
+                className="p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200
+            sm:text-lg text-sm uppercase flex justify-between items-center gap-2"
+            >
+                <h2 className="text-ellipsis line-clamp-1">Quản lý hóa đơn</h2>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white rounded-lg shadow p-4">

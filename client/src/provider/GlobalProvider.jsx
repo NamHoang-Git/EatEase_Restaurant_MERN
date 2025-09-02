@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { pricewithDiscount } from '../utils/PriceWithDiscount';
 import { handleAddItemCart } from '../store/cartProduct';
 import { handleAddAddress } from '../store/addressSlice';
-import { setOrder, setAllOrders } from '../store/orderSlice';
+import { setOrder } from '../store/orderSlice';
 
 export const GlobalContext = createContext(null);
 
@@ -25,14 +25,9 @@ const GlobalProvider = ({ children }) => {
         // Kiểm tra token và user._id
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken || !user?._id) {
-            console.log('❌ fetchCartItem blocked - no auth:', {
-                accessToken: !!accessToken,
-                userId: user?._id,
-            });
             return;
         }
 
-        console.log('✅ fetchCartItem proceeding with auth');
         try {
             const response = await Axios({
                 ...SummaryApi.get_cart_item,
@@ -116,23 +111,13 @@ const GlobalProvider = ({ children }) => {
         setNotDiscountTotalPrice(notDiscountPrice);
     }, [cartItem]);
 
-    const handleLogoutOut = () => {
-        localStorage.clear();
-        dispatch(handleAddItemCart([]));
-    };
-
     const fetchAddress = async () => {
         // Kiểm tra token và user._id
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken || !user?._id) {
-            console.log('❌ fetchAddress blocked - no auth:', {
-                accessToken: !!accessToken,
-                userId: user?._id,
-            });
             return;
         }
 
-        console.log('✅ fetchAddress proceeding with auth');
         try {
             const response = await Axios({
                 ...SummaryApi.get_address,
@@ -157,15 +142,9 @@ const GlobalProvider = ({ children }) => {
         // Kiểm tra token và user._id (sửa lại structure)
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken || !user?._id) {
-            console.log('❌ fetchOrder blocked - no auth:', {
-                accessToken: !!accessToken,
-                userId: user?._id,
-                userState: user,
-            });
             return;
         }
 
-        console.log('✅ fetchOrder proceeding with auth', { userId: user._id });
         try {
             const response = await Axios({
                 ...SummaryApi.get_order_items,
@@ -173,17 +152,11 @@ const GlobalProvider = ({ children }) => {
             const { data: responseData } = response;
 
             if (responseData.success) {
-                console.log(
-                    '✅ fetchOrder success, orders:',
-                    responseData.data
-                );
                 dispatch(setOrder(responseData.data)); // Dispatch action
             } else {
-                console.log('❌ fetchOrder failed:', responseData.message);
                 toast.error('Lỗi khi tải danh sách đơn hàng');
             }
         } catch (error) {
-            console.log('❌ fetchOrder error:', error);
             // Không hiển thị toast error nếu là lỗi 401 (unauthorized)
             if (error?.response?.status !== 401) {
                 AxiosToastError(error);
@@ -197,28 +170,17 @@ const GlobalProvider = ({ children }) => {
         const accessToken = localStorage.getItem('accesstoken');
         // Fetch khi có user._id và accessToken
         if (user?._id && accessToken) {
-            console.log('🟢 User authenticated, fetching data...', {
-                userId: user._id,
-                hasToken: !!accessToken,
-            });
             fetchCartItem();
             fetchAddress();
             dispatch(fetchOrder()); // Sử dụng dispatch với thunk
         } else if (user === null || !accessToken) {
             // Clear Redux state khi user logout hoặc không có token
-            console.log('🔴 User not authenticated, clearing data...', {
-                user,
-                hasToken: !!accessToken,
-            });
             dispatch(handleAddItemCart([])); // Clear cart items
         }
-        // Không làm gì nếu user vẫn đang undefined (đang load)
     }, [user, dispatch]);
 
     // Hàm reload thủ công sau thanh toán (gọi từ CheckoutPage.jsx)
     const reloadAfterPayment = async (selectedProductIds = null) => {
-        console.log('reloadAfterPayment called with:', selectedProductIds);
-
         try {
             // FORCE selective cleanup - luôn lấy từ localStorage nếu có
             let finalSelectedProductIds = selectedProductIds;
@@ -239,13 +201,9 @@ const GlobalProvider = ({ children }) => {
                             parsedItems.length > 0
                         ) {
                             finalSelectedProductIds = parsedItems;
-                            console.log(
-                                '🔄 Retrieved selectedProductIds from localStorage:',
-                                finalSelectedProductIds
-                            );
                         }
                     } catch (e) {
-                        console.error('Error parsing stored selectedItems:', e);
+                        AxiosToastError(e);
                     }
                 }
             }
@@ -256,23 +214,16 @@ const GlobalProvider = ({ children }) => {
                     ? { selectedProductIds: finalSelectedProductIds }
                     : {};
 
-            console.log('Sending request data to clear cart:', requestData);
-
             const response = await Axios({
                 ...SummaryApi.clear_cart,
                 data: requestData,
             });
 
             if (response.data.success) {
-                console.log(
-                    '✅ Cart cleared successfully:',
-                    response.data.message
-                );
-                // Xóa localStorage sau khi thành công
                 localStorage.removeItem('checkoutSelectedItems');
             }
         } catch (error) {
-            console.error('Cart clear error:', error);
+            AxiosToastError(error);
         }
 
         // Sau đó reload data
