@@ -18,10 +18,9 @@ import {
 import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import StatusBadge from '../components/StatusBadge';
 import { fetchAllOrders } from '../store/orderSlice';
+import ViewImage from '../components/ViewImage';
 
 const debounce = (func, delay) => {
     let timeoutId;
@@ -41,6 +40,7 @@ const BillPage = () => {
     );
     const user = useSelector((state) => state.user);
     const isAdmin = user?.role === 'ADMIN';
+    const [imageURL, setImageURL] = useState('');
 
     const [filters, setFilters] = useState({
         search: '',
@@ -194,74 +194,135 @@ const BillPage = () => {
         );
     };
 
-    const exportToPDF = () => {
-        const doc = new jsPDF();
+    const exportToPDF = async () => {
+        try {
+            // Check if jsPDF is available
+            if (!window.jsPDF) {
+                throw new Error(
+                    'Thư viện tạo PDF chưa được tải. Vui lòng thử lại sau.'
+                );
+            }
 
-        doc.setFontSize(18);
-        doc.text('DANH SÁCH HÓA ĐƠN', 105, 15, { align: 'center' });
+            // Create a new PDF document
+            const doc = new window.jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4',
+                compress: true,
+            });
 
-        doc.setFontSize(10);
-        doc.text(
-            `Ngày xuất: ${format(new Date(), 'dd/MM/yyyy HH:mm', {
-                locale: vi,
-            })}`,
-            14,
-            25
-        );
+            // Add title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.text('DANH SÁCH HÓA ĐƠN', 105, 15, { align: 'center' });
 
-        const headers = [
-            'Mã HĐ',
-            'Ngày tạo',
-            'Khách hàng',
-            'Sản phẩm',
-            'SL',
-            'Tổng tiền',
-            'Trạng thái thanh toán',
-        ];
+            // Add export date
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text(
+                `Ngày xuất: ${format(new Date(), 'dd/MM/yyyy HH:mm', {
+                    locale: vi,
+                })}`,
+                14,
+                25
+            );
 
-        const data = filteredAndSortedOrders.map((order) => [
-            order.orderId,
-            format(new Date(order.createdAt), 'dd/MM/yyyy', { locale: vi }),
-            order.userId?.name || 'Khách vãng lai',
-            (order.product_details?.name?.substring(0, 15) || '') +
-                (order.product_details?.name?.length > 15 ? '...' : ''),
-            order.quantity,
-            DisplayPriceInVND(order.totalAmt || 0),
-            order.payment_status || 'Chưa xác định',
-        ]);
+            // Define table headers
+            const headers = [
+                'Mã HĐ',
+                'Ngày tạo',
+                'Khách hàng',
+                'Sản phẩm',
+                'SL',
+                'Tổng tiền',
+                'Trạng thái thanh toán',
+            ];
 
-        doc.autoTable({
-            head: [headers],
-            body: data,
-            startY: 30,
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [41, 128, 185] },
-            columnStyles: {
-                0: { cellWidth: 25 },
-                1: { cellWidth: 25 },
-                2: { cellWidth: 30 },
-                3: { cellWidth: 40 },
-                4: { cellWidth: 15 },
-                5: { cellWidth: 25 },
-                6: { cellWidth: 30 },
-            },
-        });
+            // Prepare data
+            const data = filteredAndSortedOrders.map((order) => [
+                order.orderId,
+                format(new Date(order.createdAt), 'dd/MM/yyyy', { locale: vi }),
+                order.userId?.name || 'Khách vãng lai',
+                (order.product_details?.name?.substring(0, 15) || '') +
+                    (order.product_details?.name?.length > 15 ? '...' : ''),
+                order.quantity,
+                DisplayPriceInVND(order.totalAmt || 0),
+                order.payment_status || 'Chưa xác định',
+            ]);
 
-        doc.setFontSize(10);
-        doc.text(
-            `Tổng số hóa đơn: ${orderCount}`,
-            14,
-            doc.lastAutoTable.finalY + 15
-        );
-        doc.text(
-            `Tổng doanh thu: ${DisplayPriceInVND(totalRevenue)}`,
-            14,
-            doc.lastAutoTable.finalY + 25
-        );
+            // Add table with error handling
+            try {
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 30,
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                        overflow: 'linebreak',
+                        lineWidth: 0.1,
+                        lineColor: [0, 0, 0],
+                        font: 'helvetica',
+                    },
+                    headStyles: {
+                        fillColor: [41, 128, 185],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 20 },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 30 },
+                        3: { cellWidth: 40 },
+                        4: { cellWidth: 10, halign: 'center' },
+                        5: { cellWidth: 25, halign: 'right' },
+                        6: { cellWidth: 30 },
+                    },
+                    margin: { top: 30 },
+                    didDrawPage: function (data) {
+                        // Footer
+                        const pageSize = doc.internal.pageSize;
+                        const pageHeight =
+                            pageSize.height || pageSize.getHeight();
+                        doc.setFontSize(10);
+                        doc.text(
+                            `Trang ${doc.internal.getNumberOfPages()}`,
+                            pageSize.width / 2,
+                            pageHeight - 10,
+                            { align: 'center' }
+                        );
+                    },
+                });
+            } catch (tableError) {
+                console.error('Lỗi khi tạo bảng:', tableError);
+                throw new Error('Không thể tạo bảng dữ liệu trong file PDF');
+            }
 
-        doc.save(
-            `danh-sach-hoa-don-${new Date().toISOString().split('T')[0]}.pdf`
-        );
+            // Add summary
+            const finalY = doc.lastAutoTable?.finalY || 30;
+            doc.setFontSize(10);
+            doc.text(`Tổng số hóa đơn: ${orderCount}`, 14, finalY + 10);
+            doc.text(
+                `Tổng doanh thu: ${DisplayPriceInVND(totalRevenue)}`,
+                14,
+                finalY + 20
+            );
+
+            // Save the PDF
+            doc.save(
+                `danh-sach-hoa-don-${format(
+                    new Date(),
+                    'yyyy-MM-dd-HH-mm-ss'
+                )}.pdf`
+            );
+
+            toast.success('Xuất file PDF thành công!');
+        } catch (error) {
+            console.error('Lỗi khi xuất PDF:', error);
+            toast.error(
+                `Có lỗi xảy ra: ${error.message || 'Không thể xuất file PDF'}`
+            );
+        }
     };
 
     const printBill = (order) => {
@@ -375,12 +436,12 @@ const BillPage = () => {
 
     const renderSortIcon = (key) => {
         if (sortConfig.key !== key) {
-            return <FaSort className="ml-1 text-gray-400" />;
+            return <FaSort className="ml-1 text-secondary-200" />;
         }
         return sortConfig.direction === 'asc' ? (
-            <FaSortUp className="ml-1 text-blue-500" />
+            <FaSortUp className="ml-1 text-secondary-200" />
         ) : (
-            <FaSortDown className="ml-1 text-blue-500" />
+            <FaSortDown className="ml-1 text-secondary-200" />
         );
     };
 
@@ -402,57 +463,70 @@ const BillPage = () => {
     }, 300);
 
     return (
-        <div className="w-full">
-            <div className="p-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
+        <div className="w-full grid gap-5">
+            <div className="p-4 mb-2 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
                 <h2 className="text-ellipsis line-clamp-1">Quản lý Hóa đơn</h2>
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white rounded-lg shadow p-4">
-                    <div className="flex items-center">
-                        <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                            <FaFileInvoice className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Tổng số hóa đơn</p>
-                            <p className="text-2xl font-bold">{orderCount}</p>
-                        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-blue-600 bg-blue-100 text-blue-600">
+                        <FaFileInvoice className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Tổng số hóa đơn
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {orderCount}
+                        </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-4">
-                    <div className="flex items-center">
-                        <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
-                            <FaFileInvoice className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Tổng doanh thu</p>
-                            <p className="text-2xl font-bold">{DisplayPriceInVND(totalRevenue)}</p>
-                        </div>
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-green-600 bg-green-100 text-green-600">
+                        <FaFileInvoice className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Tổng doanh thu
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {DisplayPriceInVND(totalRevenue)}
+                        </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-4">
-                    <div className="flex items-center">
-                        <div className="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                            <FaFilter className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Đang hiển thị</p>
-                            <p className="text-2xl font-bold">
-                                {filteredAndSortedOrders.length} / {orders.length}
-                            </p>
-                        </div>
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-yellow-600 bg-yellow-100 text-yellow-600">
+                        <FaFilter className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Đang hiển thị
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {filteredAndSortedOrders.length} / {orders.length}
+                        </p>
                     </div>
                 </div>
             </div>
 
             {/* Filter Section */}
-            <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="bg-white rounded-lg shadow-md shadow-secondary-100 px-4 py-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
                             Tìm kiếm
                         </label>
                         <div className="relative">
@@ -460,21 +534,24 @@ const BillPage = () => {
                                 type="text"
                                 name="search"
                                 placeholder="Tìm kiếm..."
-                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 h-11 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2
+                                focus:ring-secondary-200"
                                 value={filters.search}
-                                onChange={(e) => handleSearchChange(e.target.value)}
+                                onChange={(e) =>
+                                    handleSearchChange(e.target.value)
+                                }
                             />
-                            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
                             Trạng thái
                         </label>
                         <select
                             name="status"
-                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 h-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200"
                             value={filters.status}
                             onChange={handleFilterChange}
                         >
@@ -488,26 +565,26 @@ const BillPage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
                             Từ ngày
                         </label>
                         <input
                             type="date"
                             name="startDate"
-                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 h-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                             value={filters.startDate}
                             onChange={handleFilterChange}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
                             Đến ngày
                         </label>
                         <input
                             type="date"
                             name="endDate"
-                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 h-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                             value={filters.endDate}
                             onChange={handleFilterChange}
                         />
@@ -524,7 +601,8 @@ const BillPage = () => {
                                 endDate: '',
                             })
                         }
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                        className="px-4 py-2 text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
+                        hover:bg-secondary-200 hover:text-white border-inset"
                     >
                         Đặt lại
                     </button>
@@ -533,7 +611,7 @@ const BillPage = () => {
                         onClick={exportToExcel}
                         className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
                     >
-                        <FaFileExcel className="mr-2" />
+                        <FaFileExcel className="mr-2 mb-[2px]" />
                         Xuất Excel
                     </button>
 
@@ -541,7 +619,7 @@ const BillPage = () => {
                         onClick={exportToPDF}
                         className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
                     >
-                        <FaFilePdf className="mr-2" />
+                        <FaFilePdf className="mr-2 mb-[2px]" />
                         Xuất PDF
                     </button>
                 </div>
@@ -551,52 +629,62 @@ const BillPage = () => {
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
                     <div className="min-w-full" style={{ minWidth: '1024px' }}>
-                        <table className="w-full divide-y divide-gray-200">
+                        <table className="w-full divide-y-[3px] divide-secondary-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <div className="flex items-center">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center gap-1">
                                             Mã HĐ
-                                            <button 
-                                                onClick={() => handleSort('orderId')}
-                                                className="ml-1 focus:outline-none"
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('orderId')
+                                                }
+                                                className="mb-1 focus:outline-none"
                                             >
                                                 {renderSortIcon('orderId')}
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
                                         Khách hàng
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
                                         Sản phẩm
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
                                         <div className="flex items-center">
-                                            Số lượng
-                                            <button 
-                                                onClick={() => handleSort('quantity')}
-                                                className="ml-1 focus:outline-none"
-                                            >
-                                                {renderSortIcon('quantity')}
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <div className="flex items-center">
-                                            Tổng tiền
-                                            <button 
-                                                onClick={() => handleSort('totalAmt')}
-                                                className="ml-1 focus:outline-none"
+                                            <p className="text-nowrap">
+                                                Tổng tiền
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('totalAmt')
+                                                }
+                                                className="mb-1 focus:outline-none"
                                             >
                                                 {renderSortIcon('totalAmt')}
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
-                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center">
+                                            <p className="text-nowrap">
+                                                Ngày tạo
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('createdAt')
+                                                }
+                                                className="mb-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('createdAt')}
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-center text-nowrap text-sm font-bold text-secondary-200 uppercase tracking-wider">
                                         Thao tác
                                     </th>
                                 </tr>
@@ -604,47 +692,122 @@ const BillPage = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-4 text-center">
+                                        <td
+                                            colSpan="7"
+                                            className="px-6 py-4 text-center"
+                                        >
                                             Đang tải...
                                         </td>
                                     </tr>
                                 ) : filteredAndSortedOrders.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                                        <td
+                                            colSpan="7"
+                                            className="px-6 py-4 text-center text-gray-500"
+                                        >
                                             Không tìm thấy hóa đơn nào phù hợp
                                         </td>
                                     </tr>
                                 ) : (
                                     filteredAndSortedOrders.map((order) => (
-                                        <tr key={order._id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <tr
+                                            key={order._id}
+                                            className="hover:bg-gray-50"
+                                        >
+                                            <td
+                                                className="px-4 py-4 text-sm font-medium text-gray-900"
+                                                title={order.orderId}
+                                            >
                                                 {order.orderId}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {order.userId?.name || 'Khách vãng lai'}
+                                                <p className="text-black font-semibold">
+                                                    {order.userId?.name ||
+                                                        'Khách vãng lai'}
+                                                </p>
+                                                <p>{order.userId?.email}</p>
+                                                <p>
+                                                    {
+                                                        order.delivery_address
+                                                            ?.mobile
+                                                    }
+                                                </p>
+                                                <p>
+                                                    {
+                                                        order.delivery_address
+                                                            ?.city
+                                                    }
+                                                </p>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-gray-500">
-                                                {order.product_details?.name || 'N/A'}
+                                            <td className="px-4 py-4 text-sm text-gray-500 flex items-center sm:grid  gap-3 max-w-[250px]">
+                                                <img
+                                                    src={
+                                                        order.product_details
+                                                            ?.image?.[0] ||
+                                                        '/placeholder.jpg'
+                                                    }
+                                                    alt={
+                                                        order.product_details
+                                                            ?.name ||
+                                                        'Product Image'
+                                                    }
+                                                    className="w-12 h-12 object-cover flex-shrink-0 rounded shadow-md shadow-secondary-100 cursor-pointer"
+                                                    onError={(e) => {
+                                                        e.target.src =
+                                                            '/placeholder.jpg';
+                                                    }}
+                                                    onClick={() =>
+                                                        setImageURL(
+                                                            order
+                                                                .product_details
+                                                                ?.image?.[0]
+                                                        )
+                                                    }
+                                                />
+                                                <div>
+                                                    <p
+                                                        className="line-clamp-2 text-sm"
+                                                        title={
+                                                            order
+                                                                .product_details
+                                                                ?.name
+                                                        }
+                                                    >
+                                                        {order.product_details
+                                                            ?.name || 'N/A'}
+                                                    </p>
+                                                    <p className="text-secondary-200 font-bold text-sm">
+                                                        x{order.quantity}
+                                                    </p>
+                                                </div>
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {order.quantity}
-                                            </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {DisplayPriceInVND(order.totalAmt)}
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
+                                                {DisplayPriceInVND(
+                                                    order.totalAmt
+                                                )}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap">
-                                                <StatusBadge status={order.payment_status} />
+                                                <StatusBadge
+                                                    status={
+                                                        order.payment_status
+                                                    }
+                                                />
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
+                                                {format(
+                                                    new Date(order.createdAt),
+                                                    'dd/MM/yyyy HH:mm',
+                                                    {
+                                                        locale: vi,
+                                                    }
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 <button
-                                                    onClick={() => navigate(`/order/${order._id}`)}
-                                                    className="text-blue-600 hover:text-blue-900 mr-3"
-                                                >
-                                                    <FaEye className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => printBill(order)}
-                                                    className="text-green-600 hover:text-green-900"
+                                                    onClick={() =>
+                                                        printBill(order)
+                                                    }
+                                                    className="text-blue-600 hover:opacity-80"
                                                 >
                                                     <FaPrint className="h-5 w-5" />
                                                 </button>
@@ -657,6 +820,10 @@ const BillPage = () => {
                     </div>
                 </div>
             </div>
+
+            {imageURL && (
+                <ViewImage url={imageURL} close={() => setImageURL('')} />
+            )}
         </div>
     );
 };

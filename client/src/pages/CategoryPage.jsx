@@ -106,7 +106,7 @@ const CategoryPage = () => {
                     <div
                         key={category._id || index}
                         className="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300
-                        border border-gray-100 overflow-hidden"
+                        border border-gray-100 overflow-hidden cursor-pointer"
                     >
                         <div className="w-full h-40 sm:h-52 overflow-hidden bg-gray-50">
                             <img
