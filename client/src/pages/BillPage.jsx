@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGlobalContext } from '../provider/GlobalProvider';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -22,6 +21,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import StatusBadge from '../components/StatusBadge';
+import { fetchAllOrders } from '../store/orderSlice';
 
 const debounce = (func, delay) => {
     let timeoutId;
@@ -36,11 +36,9 @@ const debounce = (func, delay) => {
 const BillPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { fetchAllOrders } = useGlobalContext();
     const { allOrders: orders = [], loading } = useSelector(
         (state) => state.orders
     );
-    // Fix: Access user data directly from the user slice
     const user = useSelector((state) => state.user);
     const isAdmin = user?.role === 'ADMIN';
 
@@ -78,9 +76,7 @@ const BillPage = () => {
             } catch (error) {
                 console.error('Error in loadOrders:', error);
                 if (error?.response?.status !== 401) {
-                    toast.error(
-                        error.message || 'Có lỗi xảy ra khi tải đơn hàng'
-                    );
+                    toast.error(error || 'Có lỗi xảy ra khi tải đơn hàng');
                 }
             }
         };
@@ -628,7 +624,7 @@ const BillPage = () => {
                             ) : filteredAndSortedOrders.length > 0 ? (
                                 filteredAndSortedOrders.map((order, index) => (
                                     <tr
-                                        key={order._id}
+                                        key={order._id || index}
                                         className="hover:bg-gray-50"
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

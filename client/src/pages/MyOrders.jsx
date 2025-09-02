@@ -79,14 +79,13 @@ const MyOrders = () => {
                                         e.target.src = '/placeholder.jpg';
                                     }}
                                 />
-                                <div>
+                                <div className="flex flex-col gap-1">
                                     <p className="font-semibold line-clamp-2">
                                         {order?.product_details?.name ||
                                             'Sản phẩm không xác định'}
                                     </p>
-                                    <p className="text-sm text-gray-600">
-                                        Số lượng:{' '}
-                                        {order?.quantity || 'Chưa xác định'}
+                                    <p className="text-sm text-secondary-200 font-bold">
+                                        x{order?.quantity || 'Chưa xác định'}
                                     </p>
                                     <p className="text-sm text-gray-600">
                                         Ngày đặt:{' '}
@@ -118,12 +117,16 @@ const MyOrders = () => {
                                     {DisplayPriceInVND(order?.totalAmt || 0)}
                                 </p>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex sm:flex-row flex-col items-baseline gap-2">
                                 <p className="font-semibold">
                                     Địa chỉ giao hàng:
                                 </p>
-                                <p className="text-sm text-gray-600">
-                                    {order?.delivery_address?.address ||
+                                <p className="text-gray-500 text-sm font-medium">
+                                    {order?.delivery_address?.city +
+                                        ', ' +
+                                        order?.delivery_address?.district +
+                                        ', ' +
+                                        order?.delivery_address?.ward ||
                                         'Chưa xác định'}
                                 </p>
                             </div>

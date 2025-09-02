@@ -192,47 +192,6 @@ const GlobalProvider = ({ children }) => {
         }
     };
 
-    const fetchAllOrders =
-        (filters = {}) =>
-        async (dispatch, getState) => {
-            const { user } = getState();
-            const accessToken = localStorage.getItem('accesstoken');
-
-            if (!accessToken || !user?._id || user?.role !== 'ADMIN') {
-                console.log('❌ fetchAllOrders blocked - not admin or no auth');
-                throw new Error('Bạn không có quyền truy cập');
-            }
-
-            try {
-                const response = await Axios({
-                    ...SummaryApi.all_orders,
-                    params: {
-                        search: filters.search,
-                        status: filters.status,
-                        startDate: filters.startDate,
-                        endDate: filters.endDate,
-                    },
-                });
-
-                const { data: responseData } = response;
-                if (responseData.success) {
-                    console.log(
-                        '✅ fetchAllOrders success, total:',
-                        responseData.data?.length || 0
-                    );
-                    dispatch(setAllOrders(responseData.data || []));
-                    return { data: responseData.data };
-                } else {
-                    throw new Error(
-                        responseData.message || 'Lỗi khi tải danh sách đơn hàng'
-                    );
-                }
-            } catch (error) {
-                console.error('❌ fetchAllOrders error:', error);
-                throw error;
-            }
-        };
-
     // Chỉ fetch dữ liệu khi user thay đổi, không logout ngay
     useEffect(() => {
         const accessToken = localStorage.getItem('accesstoken');
@@ -245,9 +204,6 @@ const GlobalProvider = ({ children }) => {
             fetchCartItem();
             fetchAddress();
             dispatch(fetchOrder()); // Sử dụng dispatch với thunk
-            if (user?.role === 'ADMIN') {
-                dispatch(fetchAllOrders());
-            }
         } else if (user === null || !accessToken) {
             // Clear Redux state khi user logout hoặc không có token
             console.log('🔴 User not authenticated, clearing data...', {
@@ -334,8 +290,7 @@ const GlobalProvider = ({ children }) => {
                 totalPrice,
                 totalQty,
                 notDiscountTotalPrice,
-                fetchOrder, // Giữ nguyên để component gọi
-                fetchAllOrders,
+                fetchOrder,
                 reloadAfterPayment,
             }}
         >
