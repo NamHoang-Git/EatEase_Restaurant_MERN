@@ -155,7 +155,8 @@ const EditProductAdmin = ({ close, data: propsData, fetchProduct }) => {
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white max-w-4xl w-full rounded-xl shadow-sm border border-gray-200 overflow-y-auto max-h-[calc(100vh-200px)]"
+                className="bg-white max-w-4xl w-full rounded-xl shadow-sm border border-gray-200 overflow-y-auto
+            max-h-[calc(100vh-200px)] scrollbarCustom scrollbar-hide"
             >
                 <div className="border-b border-gray-200 px-6 py-4">
                     <div className="flex items-center justify-between">

@@ -27,6 +27,29 @@ const UploadProduct = () => {
     const [loading, setLoading] = useState(false);
     const [imageURL, setImageURL] = useState('');
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            // lấy tất cả input hợp lệ trong form
+            const form = e.target.form;
+            const focusable = Array.from(form.elements).filter(
+                (el) =>
+                    el.tagName === 'INPUT' ||
+                    el.tagName === 'SELECT' ||
+                    el.tagName === 'TEXTAREA'
+            );
+
+            // tìm vị trí hiện tại
+            const index = focusable.indexOf(e.target);
+
+            // focus phần tử tiếp theo nếu có
+            if (index > -1 && index < focusable.length - 1) {
+                focusable[index + 1].focus();
+            }
+        }
+    };
+
     const handleOnChange = (e) => {
         const { name, value } = e.target;
 
@@ -175,6 +198,7 @@ const UploadProduct = () => {
                             type="text"
                             id="name"
                             name="name"
+                            autoFocus
                             value={data.name}
                             onChange={handleOnChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
@@ -389,6 +413,7 @@ const UploadProduct = () => {
                             focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
                             placeholder="Ví dụ: cái, thiết bị, bộ..."
                             required
+                            onKeyDown={handleKeyDown}
                         />
                     </div>
                     {/* Stock */}
@@ -411,6 +436,7 @@ const UploadProduct = () => {
                             focus:border-secondary-100 focus:outline-none"
                             placeholder="Nhập số lượng tồn kho"
                             required
+                            onKeyDown={handleKeyDown}
                         />
                     </div>
                     {/* Price */}
@@ -436,6 +462,7 @@ const UploadProduct = () => {
                                 focus:border-secondary-100 focus:outline-none"
                                 placeholder="Nhập giá bán"
                                 required
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                     </div>
@@ -456,6 +483,7 @@ const UploadProduct = () => {
                             value={data.discount}
                             name="discount"
                             onChange={handleOnChange}
+                            onKeyDown={handleKeyDown}
                         />
                     </div>
                     {/* Description */}
@@ -475,6 +503,7 @@ const UploadProduct = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
                             focus:border-secondary-100 focus:outline-none resize-none"
                             placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                            onKeyDown={handleKeyDown}
                         />
                     </div>
 

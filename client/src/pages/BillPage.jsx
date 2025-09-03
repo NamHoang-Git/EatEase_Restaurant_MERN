@@ -687,14 +687,14 @@ const BillPage = () => {
                                 type="text"
                                 name="search"
                                 placeholder="Tìm kiếm..."
-                                className="w-full pl-10 h-11 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2
+                                className="w-full pl-10 h-11 text-sm font-medium pr-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2
                                 focus:ring-secondary-200"
                                 value={filters.search}
                                 onChange={(e) =>
                                     handleSearchChange(e.target.value)
                                 }
                             />
-                            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                         </div>
                     </div>
 
@@ -704,11 +704,10 @@ const BillPage = () => {
                         </label>
                         <select
                             name="status"
-                            className="w-full p-2 h-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200"
+                            className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200"
                             value={filters.status}
                             onChange={handleFilterChange}
                         >
-                            <option value="">Tất cả</option>
                             {statusOptions.map((option) => (
                                 <option key={option.value} value={option.value}>
                                     {option.label}
@@ -724,7 +723,7 @@ const BillPage = () => {
                         <input
                             type="date"
                             name="startDate"
-                            className="w-full p-2 h-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                            className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                             value={filters.startDate}
                             onChange={handleFilterChange}
                         />
@@ -737,7 +736,7 @@ const BillPage = () => {
                         <input
                             type="date"
                             name="endDate"
-                            className="w-full p-2 h-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                            className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                             value={filters.endDate}
                             onChange={handleFilterChange}
                         />
@@ -755,15 +754,16 @@ const BillPage = () => {
                             })
                         }
                         className="px-4 h-9 text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
-                        hover:bg-secondary-100 hover:text-white border-inset sm:flex-1"
+                        hover:bg-secondary-100 hover:text-white border-inset"
                     >
                         Đặt lại
                     </button>
 
-                    <div className="flex items-center gap-2 sm:flex-2 h-9">
+                    <div className="flex items-center gap-2 h-9 sm:w-auto w-full">
                         <button
                             onClick={exportToExcel}
-                            className="flex flex-1 items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                            className="flex sm:w-auto w-full items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white
+                        bg-green-600 rounded-lg hover:bg-green-700"
                         >
                             <FaFileExcel className="mr-2 mb-[2px]" />
                             Xuất Excel
@@ -771,7 +771,8 @@ const BillPage = () => {
 
                         <button
                             onClick={exportToPDF}
-                            className="flex flex-1 items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                            className="flex sm:w-auto w-full items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white
+                        bg-red-600 rounded-lg hover:bg-red-700"
                         >
                             <FaFilePdf className="mr-2 mb-[2px]" />
                             Xuất PDF
@@ -782,7 +783,7 @@ const BillPage = () => {
 
             {/* Table Container */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scrollbarCustom">
                     <div className="min-w-full" style={{ minWidth: '1024px' }}>
                         <table className="w-full divide-y-4 divide-secondary-200">
                             <thead className="bg-gray-50">
@@ -945,7 +946,7 @@ const BillPage = () => {
                                                     order.totalAmt || 0
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap flex items-center justify-center">
+                                            <td className="px-4 py-4 whitespace-nowrap">
                                                 <StatusBadge
                                                     status={
                                                         order.payment_status
@@ -983,7 +984,7 @@ const BillPage = () => {
 
             {/* Pagination Controls */}
             {filteredAndSortedOrders.length > 0 && (
-                <div className="px-6 py-3 border-t border-gray-200">
+                <div className="px-6 py-4 border-t-4 border-secondary-200">
                     <PaginationControls />
                 </div>
             )}

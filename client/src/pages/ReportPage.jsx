@@ -856,16 +856,16 @@ const ReportPage = () => {
                             type="text"
                             name="search"
                             placeholder="Tìm kiếm..."
-                            className="w-full pl-10 h-11 pr-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2
+                            className="w-full pl-10 h-11 text-sm font-medium py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2
                         focus:ring-secondary-200"
                             value={filters.search}
                             onChange={handleFilterChange}
                         />
-                        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
                     <select
                         name="status"
-                        className="w-full p-2 h-11 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                        className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                         value={filters.status}
                         onChange={handleFilterChange}
                     >
@@ -878,7 +878,7 @@ const ReportPage = () => {
 
                     <select
                         name="dateRange"
-                        className="w-full p-2 h-11 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                        className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                         value={dateRange}
                         onChange={handleFilterChange}
                     >
@@ -892,7 +892,8 @@ const ReportPage = () => {
 
                     <button
                         onClick={exportToExcel}
-                        className="flex items-center justify-center h-11 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        className="flex items-center justify-center h-11 px-4 py-2 border border-transparent rounded-md shadow-sm sm:text-sm text-xs font-medium
+                    text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
                         <FaFileExcel className="mr-2 mb-[3px]" />
                         <p>Xuất Excel</p>
@@ -931,7 +932,7 @@ const ReportPage = () => {
 
             {/* Orders Table */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scrollbarCustom">
                     <div className="min-w-full" style={{ minWidth: '1024px' }}>
                         <table className="w-full divide-y-4 divide-secondary-200">
                             <thead className="bg-gray-50">
@@ -1134,7 +1135,7 @@ const ReportPage = () => {
 
                 {/* Pagination Controls */}
                 {filteredAndSortedOrders.length > 0 && (
-                    <div className="px-6 py-4 border-t-4 border-secondary-200">
+                    <div className="px-6 py-4 border-t-4 border-secondary-200 mt-4">
                         <PaginationControls />
                     </div>
                 )}

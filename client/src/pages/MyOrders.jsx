@@ -56,7 +56,8 @@ const MyOrders = () => {
                     orders.map((order, index) => (
                         <div
                             key={order._id || index}
-                            className="border border-secondary-100 rounded-md px-2 sm:px-4 py-3 hover:bg-base-100 shadow-md flex flex-col gap-3"
+                            className="border border-secondary-100 rounded-md px-2 sm:px-4 py-3 hover:bg-base-100 shadow-md
+                        flex flex-col smgap-3 gap-2 sm:text-base text-xs"
                         >
                             <div className="flex md:flex-row flex-col md:gap-2">
                                 <p className="font-semibold">Mã đơn hàng:</p>
@@ -74,12 +75,12 @@ const MyOrders = () => {
                                         order?.product_details?.name ||
                                         'Product Image'
                                     }
-                                    className="w-14 h-14 object-cover rounded shadow-md shadow-secondary-100"
+                                    className="sm:w-14 sm:h-14 w-12 h-12 object-cover rounded shadow-md shadow-secondary-100"
                                     onError={(e) => {
                                         e.target.src = '/placeholder.jpg';
                                     }}
                                 />
-                                <div className="flex flex-col gap-1">
+                                <div className="flex flex-col sm:gap-1">
                                     <p className="font-semibold line-clamp-2">
                                         {order?.product_details?.name ||
                                             'Sản phẩm không xác định'}
@@ -121,7 +122,7 @@ const MyOrders = () => {
                                 <p className="font-semibold">
                                     Địa chỉ giao hàng:
                                 </p>
-                                <p className="text-gray-500 text-sm font-medium">
+                                <p className="text-gray-500 text-[11px] font-medium">
                                     {order?.delivery_address?.city +
                                         ', ' +
                                         order?.delivery_address?.district +
@@ -135,7 +136,7 @@ const MyOrders = () => {
                                     handleBuyAgain(order?.productId || '');
                                     scrollToTop();
                                 }}
-                                className="mt-2 bg-primary-4 text-secondary-200 py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base w-full sm:w-auto text-center font-bold shadow-md"
+                                className="mt-2 bg-primary-4 text-secondary-200 py-[6px] px-4 rounded-md transition-colors duration-200 text-xs sm:text-base w-full sm:w-auto text-center font-bold shadow-md"
                             >
                                 Mua lại
                             </button>

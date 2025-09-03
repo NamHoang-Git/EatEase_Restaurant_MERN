@@ -23,6 +23,29 @@ const Login = () => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            // lấy tất cả input hợp lệ trong form
+            const form = e.target.form;
+            const focusable = Array.from(form.elements).filter(
+                (el) =>
+                    el.tagName === 'INPUT' ||
+                    el.tagName === 'SELECT' ||
+                    el.tagName === 'TEXTAREA'
+            );
+
+            // tìm vị trí hiện tại
+            const index = focusable.indexOf(e.target);
+
+            // focus phần tử tiếp theo nếu có
+            if (index > -1 && index < focusable.length - 1) {
+                focusable[index + 1].focus();
+            }
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -128,6 +151,7 @@ const Login = () => {
                                 placeholder="Nhập email của bạn"
                                 value={data.email}
                                 onChange={handleChange}
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                         <div className="grid gap-2">

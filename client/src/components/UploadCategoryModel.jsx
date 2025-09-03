@@ -107,6 +107,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                             type="text"
                             id="name"
                             name="name"
+                            autoFocus
                             value={data.name}
                             onChange={handleOnChange}
                             className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 

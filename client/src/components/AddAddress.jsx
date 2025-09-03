@@ -192,6 +192,7 @@ const AddAddress = ({ close }) => {
                         <input
                             type="text"
                             id="addressline"
+                            autoFocus
                             className="border-2 bg-base-100 p-2 rounded outline-none
                         focus-within:border-secondary-100"
                             {...register('addressline', { required: true })}
