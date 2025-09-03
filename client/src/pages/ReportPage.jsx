@@ -21,6 +21,32 @@ import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { fetchAllOrders } from '../store/orderSlice';
 import StatusBadge from '../components/StatusBadge';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+
+// Register ChartJS components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 const statusOptions = [
     { value: '', label: 'Tất cả' },
@@ -254,6 +280,198 @@ const ReportPage = () => {
         );
     };
 
+    // Chart data preparation
+    const prepareChartData = () => {
+        // Group orders by date for line chart
+        const ordersByDate = filteredAndSortedOrders.reduce((acc, order) => {
+            const date = format(new Date(order.createdAt), 'dd/MM/yyyy');
+            if (!acc[date]) {
+                acc[date] = { date, total: 0, count: 0 };
+            }
+            acc[date].total += order.totalAmt || 0;
+            acc[date].count += 1;
+            return acc;
+        }, {});
+
+        // Prepare data for status distribution pie chart
+        const statusCounts = filteredAndSortedOrders.reduce((acc, order) => {
+            const status = order.payment_status || 'Chưa xác định';
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Prepare data for top products bar chart
+        const productSales = filteredAndSortedOrders.reduce((acc, order) => {
+            const productName = order.product_details?.name || 'Không xác định';
+            if (!acc[productName]) {
+                acc[productName] = { name: productName, total: 0, count: 0 };
+            }
+            acc[productName].total += order.totalAmt || 0;
+            acc[productName].count += order.quantity || 0;
+            return acc;
+        }, {});
+
+        // Sort products by total sales
+        const topProducts = Object.values(productSales)
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 5);
+
+        return {
+            salesData: {
+                labels: Object.values(ordersByDate).map(item => item.date),
+                datasets: [
+                    {
+                        label: 'Doanh thu',
+                        data: Object.values(ordersByDate).map(item => item.total),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Số đơn hàng',
+                        data: Object.values(ordersByDate).map(item => item.count),
+                        borderColor: 'rgb(53, 162, 235)',
+                        backgroundColor: 'rgba(53, 162, 235, 0.2)',
+                        yAxisID: 'y1',
+                    },
+                ],
+            },
+            statusData: {
+                labels: Object.keys(statusCounts),
+                datasets: [
+                    {
+                        data: Object.values(statusCounts),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                        ],
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            productsData: {
+                labels: topProducts.map(item => item.name),
+                datasets: [
+                    {
+                        label: 'Doanh thu',
+                        data: topProducts.map(item => item.total),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            },
+        };
+    };
+
+    const chartData = prepareChartData();
+
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += context.dataset.yAxisID === 'y1' 
+                                ? context.parsed.y + ' đơn' 
+                                : DisplayPriceInVND(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Doanh thu (VND)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false,
+                },
+                title: {
+                    display: true,
+                    text: 'Số đơn hàng'
+                }
+            }
+        }
+    };
+
+    const renderChart = () => {
+        switch (chartType) {
+            case 'bar':
+                return (
+                    <Bar 
+                        data={chartData.salesData} 
+                        options={chartOptions} 
+                    />
+                );
+            case 'line':
+                return (
+                    <Line 
+                        data={chartData.salesData} 
+                        options={chartOptions} 
+                    />
+                );
+            case 'pie':
+                return (
+                    <div className="max-w-md mx-auto">
+                        <Pie 
+                            data={chartData.statusData} 
+                            options={{
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const label = context.label || '';
+                                                const value = context.raw || 0;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = Math.round((value / total) * 100);
+                                                return `${label}: ${value} đơn (${percentage}%)`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }} 
+                        />
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <div className="container mx-auto px-4 py-6">
             <h1 className="text-2xl font-bold mb-6">Báo cáo đơn hàng</h1>
@@ -285,6 +503,82 @@ const ReportPage = () => {
                     </p>
                 </div>
             </div>
+
+            {/* Chart Type Selector */}
+            <div className="bg-white p-4 rounded-lg shadow mb-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold">Biểu đồ thống kê</h2>
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={() => setChartType('line')}
+                            className={`p-2 rounded-md ${chartType === 'line' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                            title="Đường kẻ"
+                        >
+                            <FaChartLine className="w-5 h-5" />
+                        </button>
+                        <button
+                            onClick={() => setChartType('bar')}
+                            className={`p-2 rounded-md ${chartType === 'bar' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                            title="Cột"
+                        >
+                            <FaChartBar className="w-5 h-5" />
+                        </button>
+                        <button
+                            onClick={() => setChartType('pie')}
+                            className={`p-2 rounded-md ${chartType === 'pie' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                            title="Tròn"
+                        >
+                            <FaChartPie className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+                <div className="h-80">
+                    {filteredAndSortedOrders.length > 0 ? (
+                        renderChart()
+                    ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                            Không có dữ liệu để hiển thị biểu đồ
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Top Products Chart */}
+            {filteredAndSortedOrders.length > 0 && (
+                <div className="bg-white p-4 rounded-lg shadow mb-6">
+                    <h2 className="text-lg font-semibold mb-4">Top sản phẩm bán chạy</h2>
+                    <div className="h-80">
+                        <Bar 
+                            data={chartData.productsData}
+                            options={{
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        display: false,
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return `Doanh thu: ${DisplayPriceInVND(context.parsed.y)}`;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function(value) {
+                                                return DisplayPriceInVND(value);
+                                            }
+                                        }
+                                    }
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Filters */}
             <div className="bg-white p-4 rounded-lg shadow mb-6">
