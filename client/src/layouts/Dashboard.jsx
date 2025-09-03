@@ -1,21 +1,11 @@
 import React from 'react';
 import UserMenu from '../components/UserMenu';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 const Dashboard = () => {
-    const { pathname } = useLocation();
-
-    // Các trang cần full width
-    const fullWidthRoutes = ['/dashboard/bill', '/dashboard/report'];
-    const isFullWidthPage = fullWidthRoutes.some((route) =>
-        pathname.startsWith(route)
-    );
-
     return (
         <div
-            className={`min-h-screen flex flex-col bg-white p-4 ${
-                isFullWidthPage ? 'w-full' : 'container mx-auto'
-            }`}
+            className={`min-h-screen flex flex-col bg-white p-4 container shadow-lg rounded-lg mx-auto`}
         >
             {/* Header sẽ render ở layout cha */}
 
@@ -29,7 +19,7 @@ const Dashboard = () => {
 
                 {/* Main content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 p-4">
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden bg-white">
                         <Outlet />
                     </main>
                 </div>

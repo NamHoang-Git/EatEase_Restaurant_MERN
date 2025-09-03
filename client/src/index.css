@@ -36,19 +36,50 @@ body {
 }
 
 .bg-secondary {
-    background: linear-gradient(to right, #fc0068, #fc1973, #fc3586, #fc5294, #fc6fb2, #fc8ca0, #fcadc8, #fceaeb);
+    background: linear-gradient(
+        to right,
+        #fc0068,
+        #fc1973,
+        #fc3586,
+        #fc5294,
+        #fc6fb2,
+        #fc8ca0,
+        #fcadc8,
+        #fceaeb
+    );
 }
 
 .bg-secondary-2 {
-    background: linear-gradient(135deg, #dc2626, #ef4444, #f87171, #fca5a5, #fecaca);
+    background: linear-gradient(
+        135deg,
+        #dc2626,
+        #ef4444,
+        #f87171,
+        #fca5a5,
+        #fecaca
+    );
 }
 
 .bg-secondary-3 {
-    background: linear-gradient(to right, #b91c1c, #dc2626, #ef4444, #f87171, #fca5a5);
+    background: linear-gradient(
+        to right,
+        #b91c1c,
+        #dc2626,
+        #ef4444,
+        #f87171,
+        #fca5a5
+    );
 }
 
 .bg-secondary-4 {
-    background: linear-gradient(45deg, #7f1d1d, #991b1b, #dc2626, #ef4444, #f87171);
+    background: linear-gradient(
+        45deg,
+        #7f1d1d,
+        #991b1b,
+        #dc2626,
+        #ef4444,
+        #f87171
+    );
 }
 
 .bg-secondary-5 {
@@ -63,7 +94,29 @@ body {
 }
 
 .bg-secondary-6 {
-    background: linear-gradient(to bottom, #dc2626, #b91c1c, #991b1b, #7f1d1d);
+    background: linear-gradient(
+        135deg,
+        #ffe5e5 0%,
+        #ff6666 25%,
+        #ff0000 50%,
+        #cc0000 75%,
+        #ffe5e5 100%
+    );
+}
+
+.bg-secondary-7 {
+    background: linear-gradient(
+        135deg,
+        #e60000 0%,
+        #cc0000 25%,
+        #e60000 50%,
+        #ff6666 75%,
+        #f87171 100%
+    );
+}
+
+.bg-secondary-8 {
+    background: linear-gradient(45deg, #fff5f5, #ffcccc, #ff6666, #cc0000);
 }
 
 .bg-primary {
@@ -115,11 +168,25 @@ body {
 }
 
 .bg-primary-6 {
-    background: linear-gradient(to right, #fbbf24, #f59e0b, #d97706, #b45309, #92400e);
+    background: linear-gradient(
+        to right,
+        #fbbf24,
+        #f59e0b,
+        #d97706,
+        #b45309,
+        #92400e
+    );
 }
 
 .bg-primary-7 {
-    background: linear-gradient(45deg, #fff8dc, #ffd700, #ffa500, #ff8c00, #ff7f00);
+    background: linear-gradient(
+        45deg,
+        #fff8dc,
+        #ffd700,
+        #ffa500,
+        #ff8c00,
+        #ff7f00
+    );
 }
 
 .bg-primary-8 {
@@ -134,7 +201,14 @@ body {
 }
 
 .bg-primary-9 {
-    background: linear-gradient(to bottom, #fffbeb, #fef3c7, #fde047, #facc15, #eab308);
+    background: linear-gradient(
+        to bottom,
+        #fffbeb,
+        #fef3c7,
+        #fde047,
+        #facc15,
+        #eab308
+    );
 }
 
 .bg-primary-10 {

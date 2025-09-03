@@ -15,7 +15,11 @@ import {
     FaChartPie,
     FaChartLine,
     FaCalendarAlt,
+    FaUndo,
+    FaFileInvoice,
+    FaCoins,
 } from 'react-icons/fa';
+import { BsCoin } from 'react-icons/bs';
 import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
@@ -34,6 +38,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import ViewImage from '../components/ViewImage';
 
 // Register ChartJS components
 ChartJS.register(
@@ -63,6 +68,7 @@ const ReportPage = () => {
     );
     const user = useSelector((state) => state.user);
     const isAdmin = user?.role === 'ADMIN';
+    const [imageURL, setImageURL] = useState('');
     const [dateRange, setDateRange] = useState('7days');
     const [chartType, setChartType] = useState('bar');
 
@@ -105,52 +111,65 @@ const ReportPage = () => {
         loadOrders();
     }, [dispatch, isAdmin, navigate, filters]);
 
-    useEffect(() => {
-        let startDate, endDate;
-        const today = new Date();
+    useEffect(
+        () => {
+            let startDate, endDate;
+            const today = new Date();
 
-        switch (dateRange) {
-            case 'today':
-                startDate = format(today, 'yyyy-MM-dd');
-                endDate = format(today, 'yyyy-MM-dd');
-                break;
-            case 'yesterday':
-                const yesterday = subDays(today, 1);
-                startDate = format(yesterday, 'yyyy-MM-dd');
-                endDate = format(yesterday, 'yyyy-MM-dd');
-                break;
-            case '7days':
-                startDate = format(subDays(today, 7), 'yyyy-MM-dd');
-                endDate = format(today, 'yyyy-MM-dd');
-                break;
-            case '30days':
-                startDate = format(subDays(today, 30), 'yyyy-MM-dd');
-                endDate = format(today, 'yyyy-MM-dd');
-                break;
-            case 'thismonth':
-                startDate = format(startOfMonth(today), 'yyyy-MM-dd');
-                endDate = format(endOfMonth(today), 'yyyy-MM-dd');
-                break;
-            case 'custom':
-                if (filters.startDate && filters.endDate) {
-                    startDate = filters.startDate;
-                    endDate = filters.endDate;
-                } else {
+            switch (dateRange) {
+                case 'today':
+                    startDate = format(today, 'yyyy-MM-dd');
+                    endDate = format(today, 'yyyy-MM-dd');
+                    break;
+                case 'yesterday':
+                    const yesterday = subDays(today, 1);
+                    startDate = format(yesterday, 'yyyy-MM-dd');
+                    endDate = format(yesterday, 'yyyy-MM-dd');
+                    break;
+                case '7days':
+                    startDate = format(subDays(today, 7), 'yyyy-MM-dd');
+                    endDate = format(today, 'yyyy-MM-dd');
+                    break;
+                case '30days':
+                    startDate = format(subDays(today, 30), 'yyyy-MM-dd');
+                    endDate = format(today, 'yyyy-MM-dd');
+                    break;
+                case 'thismonth':
+                    startDate = format(startOfMonth(today), 'yyyy-MM-dd');
+                    endDate = format(endOfMonth(today), 'yyyy-MM-dd');
+                    break;
+                case 'custom':
+                    if (filters.startDate && filters.endDate) {
+                        startDate = filters.startDate;
+                        endDate = filters.endDate;
+                    } else {
+                        startDate = '';
+                        endDate = '';
+                    }
+                    break;
+                default:
                     startDate = '';
                     endDate = '';
-                }
-                break;
-            default:
-                startDate = '';
-                endDate = '';
-        }
+            }
 
-        setFilters((prev) => ({
-            ...prev,
-            startDate,
-            endDate: endDate ? `${endDate}T23:59:59` : '',
-        }));
-    }, [dateRange]);
+            setFilters((prev) => {
+                const newFilters = { ...prev };
+                if (startDate) {
+                    newFilters.startDate = startDate;
+                    newFilters.endDate = endDate
+                        ? `${endDate.split('T')[0]}T23:59:59`
+                        : '';
+                } else {
+                    newFilters.startDate = '';
+                    newFilters.endDate = '';
+                }
+                return newFilters;
+            });
+        },
+        [dateRange],
+        [filters.startDate],
+        [filters.endDate]
+    );
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -269,20 +288,22 @@ const ReportPage = () => {
     };
 
     const PaginationControls = () => (
-        <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700">
+        <div className="flex items-center sm:flex-row flex-col justify-between mt-4 gap-3">
+            <div className="flex items-center sm:flex-row flex-col space-x-2 gap-2">
+                <span className="text-sm text-gray-700 text-center">
                     Hiển thị{' '}
-                    <span className="font-medium">{indexOfFirstOrder + 1}</span>{' '}
+                    <span className="font-semibold text-secondary-200">
+                        {indexOfFirstOrder + 1}
+                    </span>{' '}
                     đến{' '}
-                    <span className="font-medium">
+                    <span className="font-semibold text-secondary-200">
                         {Math.min(
                             indexOfLastOrder,
                             filteredAndSortedOrders.length
                         )}
                     </span>{' '}
                     trong tổng số{' '}
-                    <span className="font-medium">
+                    <span className="font-semibold text-secondary-200">
                         {filteredAndSortedOrders.length}
                     </span>{' '}
                     đơn hàng
@@ -291,7 +312,8 @@ const ReportPage = () => {
                 <select
                     value={pagination.pageSize}
                     onChange={handlePageSizeChange}
-                    className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2
+                focus:ring-secondary-200 px-2"
                 >
                     {[5, 10, 25, 50].map((size) => (
                         <option key={size} value={size}>
@@ -305,14 +327,14 @@ const ReportPage = () => {
                 <button
                     onClick={() => paginate(1)}
                     disabled={pagination.currentPage === 1}
-                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     «
                 </button>
                 <button
                     onClick={() => paginate(pagination.currentPage - 1)}
                     disabled={pagination.currentPage === 1}
-                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     ‹
                 </button>
@@ -394,6 +416,20 @@ const ReportPage = () => {
             wb,
             `bao-cao-don-hang-${new Date().toISOString().split('T')[0]}.xlsx`
         );
+    };
+
+    const handleResetFilters = () => {
+        setFilters({
+            search: '',
+            status: '',
+            startDate: '',
+            endDate: '',
+        });
+        setDateRange('');
+        setPagination({
+            currentPage: 1,
+            pageSize: 10,
+        });
     };
 
     const renderSortIcon = (key) => {
@@ -566,7 +602,7 @@ const ReportPage = () => {
                 );
             case 'pie':
                 return (
-                    <div className="max-w-md mx-auto">
+                    <div className="max-w-xs mx-auto">
                         <Pie
                             data={chartData.statusData}
                             options={{
@@ -604,50 +640,105 @@ const ReportPage = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-6">
-            <h1 className="text-2xl font-bold mb-6">Báo cáo đơn hàng</h1>
+        <div className="container mx-auto lg:p-4 py-2 px-1 flex flex-col gap-4">
+            <div className="p-4 mb-2 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
+                <h2 className="text-ellipsis line-clamp-1">Báo cáo thống kê</h2>
+            </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-white p-4 rounded-lg shadow">
-                    <h3 className="text-gray-500 text-sm font-medium">
-                        Tổng doanh thu
-                    </h3>
-                    <p className="text-2xl font-bold">
-                        {DisplayPriceInVND(totalRevenue)}
-                    </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-secondary-200 bg-rose-100 text-secondary-200">
+                        <BsCoin className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Tổng doanh thu
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {DisplayPriceInVND(totalRevenue)}
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-white p-4 rounded-lg shadow">
-                    <h3 className="text-gray-500 text-sm font-medium">
-                        Tổng số đơn hàng
-                    </h3>
-                    <p className="text-2xl font-bold">{orderCount}</p>
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-blue-600 bg-blue-100 text-blue-600">
+                        <FaCoins className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Giá trị đơn hàng trung bình
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {orderCount > 0
+                                ? DisplayPriceInVND(totalRevenue / orderCount)
+                                : '0'}
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-white p-4 rounded-lg shadow">
-                    <h3 className="text-gray-500 text-sm font-medium">
-                        Giá trị đơn hàng trung bình
-                    </h3>
-                    <p className="text-2xl font-bold">
-                        {orderCount > 0
-                            ? DisplayPriceInVND(totalRevenue / orderCount)
-                            : '0'}
-                    </p>
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-white bg-secondary-200 text-white">
+                        <FaFileInvoice className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Tổng số đơn hàng
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {orderCount}
+                        </p>
+                    </div>
+                </div>
+                <div
+                    className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
+                flex items-center gap-4"
+                >
+                    <div className="p-3 rounded-full border-[3px] border-yellow-600 bg-yellow-100 text-yellow-600">
+                        <FaFilter className="h-6 w-6" />
+                    </div>
+                    <div className="mt-1">
+                        <p className="text-[15px] text-secondary-200 font-bold">
+                            Đang hiển thị
+                        </p>
+                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                            {Math.min(
+                                indexOfFirstOrder + 1,
+                                filteredAndSortedOrders.length
+                            )}{' '}
+                            -{' '}
+                            {Math.min(
+                                indexOfLastOrder,
+                                filteredAndSortedOrders.length
+                            )}{' '}
+                            / {orders.length}
+                        </p>
+                    </div>
                 </div>
             </div>
 
             {/* Chart Type Selector */}
-            <div className="bg-white p-4 rounded-lg shadow mb-6">
+            <div className="bg-white p-4 rounded-lg border-2 border-secondary-200 shadow mb-3">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Biểu đồ thống kê</h2>
+                    <h2 className="text-lg font-bold text-secondary-200">
+                        Biểu đồ thống kê
+                    </h2>
                     <div className="flex space-x-2">
                         <button
                             onClick={() => setChartType('line')}
                             className={`p-2 rounded-md ${
                                 chartType === 'line'
-                                    ? 'bg-blue-100 text-blue-600'
+                                    ? 'bg-gray-200 text-secondary-200'
                                     : 'bg-gray-100'
                             }`}
-                            title="Đường kẻ"
+                            title="Biểu đồ đường"
                         >
                             <FaChartLine className="w-5 h-5" />
                         </button>
@@ -655,10 +746,10 @@ const ReportPage = () => {
                             onClick={() => setChartType('bar')}
                             className={`p-2 rounded-md ${
                                 chartType === 'bar'
-                                    ? 'bg-blue-100 text-blue-600'
+                                    ? 'bg-gray-200 text-secondary-200'
                                     : 'bg-gray-100'
                             }`}
-                            title="Cột"
+                            title="Biểu đồ cột"
                         >
                             <FaChartBar className="w-5 h-5" />
                         </button>
@@ -666,10 +757,10 @@ const ReportPage = () => {
                             onClick={() => setChartType('pie')}
                             className={`p-2 rounded-md ${
                                 chartType === 'pie'
-                                    ? 'bg-blue-100 text-blue-600'
+                                    ? 'bg-gray-200 text-secondary-200'
                                     : 'bg-gray-100'
                             }`}
-                            title="Tròn"
+                            title="Biểu đồ trạng thái đơn hàng"
                         >
                             <FaChartPie className="w-5 h-5" />
                         </button>
@@ -688,11 +779,11 @@ const ReportPage = () => {
 
             {/* Top Products Chart */}
             {filteredAndSortedOrders.length > 0 && (
-                <div className="bg-white p-4 rounded-lg shadow mb-6">
-                    <h2 className="text-lg font-semibold mb-4">
+                <div className="bg-white p-4 rounded-lg border-2 border-secondary-200 shadow mb-3">
+                    <h2 className="text-lg font-bold mb-4 text-secondary-200">
                         Top sản phẩm bán chạy
                     </h2>
-                    <div className="h-80">
+                    <div className="max-h-96">
                         <Bar
                             data={chartData.productsData}
                             options={{
@@ -728,25 +819,36 @@ const ReportPage = () => {
             )}
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div
+                className="bg-white p-4 rounded-lg border-2 border-secondary-200 shadow mb-3
+            flex flex-col gap-3 items-end"
+            >
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleResetFilters}
+                        className="px-4 py-[6px] text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
+                        hover:bg-secondary-200 hover:text-white flex gap-2 items-center"
+                    >
+                        <FaUndo size={12} className="mb-[2px]" />
+                        <p>Đặt lại</p>
+                    </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <FaSearch className="text-gray-400" />
-                        </div>
                         <input
                             type="text"
                             name="search"
                             placeholder="Tìm kiếm..."
-                            className="pl-10 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full pl-10 h-11 pr-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2
+                        focus:ring-secondary-200"
                             value={filters.search}
                             onChange={handleFilterChange}
                         />
+                        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
-
                     <select
                         name="status"
-                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="w-full p-2 h-11 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                         value={filters.status}
                         onChange={handleFilterChange}
                     >
@@ -759,7 +861,7 @@ const ReportPage = () => {
 
                     <select
                         name="dateRange"
-                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className="w-full p-2 h-11 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
                         value={dateRange}
                         onChange={handleFilterChange}
                     >
@@ -771,15 +873,13 @@ const ReportPage = () => {
                         <option value="custom">Tùy chỉnh</option>
                     </select>
 
-                    <div className="flex gap-2">
-                        <button
-                            onClick={exportToExcel}
-                            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
-                            <FaFileExcel className="mr-2" />
-                            Xuất Excel
-                        </button>
-                    </div>
+                    <button
+                        onClick={exportToExcel}
+                        className="flex items-center justify-center h-11 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                        <FaFileExcel className="mr-2 mb-[3px]" />
+                        <p>Xuất Excel</p>
+                    </button>
                 </div>
 
                 {dateRange === 'custom' && (
@@ -813,138 +913,217 @@ const ReportPage = () => {
             </div>
 
             {/* Orders Table */}
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+            <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('orderId')}
-                                >
-                                    <div className="flex items-center">
-                                        Mã đơn hàng
-                                        {renderSortIcon('orderId')}
-                                    </div>
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('createdAt')}
-                                >
-                                    <div className="flex items-center">
-                                        Ngày tạo
-                                        {renderSortIcon('createdAt')}
-                                    </div>
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Khách hàng
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Sản phẩm
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Số lượng
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('totalAmt')}
-                                >
-                                    <div className="flex items-center">
-                                        Tổng tiền
-                                        {renderSortIcon('totalAmt')}
-                                    </div>
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => handleSort('payment_status')}
-                                >
-                                    <div className="flex items-center">
-                                        Trạng thái thanh toán
-                                        {renderSortIcon('payment_status')}
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {loading ? (
+                    <div className="min-w-full" style={{ minWidth: '1024px' }}>
+                        <table className="w-full divide-y-4 divide-secondary-200">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                    <td
-                                        colSpan="8"
-                                        className="px-6 py-4 text-center"
-                                    >
-                                        Đang tải dữ liệu...
-                                    </td>
-                                </tr>
-                            ) : currentOrders.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan="8"
-                                        className="px-6 py-4 text-center text-gray-500"
-                                    >
-                                        Không có dữ liệu đơn hàng
-                                    </td>
-                                </tr>
-                            ) : (
-                                currentOrders.map((order) => (
-                                    <tr
-                                        key={order._id}
-                                        className="hover:bg-gray-50"
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {order.orderId}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {format(
-                                                new Date(order.createdAt),
-                                                'dd/MM/yyyy HH:mm',
-                                                {
-                                                    locale: vi,
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
+                                            Mã Đơn Hàng
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('orderId')
                                                 }
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {order.userId?.name ||
-                                                'Khách vãng lai'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {order.product_details?.name || ''}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {order.quantity}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {DisplayPriceInVND(order.totalAmt)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge
-                                                status={order.payment_status}
-                                            />
+                                                className="mb-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('orderId')}
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
+                                            <p className="text-nowrap">
+                                                Ngày tạo
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('createdAt')
+                                                }
+                                                className="mb-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('createdAt')}
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        Khách hàng
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
+                                        Sản phẩm
+                                    </th>
+                                    <th className="px-4 py-3 text-nowrap text-left text-xs font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
+                                        Số lượng
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
+                                            <p className="text-nowrap">
+                                                Tổng tiền
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('totalAmt')
+                                                }
+                                                className="mb-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon('totalAmt')}
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
+                                            <p className="text-nowrap">
+                                                Trạng thái
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    handleSort('payment_status')
+                                                }
+                                                className="mb-1 focus:outline-none"
+                                            >
+                                                {renderSortIcon(
+                                                    'payment_status'
+                                                )}
+                                            </button>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {loading ? (
+                                    <tr>
+                                        <td
+                                            colSpan="8"
+                                            className="px-6 py-4 text-center text-gray-500"
+                                        >
+                                            Đang tải dữ liệu...
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : currentOrders.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan="8"
+                                            className="px-6 py-4 text-center text-gray-500"
+                                        >
+                                            Không có dữ liệu đơn hàng
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    currentOrders.map((order) => (
+                                        <tr
+                                            key={order._id}
+                                            className="hover:bg-gray-50"
+                                        >
+                                            <td
+                                                className="px-4 py-4 text-sm font-medium text-gray-900"
+                                                title={order.orderId}
+                                            >
+                                                {order.orderId}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
+                                                {format(
+                                                    new Date(order.createdAt),
+                                                    'dd/MM/yyyy HH:mm',
+                                                    {
+                                                        locale: vi,
+                                                    }
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div>
+                                                    <div className="font-medium text-gray-900">
+                                                        {order.userId?.name ||
+                                                            'Khách vãng lai'}
+                                                    </div>
+                                                    <p>{order.userId?.email}</p>
+                                                    <p>
+                                                        {
+                                                            order
+                                                                .delivery_address
+                                                                ?.mobile
+                                                        }
+                                                    </p>
+                                                    <p>
+                                                        {
+                                                            order
+                                                                .delivery_address
+                                                                ?.city
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 flex items-center sm:grid  gap-3 max-w-[250px]">
+                                                <img
+                                                    src={
+                                                        order.product_details
+                                                            ?.image?.[0] ||
+                                                        '/placeholder.jpg'
+                                                    }
+                                                    alt={
+                                                        order.product_details
+                                                            ?.name ||
+                                                        'Product Image'
+                                                    }
+                                                    className="w-12 h-12 object-cover flex-shrink-0 rounded shadow-md shadow-secondary-100 cursor-pointer"
+                                                    onError={(e) => {
+                                                        e.target.src =
+                                                            '/placeholder.jpg';
+                                                    }}
+                                                    onClick={() =>
+                                                        setImageURL(
+                                                            order
+                                                                .product_details
+                                                                ?.image?.[0]
+                                                        )
+                                                    }
+                                                />
+                                                <div>
+                                                    <p
+                                                        className="line-clamp-2 text-sm"
+                                                        title={
+                                                            order
+                                                                .product_details
+                                                                ?.name
+                                                        }
+                                                    >
+                                                        {order.product_details
+                                                            ?.name || 'N/A'}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-secondary-200">
+                                                {order.quantity}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-secondary-200">
+                                                {DisplayPriceInVND(
+                                                    order.totalAmt
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap flex items-center justify-center">
+                                                <StatusBadge
+                                                    status={
+                                                        order.payment_status
+                                                    }
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* Pagination Controls */}
                 {filteredAndSortedOrders.length > 0 && (
-                    <div className="px-6 py-3 border-t border-gray-200">
+                    <div className="px-6 py-4 border-t-4 border-secondary-200">
                         <PaginationControls />
                     </div>
+                )}
+
+                {imageURL && (
+                    <ViewImage url={imageURL} close={() => setImageURL('')} />
                 )}
             </div>
         </div>

@@ -53,6 +53,11 @@ const BillPage = () => {
         direction: 'desc',
     });
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        pageSize: 10,
+    });
+
     useEffect(() => {
         const loadOrders = async () => {
             const accessToken = localStorage.getItem('accesstoken');
@@ -161,6 +166,123 @@ const BillPage = () => {
 
         return result;
     }, [orders, filters, sortConfig]);
+
+    const indexOfLastOrder = pagination.currentPage * pagination.pageSize;
+    const indexOfFirstOrder = indexOfLastOrder - pagination.pageSize;
+    const currentOrders = filteredAndSortedOrders.slice(
+        indexOfFirstOrder,
+        indexOfLastOrder
+    );
+    const totalPages = Math.ceil(
+        filteredAndSortedOrders.length / pagination.pageSize
+    );
+
+    const paginate = (pageNumber) =>
+        setPagination((prev) => ({
+            ...prev,
+            currentPage: pageNumber,
+        }));
+
+    const handlePageSizeChange = (e) => {
+        setPagination({
+            currentPage: 1, // Reset to first page when changing page size
+            pageSize: Number(e.target.value),
+        });
+    };
+
+    const PaginationControls = () => (
+        <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-700">
+                    Hiển thị{' '}
+                    <span className="font-medium">{indexOfFirstOrder + 1}</span>{' '}
+                    đến{' '}
+                    <span className="font-medium">
+                        {Math.min(
+                            indexOfLastOrder,
+                            filteredAndSortedOrders.length
+                        )}
+                    </span>{' '}
+                    trong tổng số{' '}
+                    <span className="font-medium">
+                        {filteredAndSortedOrders.length}
+                    </span>{' '}
+                    đơn hàng
+                </span>
+
+                <select
+                    value={pagination.pageSize}
+                    onChange={handlePageSizeChange}
+                    className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                    {[5, 10, 25, 50].map((size) => (
+                        <option key={size} value={size}>
+                            {size} dòng/trang
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="flex space-x-1">
+                <button
+                    onClick={() => paginate(1)}
+                    disabled={pagination.currentPage === 1}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    «
+                </button>
+                <button
+                    onClick={() => paginate(pagination.currentPage - 1)}
+                    disabled={pagination.currentPage === 1}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    ‹
+                </button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                        pageNum = i + 1;
+                    } else if (pagination.currentPage <= 3) {
+                        pageNum = i + 1;
+                    } else if (pagination.currentPage > totalPages - 3) {
+                        pageNum = totalPages - 4 + i;
+                    } else {
+                        pageNum = pagination.currentPage - 2 + i;
+                    }
+
+                    return (
+                        <button
+                            key={pageNum}
+                            onClick={() => paginate(pageNum)}
+                            className={`px-3 py-1 rounded-md border text-sm font-medium ${
+                                pagination.currentPage === pageNum
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                            {pageNum}
+                        </button>
+                    );
+                })}
+
+                <button
+                    onClick={() => paginate(pagination.currentPage + 1)}
+                    disabled={pagination.currentPage === totalPages}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    ›
+                </button>
+                <button
+                    onClick={() => paginate(totalPages)}
+                    disabled={pagination.currentPage === totalPages}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    »
+                </button>
+            </div>
+        </div>
+    );
 
     const { totalRevenue, orderCount } = React.useMemo(() => {
         return filteredAndSortedOrders.reduce(
@@ -464,7 +586,7 @@ const BillPage = () => {
     }, 300);
 
     return (
-        <div className="w-full grid gap-5">
+        <div className="container mx-auto lg:p-4 py-2 px-1 flex flex-col gap-4">
             <div className="p-4 mb-2 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
                 <h2 className="text-ellipsis line-clamp-1">Quản lý Hóa đơn</h2>
             </div>
@@ -517,14 +639,23 @@ const BillPage = () => {
                             Đang hiển thị
                         </p>
                         <p className="lg:text-xl text-2xl font-bold text-secondary-200">
-                            {filteredAndSortedOrders.length} / {orders.length}
+                            {Math.min(
+                                indexOfFirstOrder + 1,
+                                filteredAndSortedOrders.length
+                            )}{' '}
+                            -{' '}
+                            {Math.min(
+                                indexOfLastOrder,
+                                filteredAndSortedOrders.length
+                            )}{' '}
+                            / {orders.length}
                         </p>
                     </div>
                 </div>
             </div>
 
             {/* Filter Section */}
-            <div className="bg-white rounded-lg shadow-md shadow-secondary-100 px-4 py-6 mb-6">
+            <div className="bg-white rounded-lg border-2 border-secondary-200 px-4 py-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label className="block text-[15px] font-medium text-secondary-200 mb-1">
@@ -630,7 +761,7 @@ const BillPage = () => {
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
                     <div className="min-w-full" style={{ minWidth: '1024px' }}>
-                        <table className="w-full divide-y-[3px] divide-secondary-200">
+                        <table className="w-full divide-y-4 divide-secondary-200">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
@@ -685,7 +816,7 @@ const BillPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-center text-nowrap text-sm font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-center text-sm font-bold text-secondary-200 uppercase tracking-wider">
                                         Thao tác
                                     </th>
                                 </tr>
@@ -695,9 +826,9 @@ const BillPage = () => {
                                     <tr>
                                         <td
                                             colSpan="7"
-                                            className="px-6 py-4 text-center"
+                                            className="px-6 py-4 text-center text-gray-500"
                                         >
-                                            Đang tải...
+                                            Đang tải dữ liệu...
                                         </td>
                                     </tr>
                                 ) : filteredAndSortedOrders.length === 0 ? (
@@ -706,11 +837,11 @@ const BillPage = () => {
                                             colSpan="7"
                                             className="px-6 py-4 text-center text-gray-500"
                                         >
-                                            Không tìm thấy hóa đơn nào phù hợp
+                                            Không tìm thấy hóa đơn nào
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredAndSortedOrders.map((order) => (
+                                    currentOrders.map((order) => (
                                         <tr
                                             key={order._id}
                                             className="hover:bg-gray-50"
@@ -722,23 +853,27 @@ const BillPage = () => {
                                                 {order.orderId}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <p className="text-black font-semibold">
-                                                    {order.userId?.name ||
-                                                        'Khách vãng lai'}
-                                                </p>
-                                                <p>{order.userId?.email}</p>
-                                                <p>
-                                                    {
-                                                        order.delivery_address
-                                                            ?.mobile
-                                                    }
-                                                </p>
-                                                <p>
-                                                    {
-                                                        order.delivery_address
-                                                            ?.city
-                                                    }
-                                                </p>
+                                                <div>
+                                                    <div className="font-medium text-gray-900">
+                                                        {order.userId?.name ||
+                                                            'Khách vãng lai'}
+                                                    </div>
+                                                    <p>{order.userId?.email}</p>
+                                                    <p>
+                                                        {
+                                                            order
+                                                                .delivery_address
+                                                                ?.mobile
+                                                        }
+                                                    </p>
+                                                    <p>
+                                                        {
+                                                            order
+                                                                .delivery_address
+                                                                ?.city
+                                                        }
+                                                    </p>
+                                                </div>
                                             </td>
                                             <td className="px-4 py-4 text-sm text-gray-500 flex items-center sm:grid  gap-3 max-w-[250px]">
                                                 <img
@@ -784,7 +919,7 @@ const BillPage = () => {
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
                                                 {DisplayPriceInVND(
-                                                    order.totalAmt
+                                                    order.totalAmt || 0
                                                 )}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap">
@@ -809,8 +944,9 @@ const BillPage = () => {
                                                         printBill(order)
                                                     }
                                                     className="text-blue-600 hover:opacity-80"
+                                                    title="In hóa đơn"
                                                 >
-                                                    <FaPrint className="h-5 w-5" />
+                                                    <FaPrint />
                                                 </button>
                                             </td>
                                         </tr>
@@ -821,6 +957,13 @@ const BillPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Pagination Controls */}
+            {filteredAndSortedOrders.length > 0 && (
+                <div className="px-6 py-3 border-t border-gray-200">
+                    <PaginationControls />
+                </div>
+            )}
 
             {imageURL && (
                 <ViewImage url={imageURL} close={() => setImageURL('')} />
