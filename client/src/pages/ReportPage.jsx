@@ -78,6 +78,11 @@ const ReportPage = () => {
         direction: 'desc',
     });
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        pageSize: 10,
+    });
+
     useEffect(() => {
         const loadOrders = async () => {
             const accessToken = localStorage.getItem('accesstoken');
@@ -198,7 +203,9 @@ const ReportPage = () => {
         }
 
         if (filters.status) {
-            result = result.filter((order) => order.payment_status === filters.status);
+            result = result.filter(
+                (order) => order.payment_status === filters.status
+            );
         }
 
         if (filters.startDate) {
@@ -209,10 +216,10 @@ const ReportPage = () => {
         }
 
         if (filters.endDate) {
-          const end = new Date(filters.endDate);
-          end.setHours(23, 59, 59, 999);
-          result = result.filter((order) => new Date(order.createdAt) <= end);
-      }
+            const end = new Date(filters.endDate);
+            end.setHours(23, 59, 59, 999);
+            result = result.filter((order) => new Date(order.createdAt) <= end);
+        }
 
         if (sortConfig.key) {
             result.sort((a, b) => {
@@ -237,6 +244,124 @@ const ReportPage = () => {
 
         return result;
     }, [orders, filters, sortConfig]);
+
+    const indexOfLastOrder = pagination.currentPage * pagination.pageSize;
+    const indexOfFirstOrder = indexOfLastOrder - pagination.pageSize;
+    const currentOrders = filteredAndSortedOrders.slice(
+        indexOfFirstOrder,
+        indexOfLastOrder
+    );
+    const totalPages = Math.ceil(
+        filteredAndSortedOrders.length / pagination.pageSize
+    );
+
+    const paginate = (pageNumber) =>
+        setPagination((prev) => ({
+            ...prev,
+            currentPage: pageNumber,
+        }));
+
+    const handlePageSizeChange = (e) => {
+        setPagination({
+            currentPage: 1, // Reset to first page when changing page size
+            pageSize: Number(e.target.value),
+        });
+    };
+
+    const PaginationControls = () => (
+        <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-700">
+                    Hiển thị{' '}
+                    <span className="font-medium">{indexOfFirstOrder + 1}</span>{' '}
+                    đến{' '}
+                    <span className="font-medium">
+                        {Math.min(
+                            indexOfLastOrder,
+                            filteredAndSortedOrders.length
+                        )}
+                    </span>{' '}
+                    trong tổng số{' '}
+                    <span className="font-medium">
+                        {filteredAndSortedOrders.length}
+                    </span>{' '}
+                    đơn hàng
+                </span>
+
+                <select
+                    value={pagination.pageSize}
+                    onChange={handlePageSizeChange}
+                    className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                    {[5, 10, 25, 50].map((size) => (
+                        <option key={size} value={size}>
+                            {size} dòng/trang
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="flex space-x-1">
+                <button
+                    onClick={() => paginate(1)}
+                    disabled={pagination.currentPage === 1}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    «
+                </button>
+                <button
+                    onClick={() => paginate(pagination.currentPage - 1)}
+                    disabled={pagination.currentPage === 1}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    ‹
+                </button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    // Show pages around current page
+                    let pageNum;
+                    if (totalPages <= 5) {
+                        pageNum = i + 1;
+                    } else if (pagination.currentPage <= 3) {
+                        pageNum = i + 1;
+                    } else if (pagination.currentPage > totalPages - 3) {
+                        pageNum = totalPages - 4 + i;
+                    } else {
+                        pageNum = pagination.currentPage - 2 + i;
+                    }
+
+                    return (
+                        <button
+                            key={pageNum}
+                            onClick={() => paginate(pageNum)}
+                            className={`px-3 py-1 rounded-md border text-sm font-medium ${
+                                pagination.currentPage === pageNum
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                            {pageNum}
+                        </button>
+                    );
+                })}
+
+                <button
+                    onClick={() => paginate(pagination.currentPage + 1)}
+                    disabled={pagination.currentPage === totalPages}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    ›
+                </button>
+                <button
+                    onClick={() => paginate(totalPages)}
+                    disabled={pagination.currentPage === totalPages}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    »
+                </button>
+            </div>
+        </div>
+    );
 
     const { totalRevenue, orderCount, averageOrderValue } =
         React.useMemo(() => {
@@ -318,18 +443,22 @@ const ReportPage = () => {
 
         return {
             salesData: {
-                labels: Object.values(ordersByDate).map(item => item.date),
+                labels: Object.values(ordersByDate).map((item) => item.date),
                 datasets: [
                     {
                         label: 'Doanh thu',
-                        data: Object.values(ordersByDate).map(item => item.total),
+                        data: Object.values(ordersByDate).map(
+                            (item) => item.total
+                        ),
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         yAxisID: 'y',
                     },
                     {
                         label: 'Số đơn hàng',
-                        data: Object.values(ordersByDate).map(item => item.count),
+                        data: Object.values(ordersByDate).map(
+                            (item) => item.count
+                        ),
                         borderColor: 'rgb(53, 162, 235)',
                         backgroundColor: 'rgba(53, 162, 235, 0.2)',
                         yAxisID: 'y1',
@@ -360,11 +489,11 @@ const ReportPage = () => {
                 ],
             },
             productsData: {
-                labels: topProducts.map(item => item.name),
+                labels: topProducts.map((item) => item.name),
                 datasets: [
                     {
                         label: 'Doanh thu',
-                        data: topProducts.map(item => item.total),
+                        data: topProducts.map((item) => item.total),
                         backgroundColor: 'rgba(75, 192, 192, 0.6)',
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1,
@@ -384,20 +513,21 @@ const ReportPage = () => {
             },
             tooltip: {
                 callbacks: {
-                    label: function(context) {
+                    label: function (context) {
                         let label = context.dataset.label || '';
                         if (label) {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += context.dataset.yAxisID === 'y1' 
-                                ? context.parsed.y + ' đơn' 
-                                : DisplayPriceInVND(context.parsed.y);
+                            label +=
+                                context.dataset.yAxisID === 'y1'
+                                    ? context.parsed.y + ' đơn'
+                                    : DisplayPriceInVND(context.parsed.y);
                         }
                         return label;
-                    }
-                }
-            }
+                    },
+                },
+            },
         },
         scales: {
             y: {
@@ -406,8 +536,8 @@ const ReportPage = () => {
                 position: 'left',
                 title: {
                     display: true,
-                    text: 'Doanh thu (VND)'
-                }
+                    text: 'Doanh thu (VND)',
+                },
             },
             y1: {
                 type: 'linear',
@@ -418,33 +548,27 @@ const ReportPage = () => {
                 },
                 title: {
                     display: true,
-                    text: 'Số đơn hàng'
-                }
-            }
-        }
+                    text: 'Số đơn hàng',
+                },
+            },
+        },
     };
 
     const renderChart = () => {
         switch (chartType) {
             case 'bar':
                 return (
-                    <Bar 
-                        data={chartData.salesData} 
-                        options={chartOptions} 
-                    />
+                    <Bar data={chartData.salesData} options={chartOptions} />
                 );
             case 'line':
                 return (
-                    <Line 
-                        data={chartData.salesData} 
-                        options={chartOptions} 
-                    />
+                    <Line data={chartData.salesData} options={chartOptions} />
                 );
             case 'pie':
                 return (
                     <div className="max-w-md mx-auto">
-                        <Pie 
-                            data={chartData.statusData} 
+                        <Pie
+                            data={chartData.statusData}
                             options={{
                                 responsive: true,
                                 plugins: {
@@ -453,17 +577,24 @@ const ReportPage = () => {
                                     },
                                     tooltip: {
                                         callbacks: {
-                                            label: function(context) {
-                                                const label = context.label || '';
+                                            label: function (context) {
+                                                const label =
+                                                    context.label || '';
                                                 const value = context.raw || 0;
-                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                                const percentage = Math.round((value / total) * 100);
+                                                const total =
+                                                    context.dataset.data.reduce(
+                                                        (a, b) => a + b,
+                                                        0
+                                                    );
+                                                const percentage = Math.round(
+                                                    (value / total) * 100
+                                                );
                                                 return `${label}: ${value} đơn (${percentage}%)`;
-                                            }
-                                        }
-                                    }
-                                }
-                            }} 
+                                            },
+                                        },
+                                    },
+                                },
+                            }}
                         />
                     </div>
                 );
@@ -511,21 +642,33 @@ const ReportPage = () => {
                     <div className="flex space-x-2">
                         <button
                             onClick={() => setChartType('line')}
-                            className={`p-2 rounded-md ${chartType === 'line' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                            className={`p-2 rounded-md ${
+                                chartType === 'line'
+                                    ? 'bg-blue-100 text-blue-600'
+                                    : 'bg-gray-100'
+                            }`}
                             title="Đường kẻ"
                         >
                             <FaChartLine className="w-5 h-5" />
                         </button>
                         <button
                             onClick={() => setChartType('bar')}
-                            className={`p-2 rounded-md ${chartType === 'bar' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                            className={`p-2 rounded-md ${
+                                chartType === 'bar'
+                                    ? 'bg-blue-100 text-blue-600'
+                                    : 'bg-gray-100'
+                            }`}
                             title="Cột"
                         >
                             <FaChartBar className="w-5 h-5" />
                         </button>
                         <button
                             onClick={() => setChartType('pie')}
-                            className={`p-2 rounded-md ${chartType === 'pie' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                            className={`p-2 rounded-md ${
+                                chartType === 'pie'
+                                    ? 'bg-blue-100 text-blue-600'
+                                    : 'bg-gray-100'
+                            }`}
                             title="Tròn"
                         >
                             <FaChartPie className="w-5 h-5" />
@@ -546,9 +689,11 @@ const ReportPage = () => {
             {/* Top Products Chart */}
             {filteredAndSortedOrders.length > 0 && (
                 <div className="bg-white p-4 rounded-lg shadow mb-6">
-                    <h2 className="text-lg font-semibold mb-4">Top sản phẩm bán chạy</h2>
+                    <h2 className="text-lg font-semibold mb-4">
+                        Top sản phẩm bán chạy
+                    </h2>
                     <div className="h-80">
-                        <Bar 
+                        <Bar
                             data={chartData.productsData}
                             options={{
                                 responsive: true,
@@ -558,22 +703,24 @@ const ReportPage = () => {
                                     },
                                     tooltip: {
                                         callbacks: {
-                                            label: function(context) {
-                                                return `Doanh thu: ${DisplayPriceInVND(context.parsed.y)}`;
-                                            }
-                                        }
-                                    }
+                                            label: function (context) {
+                                                return `Doanh thu: ${DisplayPriceInVND(
+                                                    context.parsed.y
+                                                )}`;
+                                            },
+                                        },
+                                    },
                                 },
                                 scales: {
                                     y: {
                                         beginAtZero: true,
                                         ticks: {
-                                            callback: function(value) {
+                                            callback: function (value) {
                                                 return DisplayPriceInVND(value);
-                                            }
-                                        }
-                                    }
-                                }
+                                            },
+                                        },
+                                    },
+                                },
                             }}
                         />
                     </div>
@@ -666,7 +813,7 @@ const ReportPage = () => {
             </div>
 
             {/* Orders Table */}
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -741,7 +888,7 @@ const ReportPage = () => {
                                         Đang tải dữ liệu...
                                     </td>
                                 </tr>
-                            ) : filteredAndSortedOrders.length === 0 ? (
+                            ) : currentOrders.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan="8"
@@ -751,7 +898,7 @@ const ReportPage = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredAndSortedOrders.map((order) => (
+                                currentOrders.map((order) => (
                                     <tr
                                         key={order._id}
                                         className="hover:bg-gray-50"
@@ -792,6 +939,13 @@ const ReportPage = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredAndSortedOrders.length > 0 && (
+                    <div className="px-6 py-3 border-t border-gray-200">
+                        <PaginationControls />
+                    </div>
+                )}
             </div>
         </div>
     );
