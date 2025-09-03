@@ -81,7 +81,7 @@ const Header = () => {
                     : 'bg-opacity-45 bg-black border-b-[3px] border-b-black'
             }`}
         >
-            <div className="w-full max-w-[100vw] overflow-x-hidden">
+            <div className="w-full max-w-[100vw]">
                 <div className="lg:h-28 p-4 flex flex-col justify-center gap-2 shadow-lg">
                     {!(isSearchPage && isMobile) && (
                         <div className="container mx-auto flex items-center gap-4 px-2 justify-between">
@@ -145,12 +145,17 @@ const Header = () => {
                                         <div className="relative">
                                             <div
                                                 onClick={() =>
-                                                    setOpenUserMenu((prev) => !prev)
+                                                    setOpenUserMenu(
+                                                        (prev) => !prev
+                                                    )
                                                 }
                                                 className="flex select-none items-center gap-1 cursor-pointer transition-all duration-300 ease-in-out"
                                             >
                                                 <img
-                                                    src={user.avatar || defaultAvatar}
+                                                    src={
+                                                        user.avatar ||
+                                                        defaultAvatar
+                                                    }
                                                     alt={user.name}
                                                     className="w-[52px] h-[52px] rounded-full border-[3px] border-inset border-primary-200"
                                                 />
@@ -228,7 +233,9 @@ const Header = () => {
                     </div>
 
                     {openCartSection && (
-                        <DisplayCartItem close={() => setOpenCartSection(false)} />
+                        <DisplayCartItem
+                            close={() => setOpenCartSection(false)}
+                        />
                     )}
                 </div>
             </div>

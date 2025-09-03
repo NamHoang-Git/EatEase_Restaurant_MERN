@@ -13,7 +13,6 @@ import {
     FaSort,
     FaSortUp,
     FaSortDown,
-    FaEye,
 } from 'react-icons/fa';
 import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import { toast } from 'react-hot-toast';
@@ -99,17 +98,19 @@ const BillPage = () => {
             result = result.filter((order) => {
                 // Get all searchable fields
                 const searchFields = [
-                    order.orderId?.toLowerCase(),
-                    order.userId?.name?.toLowerCase(),
-                    order.userId?.email?.toLowerCase(),
-                    order.userId?.mobile?.toLowerCase(),
-                    order.product_details?.name?.toLowerCase(),
-                    order.payment_status?.toLowerCase(),
-                    order.delivery_address?.city?.toLowerCase(),
-                    order.delivery_address?.district?.toLowerCase(),
-                    order.delivery_address?.ward?.toLowerCase(),
-                    order.delivery_address?.address?.toLowerCase(),
-                ].filter(Boolean);
+                    order.orderId,
+                    order.userId?.name,
+                    order.userId?.email,
+                    order.userId?.mobile,
+                    order.product_details?.name,
+                    order.payment_status,
+                    order.delivery_address?.city,
+                    order.delivery_address?.district,
+                    order.delivery_address?.ward,
+                    order.delivery_address?.address,
+                ]
+                    .filter(Boolean)
+                    .map((field) => field?.toLowerCase() || '');
 
                 // Check if any field includes the search term
                 return searchFields.some(
@@ -273,7 +274,7 @@ const BillPage = () => {
                         0: { cellWidth: 20 },
                         1: { cellWidth: 25 },
                         2: { cellWidth: 30 },
-                        3: { cellWidth: 40 },
+                        3: { cellWidth: 'auto' }, // Tự động điều chỉnh
                         4: { cellWidth: 10, halign: 'center' },
                         5: { cellWidth: 25, halign: 'right' },
                         6: { cellWidth: 30 },
