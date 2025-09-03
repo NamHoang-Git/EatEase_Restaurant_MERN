@@ -190,9 +190,9 @@ const Header = () => {
                                                 scrolled
                                                     ? 'text-base-100'
                                                     : 'text-primary-100'
-                                            } text-lg font-bold px-2 underline`}
+                                            } text-base font-bold px-2 underline`}
                                         >
-                                            Login
+                                            Đăng nhập
                                         </button>
                                     )}
                                     <button
@@ -201,17 +201,17 @@ const Header = () => {
                                                 ? () => setOpenCartSection(true)
                                                 : redirectToLoginPage
                                         }
-                                        className="flex items-center gap-2 bg-primary-3 hover:bg-green-800 p-3
-                                rounded-lg text-secondary-200 font-bold"
+                                        className="flex items-center gap-2 bg-primary-3 hover:bg-green-800 px-4 py-3
+                                    rounded-lg text-secondary-200 font-bold"
                                     >
                                         {/* { Add to cart icons } */}
                                         <div className="animate-bounce">
                                             <FaCartPlus size={22} />
                                         </div>
-                                        <div className="font-semibold text-sm">
+                                        <div className="font-bold text-sm">
                                             {cartItem[0] ? (
                                                 <div className="ml-1 flex flex-col items-center justify-center">
-                                                    <p>{totalQty} Items</p>
+                                                    <p>{totalQty} sản phẩm</p>
                                                     <p>
                                                         {DisplayPriceInVND(
                                                             totalPrice
@@ -219,7 +219,7 @@ const Header = () => {
                                                     </p>
                                                 </div>
                                             ) : (
-                                                <p>My Cart</p>
+                                                <p>Giỏ hàng</p>
                                             )}
                                         </div>
                                     </button>

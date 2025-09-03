@@ -191,20 +191,22 @@ const BillPage = () => {
     };
 
     const PaginationControls = () => (
-        <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700">
+        <div className="flex items-center sm:flex-row flex-col justify-between mt-4 gap-3">
+            <div className="flex items-center sm:flex-row flex-col space-x-2 gap-2">
+                <span className="text-sm text-gray-700 text-center">
                     Hiển thị{' '}
-                    <span className="font-medium">{indexOfFirstOrder + 1}</span>{' '}
+                    <span className="font-semibold text-secondary-200">
+                        {indexOfFirstOrder + 1}
+                    </span>{' '}
                     đến{' '}
-                    <span className="font-medium">
+                    <span className="font-semibold text-secondary-200">
                         {Math.min(
                             indexOfLastOrder,
                             filteredAndSortedOrders.length
                         )}
                     </span>{' '}
                     trong tổng số{' '}
-                    <span className="font-medium">
+                    <span className="font-semibold text-secondary-200">
                         {filteredAndSortedOrders.length}
                     </span>{' '}
                     đơn hàng
@@ -213,7 +215,8 @@ const BillPage = () => {
                 <select
                     value={pagination.pageSize}
                     onChange={handlePageSizeChange}
-                    className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2
+                focus:ring-secondary-200 px-2"
                 >
                     {[5, 10, 25, 50].map((size) => (
                         <option key={size} value={size}>
@@ -227,43 +230,61 @@ const BillPage = () => {
                 <button
                     onClick={() => paginate(1)}
                     disabled={pagination.currentPage === 1}
-                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     «
                 </button>
                 <button
                     onClick={() => paginate(pagination.currentPage - 1)}
                     disabled={pagination.currentPage === 1}
-                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     ‹
                 </button>
 
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                        pageNum = i + 1;
-                    } else if (pagination.currentPage <= 3) {
-                        pageNum = i + 1;
-                    } else if (pagination.currentPage > totalPages - 3) {
-                        pageNum = totalPages - 4 + i;
-                    } else {
-                        pageNum = pagination.currentPage - 2 + i;
-                    }
+                {Array.from({ length: totalPages }).map((_, i) => {
+                    const pageNum = i + 1;
+                    const showFirstPage = pageNum === 1;
+                    const showLastPage = pageNum === totalPages;
+                    const showCurrentPage = pageNum === pagination.currentPage;
+                    const showDotsLeft =
+                        pageNum === 2 && pagination.currentPage > 3;
+                    const showDotsRight =
+                        pageNum === totalPages - 1 &&
+                        pagination.currentPage < totalPages - 2;
 
-                    return (
-                        <button
-                            key={pageNum}
-                            onClick={() => paginate(pageNum)}
-                            className={`px-3 py-1 rounded-md border text-sm font-medium ${
-                                pagination.currentPage === pageNum
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                            }`}
-                        >
-                            {pageNum}
-                        </button>
-                    );
+                    if (
+                        showFirstPage ||
+                        showLastPage ||
+                        showCurrentPage ||
+                        showDotsLeft ||
+                        showDotsRight
+                    ) {
+                        if (showDotsLeft || showDotsRight) {
+                            return (
+                                <span
+                                    key={pageNum}
+                                    className="px-3 py-1 text-gray-500"
+                                >
+                                    ...
+                                </span>
+                            );
+                        }
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => paginate(pageNum)}
+                                className={`px-3 py-1 rounded-md border text-sm font-medium ${
+                                    pagination.currentPage === pageNum
+                                        ? 'bg-secondary-200 text-white border-secondary-200'
+                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                {pageNum}
+                            </button>
+                        );
+                    }
+                    return null;
                 })}
 
                 <button
@@ -601,10 +622,10 @@ const BillPage = () => {
                         <FaFileInvoice className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng số hóa đơn
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {orderCount}
                         </p>
                     </div>
@@ -618,10 +639,10 @@ const BillPage = () => {
                         <FaFileInvoice className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng doanh thu
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {DisplayPriceInVND(totalRevenue)}
                         </p>
                     </div>
@@ -635,10 +656,10 @@ const BillPage = () => {
                         <FaFilter className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Đang hiển thị
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {Math.min(
                                 indexOfFirstOrder + 1,
                                 filteredAndSortedOrders.length
@@ -723,7 +744,7 @@ const BillPage = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap justify-end mt-4 gap-2">
+                <div className="flex sm:flex-row flex-col justify-end mt-4 gap-2 w-full">
                     <button
                         onClick={() =>
                             setFilters({
@@ -733,27 +754,29 @@ const BillPage = () => {
                                 endDate: '',
                             })
                         }
-                        className="px-4 py-2 text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
-                        hover:bg-secondary-200 hover:text-white border-inset"
+                        className="px-4 h-9 text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
+                        hover:bg-secondary-100 hover:text-white border-inset sm:flex-1"
                     >
                         Đặt lại
                     </button>
 
-                    <button
-                        onClick={exportToExcel}
-                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
-                    >
-                        <FaFileExcel className="mr-2 mb-[2px]" />
-                        Xuất Excel
-                    </button>
+                    <div className="flex items-center gap-2 sm:flex-2 h-9">
+                        <button
+                            onClick={exportToExcel}
+                            className="flex flex-1 items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                        >
+                            <FaFileExcel className="mr-2 mb-[2px]" />
+                            Xuất Excel
+                        </button>
 
-                    <button
-                        onClick={exportToPDF}
-                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
-                    >
-                        <FaFilePdf className="mr-2 mb-[2px]" />
-                        Xuất PDF
-                    </button>
+                        <button
+                            onClick={exportToPDF}
+                            className="flex flex-1 items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+                        >
+                            <FaFilePdf className="mr-2 mb-[2px]" />
+                            Xuất PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -764,8 +787,8 @@ const BillPage = () => {
                         <table className="w-full divide-y-4 divide-secondary-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
-                                        <div className="flex items-center gap-1">
+                                    <th className="px-4 py-3 text-center text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
                                             Mã HĐ
                                             <button
                                                 onClick={() =>
@@ -777,14 +800,14 @@ const BillPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
                                         Khách hàng
                                     </th>
-                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
                                         Sản phẩm
                                     </th>
-                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
-                                        <div className="flex items-center">
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
                                             <p className="text-nowrap">
                                                 Tổng tiền
                                             </p>
@@ -798,11 +821,11 @@ const BillPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-center text-xs font-bold text-secondary-200 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
-                                    <th className="px-4 py-3 text-left text-sm font-bold text-secondary-200 uppercase tracking-wider">
-                                        <div className="flex items-center">
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                        <div className="flex items-center justify-center">
                                             <p className="text-nowrap">
                                                 Ngày tạo
                                             </p>
@@ -816,7 +839,7 @@ const BillPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-center text-sm font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-nowrap text-center text-xs font-bold text-secondary-200 uppercase tracking-wider">
                                         Thao tác
                                     </th>
                                 </tr>
@@ -922,7 +945,7 @@ const BillPage = () => {
                                                     order.totalAmt || 0
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap">
+                                            <td className="px-4 py-4 whitespace-nowrap flex items-center justify-center">
                                                 <StatusBadge
                                                     status={
                                                         order.payment_status

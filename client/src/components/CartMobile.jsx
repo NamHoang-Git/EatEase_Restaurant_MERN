@@ -13,7 +13,7 @@ const CartMobileLink = () => {
     return (
         <>
             {cartItem[0] && (
-                <div className="sticky bottom-4 p-2">
+                <Link to={'/cart'} className="sticky bottom-4 p-2">
                     <div
                         className="flex items-center justify-between gap-3 lg:hidden text-secondary-200 text-sm
                     bg-primary px-4 py-3 rounded shadow-lg shadow-secondary-100 font-bold"
@@ -22,18 +22,18 @@ const CartMobileLink = () => {
                             <div className="p-2 bg-primary rounded shadow-md shadow-slate-600">
                                 <FaCartShopping size={16} />
                             </div>
-                            <div className="">
-                                <p>{totalQty} items</p>
+                            <div className="sm:text-sm text-xs">
+                                <p>{totalQty} sản phẩm</p>
                                 <p>{DisplayPriceInVND(totalPrice)}</p>
                             </div>
                         </div>
 
-                        <Link to={'/cart'} className="flex items-center gap-1">
-                            <span className="text-sm">View Cart</span>
+                        <Link to={'/cart'} className="flex items-center gap-1 hover:opacity-70">
+                            <span className="sm:text-sm text-xs">Xem giỏ hàng</span>
                             <FaCaretRight />
                         </Link>
                     </div>
-                </div>
+                </Link>
             )}
         </>
     );

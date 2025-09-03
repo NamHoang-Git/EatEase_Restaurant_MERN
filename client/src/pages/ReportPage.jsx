@@ -339,32 +339,49 @@ const ReportPage = () => {
                     ‹
                 </button>
 
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    // Show pages around current page
-                    let pageNum;
-                    if (totalPages <= 5) {
-                        pageNum = i + 1;
-                    } else if (pagination.currentPage <= 3) {
-                        pageNum = i + 1;
-                    } else if (pagination.currentPage > totalPages - 3) {
-                        pageNum = totalPages - 4 + i;
-                    } else {
-                        pageNum = pagination.currentPage - 2 + i;
-                    }
+                {Array.from({ length: totalPages }).map((_, i) => {
+                    const pageNum = i + 1;
+                    const showFirstPage = pageNum === 1;
+                    const showLastPage = pageNum === totalPages;
+                    const showCurrentPage = pageNum === pagination.currentPage;
+                    const showDotsLeft =
+                        pageNum === 2 && pagination.currentPage > 3;
+                    const showDotsRight =
+                        pageNum === totalPages - 1 &&
+                        pagination.currentPage < totalPages - 2;
 
-                    return (
-                        <button
-                            key={pageNum}
-                            onClick={() => paginate(pageNum)}
-                            className={`px-3 py-1 rounded-md border text-sm font-medium ${
-                                pagination.currentPage === pageNum
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                            }`}
-                        >
-                            {pageNum}
-                        </button>
-                    );
+                    if (
+                        showFirstPage ||
+                        showLastPage ||
+                        showCurrentPage ||
+                        showDotsLeft ||
+                        showDotsRight
+                    ) {
+                        if (showDotsLeft || showDotsRight) {
+                            return (
+                                <span
+                                    key={pageNum}
+                                    className="px-3 py-1 text-gray-500"
+                                >
+                                    ...
+                                </span>
+                            );
+                        }
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => paginate(pageNum)}
+                                className={`px-3 py-1 rounded-md border text-sm font-medium ${
+                                    pagination.currentPage === pageNum
+                                        ? 'bg-secondary-200 text-white border-secondary-200'
+                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                {pageNum}
+                            </button>
+                        );
+                    }
+                    return null;
                 })}
 
                 <button
@@ -655,10 +672,10 @@ const ReportPage = () => {
                         <BsCoin className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng doanh thu
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {DisplayPriceInVND(totalRevenue)}
                         </p>
                     </div>
@@ -671,10 +688,10 @@ const ReportPage = () => {
                         <FaCoins className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Giá trị đơn hàng trung bình
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {orderCount > 0
                                 ? DisplayPriceInVND(totalRevenue / orderCount)
                                 : '0'}
@@ -689,10 +706,10 @@ const ReportPage = () => {
                         <FaFileInvoice className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng số đơn hàng
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {orderCount}
                         </p>
                     </div>
@@ -705,10 +722,10 @@ const ReportPage = () => {
                         <FaFilter className="h-6 w-6" />
                     </div>
                     <div className="mt-1">
-                        <p className="text-[15px] text-secondary-200 font-bold">
+                        <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Đang hiển thị
                         </p>
-                        <p className="lg:text-xl text-2xl font-bold text-secondary-200">
+                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
                             {Math.min(
                                 indexOfFirstOrder + 1,
                                 filteredAndSortedOrders.length
@@ -727,7 +744,7 @@ const ReportPage = () => {
             {/* Chart Type Selector */}
             <div className="bg-white p-4 rounded-lg border-2 border-secondary-200 shadow mb-3">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-secondary-200">
+                    <h2 className="text-base sm:text-lg font-bold text-secondary-200">
                         Biểu đồ thống kê
                     </h2>
                     <div className="flex space-x-2">
@@ -780,7 +797,7 @@ const ReportPage = () => {
             {/* Top Products Chart */}
             {filteredAndSortedOrders.length > 0 && (
                 <div className="bg-white p-4 rounded-lg border-2 border-secondary-200 shadow mb-3">
-                    <h2 className="text-lg font-bold mb-4 text-secondary-200">
+                    <h2 className="text-base sm:text-lg font-bold mb-4 text-secondary-200">
                         Top sản phẩm bán chạy
                     </h2>
                     <div className="max-h-96">
