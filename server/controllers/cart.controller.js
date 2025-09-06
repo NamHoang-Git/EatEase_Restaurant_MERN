@@ -161,12 +161,7 @@ export const clearCartController = async (request, response) => {
 
         let deleteResult, userUpdateResult;
 
-        console.log('clearCartController received:', { userId, selectedProductIds });
-
         if (selectedProductIds && selectedProductIds.length > 0) {
-            // Xóa chỉ các sản phẩm được chọn
-            console.log('Clearing selected products:', selectedProductIds);
-
             // Tìm cart items cần xóa
             const cartItemsToDelete = await CartProductModel.find({
                 userId: userId,
@@ -185,8 +180,6 @@ export const clearCartController = async (request, response) => {
                 { _id: userId },
                 { $pull: { shopping_cart: { $in: cartItemIds } } }
             );
-
-            console.log('Selected cart clear:', { deleteResult, userUpdateResult, selectedProductIds });
         } else {
             // Xóa tất cả cart items của user (logic cũ)
             deleteResult = await CartProductModel.deleteMany({ userId: userId });
@@ -195,8 +188,6 @@ export const clearCartController = async (request, response) => {
                 { _id: userId },
                 { $set: { shopping_cart: [] } }
             );
-
-            console.log('Full cart clear:', { deleteResult, userUpdateResult });
         }
 
         return response.json({

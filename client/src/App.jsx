@@ -40,7 +40,7 @@ function App() {
                     );
                 }
             } catch (error) {
-                console.log('Error fetching categories:', error);
+                AxiosToastError(error);
             } finally {
                 dispatch(setLoadingCategory(false));
             }

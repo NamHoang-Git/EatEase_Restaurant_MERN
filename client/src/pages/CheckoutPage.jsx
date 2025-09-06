@@ -63,10 +63,6 @@ const CheckoutPage = () => {
                     'checkoutSelectedItems',
                     JSON.stringify(selectedProductIds)
                 );
-                console.log(
-                    '💾 Stored selectedProductIds to localStorage:',
-                    selectedProductIds
-                );
             }
         } else {
             setSelectedItems(cartItemsList.map((item) => item._id));
@@ -85,15 +81,6 @@ const CheckoutPage = () => {
         const sessionId = urlParams.get('session_id');
 
         if (sessionId && filteredItems.length > 0) {
-            console.log('Payment successful, cleaning up cart...');
-            console.log('location.state:', location.state);
-            console.log(
-                'selectedItems from location.state:',
-                location.state?.selectedItems
-            );
-            console.log('cartItemsList.length:', cartItemsList.length);
-            console.log('filteredItems.length:', filteredItems.length);
-
             // Kiểm tra xem có phải thanh toán một phần không
             const hasSelectedItems =
                 location.state?.selectedItems &&
@@ -102,32 +89,15 @@ const CheckoutPage = () => {
                 hasSelectedItems &&
                 location.state.selectedItems.length < cartItemsList.length;
 
-            console.log('hasSelectedItems:', hasSelectedItems);
-            console.log('isPartialCheckout:', isPartialCheckout);
-
             if (isPartialCheckout) {
                 // Chỉ xóa các sản phẩm được chọn
                 const selectedProductIds = filteredItems.map(
                     (item) => item.productId._id
                 );
-                console.log(
-                    'Partial checkout - Selected product IDs for cleanup:',
-                    selectedProductIds
-                );
-
                 setTimeout(() => {
                     reloadAfterPayment(selectedProductIds);
                 }, 2000);
             } else {
-                // Thanh toán toàn bộ - xóa hết cart
-                console.log('Full checkout - Clearing entire cart');
-                console.log(
-                    'Reason: hasSelectedItems =',
-                    hasSelectedItems,
-                    ', isPartialCheckout =',
-                    isPartialCheckout
-                );
-
                 setTimeout(() => {
                     reloadAfterPayment(null);
                 }, 2000);
@@ -221,14 +191,6 @@ const CheckoutPage = () => {
             setLoading(true);
             const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
             const stripePromise = await loadStripe(stripePublicKey);
-
-            console.log('Sending request to /api/order/checkout:', {
-                list_items: filteredItems,
-                addressId: addressList[selectAddress]?._id,
-                subTotalAmt: filteredTotalPrice,
-                totalAmt: filteredTotalPrice,
-            });
-
             const response = await Axios({
                 ...SummaryApi.payment_url,
                 data: {
@@ -239,8 +201,6 @@ const CheckoutPage = () => {
                 },
             });
 
-            console.log('Response from /api/order/checkout:', response.data);
-
             const { data: responseData } = response;
             const { error } = await stripePromise.redirectToCheckout({
                 sessionId: responseData.id,
@@ -249,9 +209,7 @@ const CheckoutPage = () => {
             if (error) {
                 toast.error('Thanh toán thất bại: ' + error.message);
             }
-            // Không cần else vì redirect xảy ra, code sau không chạy
         } catch (error) {
-            console.error('Online Payment Error:', error);
             toast.error(error.response?.data?.message || 'Thanh toán thất bại');
         } finally {
             setLoading(false);

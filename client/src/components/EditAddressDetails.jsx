@@ -29,9 +29,7 @@ const EditAddressDetails = ({ close, data }) => {
     const [wards, setWards] = useState([]);
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
-    // const selectedWard = watch('ward');
 
-    // Hàm bỏ dấu tiếng Việt
     const removeAccents = (str) => {
         return str
             .normalize('NFD')
@@ -40,7 +38,6 @@ const EditAddressDetails = ({ close, data }) => {
             .replace(/Đ/g, 'D');
     };
 
-    // Hàm loại bỏ tiền tố
     const removePrefix = (name) => {
         const prefixes = [
             'Thành phố ',
@@ -60,7 +57,6 @@ const EditAddressDetails = ({ close, data }) => {
         return cleanedName;
     };
 
-    // Tùy chỉnh hàm lọc cho React Select
     const customFilter = (option, searchText) => {
         if (!searchText) return true;
         const searchTerm = removeAccents(searchText.toLowerCase());
@@ -70,7 +66,6 @@ const EditAddressDetails = ({ close, data }) => {
         return cleanedLabel.startsWith(searchTerm);
     };
 
-    // Cập nhật lại useEffect khởi tạo dữ liệu tỉnh/thành phố
     useEffect(() => {
         const provincesWithCode = vietnamProvinces.map((province, index) => ({
             ...province,
@@ -80,7 +75,6 @@ const EditAddressDetails = ({ close, data }) => {
         }));
         setProvinces(provincesWithCode);
 
-        // Tự động chọn tỉnh/thành phố nếu có trong dữ liệu
         if (data.city) {
             const province = provincesWithCode.find(
                 (p) => p.name === data.city
@@ -92,7 +86,6 @@ const EditAddressDetails = ({ close, data }) => {
         }
     }, [data.city, setValue]);
 
-    // Update districts when selectedProvince changes
     useEffect(() => {
         if (selectedProvince) {
             const provinceIndex = parseInt(selectedProvince.value);
@@ -109,7 +102,6 @@ const EditAddressDetails = ({ close, data }) => {
                 );
                 setDistricts(districtsWithCode);
 
-                // Tự động chọn quận/huyện nếu có trong dữ liệu
                 if (data.district) {
                     const district = districtsWithCode.find(
                         (d) => d.name === data.district
@@ -129,7 +121,6 @@ const EditAddressDetails = ({ close, data }) => {
         }
     }, [selectedProvince, data.district, setValue]);
 
-    // Update wards when selectedDistrict changes
     useEffect(() => {
         if (selectedProvince && selectedDistrict) {
             const provinceIndex = parseInt(selectedProvince.value);
@@ -147,13 +138,11 @@ const EditAddressDetails = ({ close, data }) => {
                 }));
                 setWards(wardsWithCode);
 
-                // If we have a ward in data, try to find and select it
                 if (data.ward) {
                     const ward = wardsWithCode.find(
                         (w) => w.name === data.ward
                     );
                     if (ward) {
-                        // Small timeout to ensure state is updated before setting the value
                         setTimeout(() => {
                             setValue('ward', ward.code);
                         }, 0);
@@ -169,7 +158,6 @@ const EditAddressDetails = ({ close, data }) => {
         }
     }, [selectedDistrict, selectedProvince, data.ward, setValue]);
 
-    // Handle initial ward selection when wards are loaded
     useEffect(() => {
         if (wards.length > 0 && data.ward) {
             const ward = wards.find((w) => w.name === data.ward);

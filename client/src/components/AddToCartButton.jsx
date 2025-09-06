@@ -16,7 +16,7 @@ const AddToCartButton = ({ data }) => {
     const cartItem = useSelector((state) => state.cartItem.cart);
     const [isAvailableCart, setIsAvailableCart] = useState(false);
     const [qty, setQty] = useState(0);
-    const [cartItemDetails, setCartItemsDetails] = useState(null); // Mặc định là null thay vì undefined
+    const [cartItemDetails, setCartItemsDetails] = useState(null);
     const user = useSelector((state) => state.user);
     const navigate = useNavigate();
 
@@ -50,7 +50,7 @@ const AddToCartButton = ({ data }) => {
             if (responseData.success) {
                 toast.success(responseData.message);
                 if (fetchCartItem) {
-                    await fetchCartItem(); // Đảm bảo fetch lại giỏ hàng
+                    await fetchCartItem();
                 }
             }
         } catch (error) {
@@ -69,7 +69,7 @@ const AddToCartButton = ({ data }) => {
             return;
         }
 
-        const validCartItems = cartItem?.filter((item) => item?.productId?._id); // Loại bỏ các mục không hợp lệ
+        const validCartItems = cartItem?.filter((item) => item?.productId?._id);
         const checkingItem = validCartItems?.some(
             (item) => item.productId?._id === data._id
         );
@@ -101,7 +101,7 @@ const AddToCartButton = ({ data }) => {
 
         if (response.success) {
             if (fetchCartItem) {
-                await fetchCartItem(); // Cập nhật giỏ hàng sau khi tăng số lượng
+                await fetchCartItem();
             }
         }
     };
@@ -117,14 +117,14 @@ const AddToCartButton = ({ data }) => {
         if (qty === 1) {
             await deleteCartItem(cartItemDetails._id);
             if (fetchCartItem) {
-                await fetchCartItem(); // Cập nhật giỏ hàng sau khi xóa
+                await fetchCartItem();
             }
         } else {
             const response = await updateCartItem(cartItemDetails._id, qty - 1);
 
             if (response.success) {
                 if (fetchCartItem) {
-                    await fetchCartItem(); // Cập nhật giỏ hàng sau khi giảm số lượng
+                    await fetchCartItem();
                 }
             }
         }

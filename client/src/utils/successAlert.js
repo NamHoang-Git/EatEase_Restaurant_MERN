@@ -4,7 +4,6 @@ const successAlert = (title) => {
     const alert = Swal.fire({
         title: title,
         icon: "success",
-        // confirmButtonColor: ""
     });
 
     return alert

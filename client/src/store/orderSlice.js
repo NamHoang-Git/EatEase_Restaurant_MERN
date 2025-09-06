@@ -1,4 +1,3 @@
-// src/store/orderSlice.js
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -14,14 +13,12 @@ export const fetchAllOrders = createAsyncThunk(
                 throw new Error('Bạn không có quyền truy cập');
             }
 
-            // Remove search from params since we'll handle it client-side
             const { search, ...apiFilters } = filters;
 
             const response = await Axios({
                 ...SummaryApi.all_orders,
                 params: {
                     ...apiFilters,
-                    // Don't send search to the server
                     status: filters.status || undefined,
                     startDate: filters.startDate || undefined,
                     endDate: filters.endDate || undefined,
@@ -40,8 +37,8 @@ export const fetchAllOrders = createAsyncThunk(
 );
 
 const initialState = {
-    data: [],       // orders của user đăng nhập
-    allOrders: [],  // tất cả orders (chỉ admin mới dùng)
+    data: [],
+    allOrders: [],
     loading: false,
     error: null,
     filters: {},

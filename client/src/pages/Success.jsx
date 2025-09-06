@@ -4,29 +4,28 @@ import { useGlobalContext } from '../provider/GlobalProvider';
 import toast from 'react-hot-toast';
 
 const SuccessPage = () => {
-    const { fetchCartItem, fetchOrder, reloadAfterPayment } =
-        useGlobalContext();
+    const { reloadAfterPayment } = useGlobalContext();
     const navigate = useNavigate();
     const location = useLocation();
-    const [isLoaded, setIsLoaded] = useState(false); // Thêm trạng thái kiểm soát
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         const sessionId = new URLSearchParams(location.search).get(
             'session_id'
         );
         if (sessionId && !isLoaded) {
-            reloadAfterPayment(); // Gọi một lần duy nhất
-            setIsLoaded(true); // Đánh dấu đã xử lý
+            reloadAfterPayment();
+            setIsLoaded(true);
             toast.success(
                 'Thanh toán thành công! Đơn hàng của bạn đã được cập nhật.',
                 {
-                    duration: 4000, // Đặt thời gian hiển thị 4 giây
+                    duration: 4000,
                 }
             );
         } else if (!sessionId) {
             navigate('/');
         }
-    }, [reloadAfterPayment, navigate, location, isLoaded]); // Thêm isLoaded vào dependency
+    }, [reloadAfterPayment, navigate, location, isLoaded]);
 
     return (
         <div className="min-h-[80vh] flex items-center justify-center">

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import UserModel from './models/user.model.js';
-import CartProductModel from './models/cartProduct.model.js';
+import UserModel from '../models/user.model.js';
+import CartProductModel from '../models/cartProduct.model.js';
 
 dotenv.config();
 
@@ -42,7 +42,7 @@ useEffect(() => {
     }
 }, []);
     `);
-    
+
     console.log('\n=== HOẶC TẠO API ENDPOINT MỚI ===');
     console.log('Tạo endpoint /api/cleanup-cart-after-payment');
 };

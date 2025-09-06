@@ -123,7 +123,6 @@ const ProductListPage = () => {
                     }
                 }
             } catch (error) {
-                console.error('Lỗi khi tải sản phẩm:', error);
                 // Only show error toast if there's a meaningful message
                 const errorMessage =
                     error.response?.data?.message?.trim() ||
@@ -133,8 +132,6 @@ const ProductListPage = () => {
                     AxiosToastError({
                         message: errorMessage || 'Đã xảy ra lỗi không xác định',
                     });
-                } else {
-                    console.warn('API error but no meaningful message');
                 }
             } finally {
                 setLoading(false);

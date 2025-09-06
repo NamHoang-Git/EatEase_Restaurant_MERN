@@ -31,8 +31,6 @@ export async function updateProductStock(orderIds) {
 
             // Add the quantity from this order to the total for this product
             productUpdates[productId] += quantity;
-
-            console.log(`Product ${productId}: Order ${order._id} quantity ${quantity}, new total: ${productUpdates[productId]}`);
         });
 
         // Update stock for each product
@@ -48,21 +46,18 @@ export async function updateProductStock(orderIds) {
         }));
 
         if (bulkOps.length === 0) {
-            console.log('Không có sản phẩm để cập nhật số lượng tồn kho');
             return { success: true, message: 'Không cần cập nhật số lượng tồn kho' };
         }
 
         // Execute all updates in bulk
         const result = await ProductModel.bulkWrite(bulkOps, { ordered: false });
 
-        console.log(`✅ Cập nhật số lượng tồn kho thành công cho ${result.modifiedCount} sản phẩm`);
         return {
             success: true,
             message: `Cập nhật số lượng tồn kho thành công cho ${result.modifiedCount} sản phẩm`,
             details: result
         };
     } catch (error) {
-        console.error('Lỗi khi cập nhật số lượng tồn kho:', error);
         return {
             success: false,
             message: 'Cập nhật số lượng tồn kho thất bại',

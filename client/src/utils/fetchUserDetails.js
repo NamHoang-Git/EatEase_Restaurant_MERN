@@ -20,7 +20,7 @@ const fetchUserDetails = async () => {
     } catch (error) {
         // Suppress console errors và toast nếu là 401
         if (error.response?.status === 401 || error.suppressToast) {
-            console.log('🔕 Suppressed fetchUserDetails error');
+            console.log('Suppressed fetchUserDetails error');
         } else {
             console.error("fetchUserDetails error:", error.response?.data || error.message);
         }

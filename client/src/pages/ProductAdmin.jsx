@@ -74,9 +74,6 @@ const ProductAdmin = () => {
                 }
             });
 
-            console.log('Sending request with sort:', requestData.sort);
-            console.log('Full request data:', requestData);
-
             const response = await Axios({
                 ...SummaryApi.get_product,
                 data: requestData,
@@ -89,7 +86,6 @@ const ProductAdmin = () => {
                 setProductData(responseData.data);
             }
         } catch (error) {
-            console.error('Error fetching products:', error);
             AxiosToastError(error);
         } finally {
             setLoading(false);

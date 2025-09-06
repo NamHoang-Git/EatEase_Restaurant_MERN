@@ -65,7 +65,7 @@ const Header = () => {
             window.addEventListener('scroll', handleScroll);
             return () => window.removeEventListener('scroll', handleScroll);
         } else {
-            setScrolled(true); // luôn trắng ở các trang khác
+            setScrolled(true);
         }
     }, [location.pathname]);
 

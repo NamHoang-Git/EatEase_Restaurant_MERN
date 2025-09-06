@@ -162,7 +162,7 @@ const ProductDisplayPage = () => {
 
                 setRelatedProducts(unique.slice(0, 8));
             } catch (error) {
-                console.log('Error fetching related products:', error);
+                AxiosToastError(error);
             }
         };
 

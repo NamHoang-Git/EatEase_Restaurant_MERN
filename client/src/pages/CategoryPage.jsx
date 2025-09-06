@@ -28,7 +28,6 @@ const CategoryPage = () => {
     const [imageURL, setImageURL] = useState('');
 
     const fetchCategory = async () => {
-        // API admin cần authentication - giữ nguyên check
         const accessToken = localStorage.getItem('accesstoken');
         if (!accessToken) return;
 

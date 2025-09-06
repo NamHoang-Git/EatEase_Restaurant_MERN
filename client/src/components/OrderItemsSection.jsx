@@ -24,7 +24,7 @@ const OrderItemsSection = () => {
                 {cart.map((item) => (
                     <div key={item._id} className="flex items-center py-3">
                         <img
-                            src={item.image[0]} // giả sử product có mảng image
+                            src={item.image[0]}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded mr-4 border"
                         />

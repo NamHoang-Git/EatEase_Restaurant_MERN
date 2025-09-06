@@ -14,7 +14,7 @@ const Axios = axios.create({
     withCredentials: true, // gửi cookie nếu có
 });
 
-// 🟢 Request interceptor
+// Request interceptor
 Axios.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem("accesstoken");
@@ -26,7 +26,7 @@ Axios.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// 🟢 Response interceptor
+// Response interceptor
 Axios.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -35,7 +35,6 @@ Axios.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             // Nếu là do logout thì bỏ qua, không redirect và không show toast
             if (isLoggingOut) {
-                console.log('🔕 Suppressing 401 error during logout');
                 return Promise.reject({ ...error, suppressToast: true });
             }
 
@@ -50,10 +49,10 @@ Axios.interceptors.response.use(
                     }
                 }
             } catch (refreshError) {
-                console.error("🔴 Refresh token failed:", refreshError);
+                console.error("Refresh token failed:", refreshError);
             }
 
-            // ❌ Refresh fail → clear token và redirect login (chỉ 1 lần)
+            // Refresh fail → clear token và redirect login (chỉ 1 lần)
             localStorage.removeItem("accesstoken");
             localStorage.removeItem("refreshToken");
 
@@ -67,7 +66,7 @@ Axios.interceptors.response.use(
     }
 );
 
-// 🟢 Hàm refresh token
+// Hàm refresh token
 const refreshAccessToken = async (refreshToken) => {
     try {
         const response = await axios({

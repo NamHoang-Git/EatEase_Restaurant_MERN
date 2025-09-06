@@ -116,8 +116,8 @@ const CartPage = () => {
                 data: { _id: id },
             });
             if (response.data.success) {
-                dispatch(removeFromCart(id)); // Cập nhật Redux ngay lập tức
-                await fetchCartItem(); // Đồng bộ với server
+                dispatch(removeFromCart(id));
+                await fetchCartItem();
                 toast.success('Đã xóa sản phẩm');
             } else {
                 toast.error(response.data.message);
@@ -136,9 +136,9 @@ const CartPage = () => {
                     data: { _id: id },
                 });
             }
-            dispatch(removeSelectedItemsFromCart(selectedItems)); // Cập nhật Redux ngay lập tức
+            dispatch(removeSelectedItemsFromCart(selectedItems));
             setSelectedItems([]);
-            await fetchCartItem(); // Đồng bộ với server
+            await fetchCartItem();
             toast.success('Đã xóa các sản phẩm được chọn');
             setOpenConfirmBoxDelete(false);
         } catch (error) {

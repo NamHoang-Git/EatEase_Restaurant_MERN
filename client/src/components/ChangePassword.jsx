@@ -52,10 +52,10 @@ const ChangePassword = ({ close }) => {
                 navigate('/reset-password', {
                     state: {
                         email: response.data.email,
-                        fromProfile: true, // This indicates it's coming from profile change password
-                        fromForgotPassword: false, // Explicitly set to false
+                        fromProfile: true,
+                        fromForgotPassword: false,
                     },
-                    replace: true, // Replace the current entry in the history stack
+                    replace: true,
                 });
             }
         } catch (error) {

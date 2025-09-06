@@ -185,7 +185,7 @@ const BillPage = () => {
 
     const handlePageSizeChange = (e) => {
         setPagination({
-            currentPage: 1, // Reset to first page when changing page size
+            currentPage: 1,
             pageSize: Number(e.target.value),
         });
     };
@@ -417,7 +417,7 @@ const BillPage = () => {
                         0: { cellWidth: 20 },
                         1: { cellWidth: 25 },
                         2: { cellWidth: 30 },
-                        3: { cellWidth: 'auto' }, // Tự động điều chỉnh
+                        3: { cellWidth: 'auto' },
                         4: { cellWidth: 10, halign: 'center' },
                         5: { cellWidth: 25, halign: 'right' },
                         6: { cellWidth: 30 },
@@ -462,7 +462,6 @@ const BillPage = () => {
 
             toast.success('Xuất file PDF thành công!');
         } catch (error) {
-            console.error('Lỗi khi xuất PDF:', error);
             toast.error(
                 `Có lỗi xảy ra: ${error.message || 'Không thể xuất file PDF'}`
             );

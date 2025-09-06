@@ -38,14 +38,13 @@ export async function CashOnDeliveryOrderController(request, response) {
                 payment_status: "Thanh toán khi giao hàng",
                 delivery_address: addressId,
                 subTotalAmt: subTotal,
-                totalAmt: subTotal, // For individual items, totalAmt is same as subTotal
+                totalAmt: subTotal,
                 status: 'pending'
             };
         });
 
         // Tạo đơn hàng
         const generatedOrder = await OrderModel.insertMany(payload);
-        console.log('CashOnDelivery Orders Created:', generatedOrder);
 
         // Lấy danh sách productId từ list_items
         const productIdsToRemove = list_items.map(el => el.productId._id);
@@ -62,26 +61,22 @@ export async function CashOnDeliveryOrderController(request, response) {
             userId: userId,
             productId: { $in: productIdsToRemove }
         });
-        console.log('CashOnDelivery Cart Items Deleted:', cartDeleteResult);
 
-        // Cập nhật shopping_cart trong UserModel - sử dụng cart item IDs thay vì product IDs
         const userUpdateResult = await UserModel.updateOne(
             { _id: userId },
             { $pull: { shopping_cart: { $in: cartItemIds } } }
-        );
-        console.log('CashOnDelivery User shopping_cart Updated:', userUpdateResult);
+        )
 
         // Cập nhật số lượng tồn kho
         try {
-            console.log('🔄 Updating product stock for COD order...');
             const orderIds = generatedOrder.map(order => order._id);
             const stockUpdateResult = await updateProductStock(orderIds);
 
             if (!stockUpdateResult.success) {
-                console.error('⚠️ Failed to update product stock for COD order:', stockUpdateResult.message);
+                console.error('Failed to update product stock for COD order:', stockUpdateResult.message);
                 // Continue with the order even if stock update fails, but log the error
             } else {
-                console.log('✅ Successfully updated product stock for COD order');
+                console.log('Successfully updated product stock for COD order');
             }
         } catch (stockError) {
             console.error('Error updating stock for COD order:', stockError);
@@ -169,7 +164,7 @@ export async function paymentController(request, response) {
                         name: item.productId.name,
                         images: Array.isArray(item.productId.image) ? item.productId.image : [item.productId.image],
                         metadata: {
-                            productId: item.productId._id.toString() // Đảm bảo productId là string
+                            productId: item.productId._id.toString()
                         }
                     },
                     unit_amount: pricewithDiscount(item.productId.price, item.productId.discount)
@@ -190,7 +185,7 @@ export async function paymentController(request, response) {
             metadata: {
                 userId: userId.toString(),
                 addressId: addressId.toString(),
-                tempOrderIds: JSON.stringify(tempOrder.map(o => o._id.toString())) // Lưu ID order tạm
+                tempOrderIds: JSON.stringify(tempOrder.map(o => o._id.toString()))
             },
             line_items,
             success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -200,7 +195,6 @@ export async function paymentController(request, response) {
         const session = await Stripe.checkout.sessions.create(params);
         return response.status(200).json(session);
     } catch (error) {
-        console.error('paymentController Error:', error);
         return response.status(500).json({
             message: error.message || "Lỗi Server",
             error: true,
@@ -219,17 +213,14 @@ const getOrderProductItems = async ({
     const productList = [];
 
     if (!lineItems?.data?.length) {
-        console.error('No line items found in webhook');
         return productList;
     }
 
     for (const item of lineItems.data) {
         try {
             const product = await Stripe.products.retrieve(item.price.product);
-            console.log('Retrieved Stripe product:', product);
 
             if (!product.metadata?.productId) {
-                console.error('Missing productId in metadata for product:', product.id);
                 continue;
             }
 
@@ -258,19 +249,11 @@ const getOrderProductItems = async ({
 }
 
 export async function webhookStripe(request, response) {
-    console.log('🚀 WEBHOOK FUNCTION CALLED - START');
-    console.log('🚀 Current time:', new Date().toISOString());
 
     try {
-        console.log('=== WEBHOOK CALLED ===');
-        console.log('Headers:', request.headers);
-        console.log('Raw body length:', request.rawBody ? request.rawBody.length : 'No raw body');
-        console.log('Request body:', JSON.stringify(request.body, null, 2));
-
         const event = request.body;
         const endPointSecret = process.env.STRIPE_ENPOINT_WEBHOOK_SECRET_KEY;
 
-        console.log('Webhook event received:', event?.type || 'NO TYPE');
         if (event?.data?.object) {
             console.log('Event data:', JSON.stringify(event.data.object, null, 2));
         } else {
@@ -282,19 +265,12 @@ export async function webhookStripe(request, response) {
             return response.status(200).json({ received: true, message: 'Invalid event' });
         }
 
-        console.log('🔍 Received event type:', event.type);
-
         switch (event.type) {
             case 'checkout.session.completed':
-                console.log('🎯 WEBHOOK: checkout.session.completed received');
                 const session = event.data.object;
-                console.log('Session ID:', session.id);
-                console.log('Session payment_status:', session.payment_status);
-                console.log('Session metadata:', session.metadata);
 
                 const { userId, addressId, tempOrderIds } = session.metadata || {};
                 if (!userId || !addressId || !tempOrderIds) {
-                    console.error('Missing metadata:', session.metadata);
                     return response.status(200).json({
                         message: 'Missing metadata',
                         received: true
@@ -302,30 +278,21 @@ export async function webhookStripe(request, response) {
                 }
 
                 const orderIds = JSON.parse(tempOrderIds);
-                console.log('Parsed orderIds:', orderIds);
 
                 try {
-                    console.log('🔄 Updating orders with IDs:', orderIds);
                     const updatedOrders = await OrderModel.updateMany(
                         { _id: { $in: orderIds.map(id => new mongoose.Types.ObjectId(id)) } },
                         {
                             paymentId: session.payment_intent,
-                            payment_status: 'Đã thanh toán' // Đặt thành 'paid' khi checkout.session.completed
+                            payment_status: 'Đã thanh toán'
                         }
                     );
-                    console.log('✅ Updated orders result:', updatedOrders);
-                    console.log('✅ Orders updated successfully to PAID status');
 
-                    // Update product stock after successful payment
-                    console.log('🔄 Updating product stock...');
                     const stockUpdateResult = await updateProductStock(orderIds);
                     if (!stockUpdateResult.success) {
-                        console.error('⚠️ Failed to update product stock:', stockUpdateResult.message);
-                    } else {
-                        console.log('✅ Successfully updated product stock');
+                        console.error('Failed to update product stock:', stockUpdateResult.message);
                     }
                 } catch (error) {
-                    console.error('Error updating orders:', error);
                     return response.status(500).json({
                         message: 'Lỗi khi cập nhật đơn hàng',
                         error: true,
@@ -334,15 +301,12 @@ export async function webhookStripe(request, response) {
                 }
                 break;
             default:
-                console.log(`❌ Unhandled event type: ${event.type}`);
+                console.log(`Unhandled event type: ${event.type}`);
                 break;
         }
 
-        console.log('✅ Webhook processing completed');
         response.json({ received: true });
     } catch (error) {
-        console.error('webhookStripe Error:', error);
-        console.error('Error stack:', error.stack);
         response.status(500).json({
             message: error.message || "Xử lý webhook không thành công",
             error: true,
@@ -359,8 +323,6 @@ export async function getOrderDetailsController(request, response) {
             .populate('userId', 'name mobile email')
             .populate('delivery_address');
 
-        console.log(`Fetched ${orderlist.length} orders for user:`, userId);
-
         return response.json({
             message: "Danh sách đơn hàng của bạn",
             data: orderlist,
@@ -368,7 +330,6 @@ export async function getOrderDetailsController(request, response) {
             success: true
         });
     } catch (error) {
-        console.error('getOrderDetailsController Error:', error);
         return response.status(500).json({
             message: error.message || "Lỗi Server",
             error: true,
@@ -430,7 +391,6 @@ export async function getAllOrdersController(request, response) {
             success: true
         });
     } catch (error) {
-        console.error('getAllOrdersController Error:', error);
         return response.status(500).json({
             message: error.message || "Lỗi Server",
             error: true,

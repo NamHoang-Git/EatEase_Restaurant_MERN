@@ -39,13 +39,13 @@ const UserMenu = ({ close }) => {
                 }
                 // Clear Redux state immediately
                 dispatch(logout());
-                dispatch(clearCart()); // Clear cart from Redux store
-                setIsLoggingOut(true); // đánh dấu đang logout
+                dispatch(clearCart());
+                setIsLoggingOut(true);
 
                 // Clear localStorage
                 localStorage.removeItem('accesstoken');
                 localStorage.removeItem('refreshToken');
-                localStorage.removeItem('checkoutSelectedItems'); // Clear checkout data
+                localStorage.removeItem('checkoutSelectedItems');
 
                 toast.success(response.data.message);
                 navigate('/');
@@ -64,7 +64,7 @@ const UserMenu = ({ close }) => {
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
-                close?.(); // gọi close nếu click ra ngoài
+                close?.();
             }
         };
 

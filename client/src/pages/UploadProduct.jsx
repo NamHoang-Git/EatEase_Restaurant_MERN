@@ -90,8 +90,7 @@ const UploadProduct = () => {
                 image: [...prev.image, ...newImageUrls],
             }));
         } catch (error) {
-            console.error('Lỗi khi tải ảnh lên:', error);
-            alert('Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.');
+            AxiosToastError(error);
         } finally {
             setLoading(false);
         }

@@ -18,7 +18,6 @@ const AddAddress = ({ close }) => {
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
 
-    // Hàm bỏ dấu tiếng Việt
     const removeAccents = (str) => {
         return str
             .normalize('NFD')
@@ -27,7 +26,6 @@ const AddAddress = ({ close }) => {
             .replace(/Đ/g, 'D');
     };
 
-    // Hàm loại bỏ tiền tố
     const removePrefix = (name) => {
         const prefixes = [
             'Thành phố ',
@@ -47,7 +45,6 @@ const AddAddress = ({ close }) => {
         return cleanedName;
     };
 
-    // Tùy chỉnh hàm lọc cho React Select
     const customFilter = (option, searchText) => {
         if (!searchText) return true;
         const searchTerm = removeAccents(searchText.toLowerCase());
@@ -57,7 +54,7 @@ const AddAddress = ({ close }) => {
         return cleanedLabel.startsWith(searchTerm);
     };
 
-    // Lấy danh sách tỉnh/thành phố
+    // Lay danh sach tinh/thanh pho
     useEffect(() => {
         const provincesWithCode = vietnamProvinces.map((province, index) => ({
             ...province,
@@ -66,7 +63,7 @@ const AddAddress = ({ close }) => {
         setProvinces(provincesWithCode);
     }, []);
 
-    // Lấy danh sách quận/huyện khi chọn tỉnh/thành phố
+    // Lay danh sach quan/huyen khi chon tinh/thanh pho
     useEffect(() => {
         if (selectedProvince) {
             const provinceIndex = parseInt(selectedProvince.value);
@@ -99,7 +96,7 @@ const AddAddress = ({ close }) => {
         }
     }, [selectedProvince, setValue]);
 
-    // Lấy danh sách phường/xã khi chọn quận/huyện
+    // Lay danh sach phuong/xa khi chon quan/huyen
     useEffect(() => {
         if (selectedDistrict && selectedProvince) {
             const provinceIndex = parseInt(selectedProvince.value);

@@ -9,6 +9,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FaFilter } from 'react-icons/fa';
 import { FaArrowUp } from 'react-icons/fa6';
 import { IoFilter } from 'react-icons/io5';
+import AxiosToastError from '../utils/AxiosToastError';
 
 const SearchPage = () => {
     const [data, setData] = useState([]);
@@ -71,14 +72,10 @@ const SearchPage = () => {
                     filters.category !== 'all' ? filters.category : undefined,
             };
 
-            console.log('Fetching initial products with data:', requestData);
-
             const response = await Axios({
                 ...SummaryApi.get_initial_products,
                 data: requestData,
-            });
-
-            console.log('Initial products response:', response.data);
+            })
 
             if (response.data.success) {
                 setInitialProducts((prev) =>
@@ -87,20 +84,9 @@ const SearchPage = () => {
                         : [...prev, ...response.data.data]
                 );
                 setHasMore(response.data.data.length === 12);
-                console.log(
-                    'Initial products updated:',
-                    initialPage === 1
-                        ? response.data.data
-                        : 'appended to existing'
-                );
-            } else {
-                console.error(
-                    'Failed to fetch initial products:',
-                    response.data.message
-                );
             }
         } catch (error) {
-            console.error('Error in fetchInitialProducts:', error);
+            AxiosToastError(error);
         } finally {
             setLoadingInitial(false);
         }
@@ -117,7 +103,7 @@ const SearchPage = () => {
                 setCategories(response.data.data || []);
             }
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            AxiosToastError(error);
         }
     }, []);
 
@@ -155,7 +141,7 @@ const SearchPage = () => {
                     setHasMore(pageNum < (response.data.totalNoPage || 1));
                 }
             } catch (error) {
-                console.error('Error searching products:', error);
+                AxiosToastError(error);
             } finally {
                 setLoading(false);
             }

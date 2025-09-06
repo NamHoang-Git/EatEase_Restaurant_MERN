@@ -98,9 +98,6 @@ export const getProductController = async (req, res) => {
                 sortOptions = { createdAt: -1 };
         }
 
-        console.log('Sort options:', sortOptions);
-        console.log('Sort parameter received:', sort);
-
         const skip = (page - 1) * limit;
 
         const [data, totalCount] = await Promise.all([
@@ -112,8 +109,6 @@ export const getProductController = async (req, res) => {
             ProductModel.countDocuments(query)
         ]);
 
-        console.log('First product in results:', data[0]?.name, data[0]?.price);
-
         return res.json({
             message: 'Danh sách sản phẩm',
             data: data,
@@ -124,7 +119,6 @@ export const getProductController = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in getProductController:', error);
         return res.status(500).json({
             message: error.message || 'Lỗi server',
             error: true,
@@ -155,7 +149,7 @@ export const getProductByCategoryHome = async (request, response) => {
         const product = await ProductModel.find({
             category: { $in: id }
         })
-            .populate('category')   // chỉ lấy category thôi
+            .populate('category')
             .limit(15);
 
         return response.json({
@@ -223,9 +217,6 @@ export const getProductByCategoryList = async (request, response) => {
                 sortOptions = { createdAt: -1 };
         }
 
-        console.log('Sort options:', sortOptions);
-        console.log('Sort parameter received:', sort);
-
         const skip = (page - 1) * limit;
 
         const [data, totalCount] = await Promise.all([
@@ -236,8 +227,6 @@ export const getProductByCategoryList = async (request, response) => {
                 .limit(limit),
             ProductModel.countDocuments(query)
         ]);
-
-        console.log('First product in results:', data[0]?.name, data[0]?.price);
 
         return response.json({
             message: "Danh sách sản phẩm",
@@ -250,7 +239,6 @@ export const getProductByCategoryList = async (request, response) => {
         });
 
     } catch (error) {
-        console.error('Lỗi khi lấy danh sách sản phẩm:', error);
         return response.status(500).json({
             message: "Đã xảy ra lỗi khi tải danh sách sản phẩm",
             error: true,
@@ -432,7 +420,6 @@ export const searchProduct = async (request, response) => {
             error: false,
         });
     } catch (error) {
-        console.error('Error in searchProduct:', error);
         return response.status(500).json({
             message: error.message || 'Lỗi server',
             error: true,
@@ -482,10 +469,6 @@ export const getInitialProducts = async (req, res) => {
                 break;
         }
 
-        console.log('Query:', query);
-        console.log('Sort options:', sortOptions);
-        console.log('Sort parameter received:', sort);
-
         const [products, total] = await Promise.all([
             ProductModel.find(query)
                 .sort(sortOptions)
@@ -494,11 +477,6 @@ export const getInitialProducts = async (req, res) => {
                 .populate('category', 'name'),
             ProductModel.countDocuments(query),
         ]);
-
-        console.log('Products found:', products.length);
-        if (products.length > 0) {
-            console.log('First product:', products[0].name, products[0].price);
-        }
 
         const totalPage = Math.ceil(total / limit);
 
@@ -511,7 +489,6 @@ export const getInitialProducts = async (req, res) => {
             error: false,
         });
     } catch (error) {
-        console.error('Error in getInitialProducts:', error);
         return res.status(500).json({
             message: error.message || 'Lỗi server',
             error: true,

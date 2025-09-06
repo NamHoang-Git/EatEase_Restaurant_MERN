@@ -40,7 +40,6 @@ const GlobalProvider = ({ children }) => {
                 toast.error('Lỗi khi tải giỏ hàng');
             }
         } catch (error) {
-            // Không hiển thị toast error nếu là lỗi 401 (unauthorized)
             if (error?.response?.status !== 401) {
                 toast.error('Lỗi khi tải giỏ hàng: ' + error.message);
             }
@@ -128,7 +127,6 @@ const GlobalProvider = ({ children }) => {
                 dispatch(handleAddAddress(responseData.data));
             }
         } catch (error) {
-            // Không hiển thị toast error nếu là lỗi 401 (unauthorized)
             if (error?.response?.status !== 401) {
                 AxiosToastError(error);
             }
@@ -157,11 +155,10 @@ const GlobalProvider = ({ children }) => {
                 toast.error('Lỗi khi tải danh sách đơn hàng');
             }
         } catch (error) {
-            // Không hiển thị toast error nếu là lỗi 401 (unauthorized)
             if (error?.response?.status !== 401) {
                 AxiosToastError(error);
             }
-            throw error; // Ném lỗi để catch trong component
+            throw error;
         }
     };
 
@@ -172,9 +169,8 @@ const GlobalProvider = ({ children }) => {
         if (user?._id && accessToken) {
             fetchCartItem();
             fetchAddress();
-            dispatch(fetchOrder()); // Sử dụng dispatch với thunk
+            dispatch(fetchOrder());
         } else if (user === null || !accessToken) {
-            // Clear Redux state khi user logout hoặc không có token
             dispatch(handleAddItemCart([])); // Clear cart items
         }
     }, [user, dispatch]);
@@ -182,10 +178,8 @@ const GlobalProvider = ({ children }) => {
     // Hàm reload thủ công sau thanh toán (gọi từ CheckoutPage.jsx)
     const reloadAfterPayment = async (selectedProductIds = null) => {
         try {
-            // FORCE selective cleanup - luôn lấy từ localStorage nếu có
             let finalSelectedProductIds = selectedProductIds;
 
-            // Nếu không có selectedProductIds, thử lấy từ localStorage
             if (
                 !finalSelectedProductIds ||
                 finalSelectedProductIds.length === 0
@@ -226,9 +220,8 @@ const GlobalProvider = ({ children }) => {
             AxiosToastError(error);
         }
 
-        // Sau đó reload data
         fetchCartItem();
-        dispatch(fetchOrder()); // Sử dụng dispatch với thunk
+        dispatch(fetchOrder());
     };
 
     return (

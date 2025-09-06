@@ -17,7 +17,6 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
     const loadingCardNumber = new Array(6).fill(null);
 
     const fetchCategoryWiseProduct = async () => {
-        // API lấy sản phẩm theo category là public, không cần authentication
         try {
             setLoading(true);
             const response = await Axios({

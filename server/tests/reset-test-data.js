@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import UserModel from './models/user.model.js';
-import CartProductModel from './models/cartProduct.model.js';
-import OrderModel from './models/order.model.js';
+import UserModel from '../models/user.model.js';
+import CartProductModel from '../models/cartProduct.model.js';
+import OrderModel from '../models/order.model.js';
 
 dotenv.config();
 

@@ -10,7 +10,6 @@ const SimilarProducts = ({ categories }) => {
         const fetchProducts = async () => {
             if (!categories?.length) return;
 
-            // API lấy sản phẩm theo category là public, không cần authentication
             let mergedProducts = [];
 
             for (let c of categories) {
@@ -19,7 +18,6 @@ const SimilarProducts = ({ categories }) => {
                         `${SummaryApi.get_product_by_category_home.url}/${c._id}`
                     );
 
-                    // merge vào mảng chung
                     mergedProducts = [
                         ...mergedProducts,
                         ...(res.data?.products || []),
