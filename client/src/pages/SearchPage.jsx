@@ -109,7 +109,7 @@ const SearchPage = () => {
 
     // Update search function to include filters
     const searchProduct = useCallback(
-        debounce(async (query, pageNum = 1) => {
+        debounce(async (query, pageNum = 1, isLoadMore = false) => {
             try {
                 setLoading(true);
                 const requestData = {
@@ -135,7 +135,11 @@ const SearchPage = () => {
                 });
 
                 if (response.data.success) {
-                    setData(response.data.data || []);
+                    setData(prevData =>
+                        isLoadMore 
+                            ? [...prevData, ...(response.data.data || [])] 
+                            : response.data.data || []
+                    );
                     setTotalPage(response.data.totalNoPage || 1);
                     setTotalCount(response.data.totalCount || 0);
                     setHasMore(pageNum < (response.data.totalNoPage || 1));
@@ -201,7 +205,7 @@ const SearchPage = () => {
         if (page < totalPage && !loading && searchQuery) {
             const nextPage = page + 1;
             setPage(nextPage);
-            searchProduct(searchQuery, nextPage);
+            searchProduct(searchQuery, nextPage, true);
         }
     };
 

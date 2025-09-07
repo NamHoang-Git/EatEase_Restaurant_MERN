@@ -159,7 +159,7 @@ const CategoryPage = () => {
                                         setDeleteCategory(category);
                                     }}
                                     className="flex-1 bg-red-100 hover:bg-red-200 text-red-600
-                    font-semibold rounded p-1 flex items-center justify-center gap-1 transition-colors"
+                                font-semibold rounded p-1 flex items-center justify-center gap-1 transition-colors"
                                 >
                                     <svg
                                         className="w-4 h-4 mb-[2px]"

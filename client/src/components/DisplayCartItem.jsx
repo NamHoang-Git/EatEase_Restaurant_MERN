@@ -9,6 +9,7 @@ import { pricewithDiscount } from '../utils/PriceWithDiscount';
 import AddToCartButton from './AddToCartButton';
 import imageEmpty from '../assets/empty_cart.webp';
 import Divider from './Divider';
+import { valideURLConvert } from '../utils/valideURLConvert';
 
 const DisplayCartItem = ({ close }) => {
     const { notDiscountTotalPrice, totalPrice, totalQty } = useGlobalContext();
@@ -25,6 +26,10 @@ const DisplayCartItem = ({ close }) => {
             return;
         }
         toast('Please Login');
+    };
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
@@ -101,7 +106,17 @@ const DisplayCartItem = ({ close }) => {
                                                             item?.productId
                                                                 ?.image[0]
                                                         }
-                                                        className="object-cover w-full h-full"
+                                                        onClick={() => {
+                                                            const product =
+                                                                item?.productId;
+                                                            const url = `/product/${valideURLConvert(
+                                                                product.name
+                                                            )}-${product._id}`;
+                                                            navigate(url);
+                                                            close();
+                                                            scrollToTop();
+                                                        }}
+                                                        className="object-cover w-full h-full cursor-pointer hover:opacity-80 transition-opacity"
                                                     />
                                                 </div>
                                                 <div className="w-full max-w-sm text-sm flex flex-col gap-1">

@@ -122,7 +122,7 @@ const MyOrders = () => {
                                 <p className="font-semibold">
                                     Địa chỉ giao hàng:
                                 </p>
-                                <p className="text-gray-500 text-[11px] font-medium">
+                                <p className="text-gray-500 text-[11px] sm:text-sm font-medium">
                                     {order?.delivery_address?.city +
                                         ', ' +
                                         order?.delivery_address?.district +

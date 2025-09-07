@@ -19,6 +19,7 @@ import toast from 'react-hot-toast';
 import { useGlobalContext } from '../provider/GlobalProvider';
 import ConfirmBox from '../components/ConfirmBox';
 import Loading from '../components/Loading';
+import { valideURLConvert } from '../utils/valideURLConvert';
 
 const CartPage = () => {
     const { cart } = useSelector((state) => state.cartItem);
@@ -29,6 +30,9 @@ const CartPage = () => {
     const { fetchCartItem } = useGlobalContext();
     const [openConfirmBoxDelete, setOpenConfirmBoxDelete] = useState(false);
     const [loading, setLoading] = useState(false);
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -171,9 +175,15 @@ const CartPage = () => {
             cell: ({ row }) => (
                 <div className="flex items-center gap-2 sm:gap-4 sm:h-16 h-10">
                     <img
+                        onClick={() => {
+                            const product = row.original.productId;
+                            const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
+                            navigate(url);
+                            scrollToTop();
+                        }}
                         src={row.original.productId?.image?.[0] || ''}
                         alt={row.original.productId?.name || ''}
-                        className="sm:w-16 w-10 h-full flex-shrink-0 object-cover rounded"
+                        className="sm:w-16 w-10 h-full flex-shrink-0 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
                         onError={(e) => {
                             e.target.src = '/placeholder-image.jpg';
                         }}

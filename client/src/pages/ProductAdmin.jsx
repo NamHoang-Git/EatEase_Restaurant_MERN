@@ -13,6 +13,7 @@ import {
     IoClose,
 } from 'react-icons/io5';
 import { debounce } from 'lodash';
+import UploadProductModel from '../components/UploadProductModel';
 
 const ProductAdmin = () => {
     const [productData, setProductData] = useState([]);
@@ -28,6 +29,7 @@ const ProductAdmin = () => {
         sortBy: 'newest',
         category: 'all',
     });
+    const [openUploadProduct, setOpenUploadProduct] = useState(false);
 
     // Fetch categories
     const fetchCategories = useCallback(async () => {
@@ -298,13 +300,20 @@ const ProductAdmin = () => {
                     </div>
                 </div>
             </div>
+            <button
+                onClick={() => setOpenUploadProduct(true)}
+                className="bg-primary-2 border-[3px] border-secondary-200 text-secondary-200 px-3 hover:opacity-80
+            py-1 rounded-full text-nowrap text-xs sm:text-base block ml-auto mx-4"
+            >
+                Thêm Mới
+            </button>
 
             {showFilters && renderFilterControls()}
 
             {!productData[0] && !loading && <NoData />}
 
             {loading ? (
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center py-2">
                     <Loading />
                 </div>
             ) : (
@@ -356,6 +365,14 @@ const ProductAdmin = () => {
                     </div>
                     <div className="p-[0.5px] bg-slate-300 my-4"></div>
                 </div>
+            )}
+
+            {/* Upload Product Modal */}
+            {openUploadProduct && (
+                <UploadProductModel
+                    fetchData={fetchProduct}
+                    close={() => setOpenUploadProduct(false)}
+                />
             )}
         </section>
     );

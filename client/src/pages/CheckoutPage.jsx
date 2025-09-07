@@ -172,10 +172,10 @@ const CheckoutPage = () => {
                 toast.success(responseData.message);
                 if (fetchCartItem) fetchCartItem();
                 if (fetchOrder) fetchOrder();
-                navigate('/success', { state: { text: 'Order' } });
+                navigate('/success', { state: { text: 'Order' } }); // This is the correct redirection
             }
         } catch (error) {
-            toast.error('Đặt hàng thất bại');
+            AxiosToastError(error);
         } finally {
             setLoading(false);
             setShowConfirmModal({ show: false, type: '' });

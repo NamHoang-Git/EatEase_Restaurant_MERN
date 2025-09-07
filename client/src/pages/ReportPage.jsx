@@ -111,65 +111,50 @@ const ReportPage = () => {
         loadOrders();
     }, [dispatch, isAdmin, navigate, filters]);
 
-    useEffect(
-        () => {
-            let startDate, endDate;
-            const today = new Date();
+    useEffect(() => {
+        let startDate, endDate;
+        const today = new Date();
 
-            switch (dateRange) {
-                case 'today':
-                    startDate = format(today, 'yyyy-MM-dd');
-                    endDate = format(today, 'yyyy-MM-dd');
-                    break;
-                case 'yesterday':
-                    const yesterday = subDays(today, 1);
-                    startDate = format(yesterday, 'yyyy-MM-dd');
-                    endDate = format(yesterday, 'yyyy-MM-dd');
-                    break;
-                case '7days':
-                    startDate = format(subDays(today, 7), 'yyyy-MM-dd');
-                    endDate = format(today, 'yyyy-MM-dd');
-                    break;
-                case '30days':
-                    startDate = format(subDays(today, 30), 'yyyy-MM-dd');
-                    endDate = format(today, 'yyyy-MM-dd');
-                    break;
-                case 'thismonth':
-                    startDate = format(startOfMonth(today), 'yyyy-MM-dd');
-                    endDate = format(endOfMonth(today), 'yyyy-MM-dd');
-                    break;
-                case 'custom':
-                    if (filters.startDate && filters.endDate) {
-                        startDate = filters.startDate;
-                        endDate = filters.endDate;
-                    } else {
-                        startDate = '';
-                        endDate = '';
-                    }
-                    break;
-                default:
-                    startDate = '';
-                    endDate = '';
-            }
-
-            setFilters((prev) => {
-                const newFilters = { ...prev };
-                if (startDate) {
-                    newFilters.startDate = startDate;
-                    newFilters.endDate = endDate
-                        ? `${endDate.split('T')[0]}T23:59:59`
-                        : '';
-                } else {
-                    newFilters.startDate = '';
-                    newFilters.endDate = '';
+        switch (dateRange) {
+            case 'today':
+                startDate = format(today, 'yyyy-MM-dd');
+                endDate = format(today, 'yyyy-MM-dd');
+                break;
+            case 'yesterday':
+                startDate = format(subDays(today, 1), 'yyyy-MM-dd');
+                endDate = format(subDays(today, 1), 'yyyy-MM-dd');
+                break;
+            case '7days':
+                startDate = format(subDays(today, 7), 'yyyy-MM-dd');
+                endDate = format(today, 'yyyy-MM-dd');
+                break;
+            case '30days':
+                startDate = format(subDays(today, 30), 'yyyy-MM-dd');
+                endDate = format(today, 'yyyy-MM-dd');
+                break;
+            case 'thismonth':
+                startDate = format(startOfMonth(today), 'yyyy-MM-dd');
+                endDate = format(endOfMonth(today), 'yyyy-MM-dd');
+                break;
+            case 'custom':
+                // Don't modify dates in custom mode
+                if (filters.startDate && filters.endDate) {
+                    startDate = filters.startDate.split('T')[0];
+                    endDate = filters.endDate.split('T')[0];
+                    return;
                 }
-                return newFilters;
-            });
-        },
-        [dateRange],
-        [filters.startDate],
-        [filters.endDate]
-    );
+                break;
+            default:
+                startDate = '';
+                endDate = '';
+        }
+
+        setFilters((prev) => ({
+            ...prev,
+            startDate: startDate ? `${startDate}T00:00:00` : '',
+            endDate: endDate ? `${endDate}T23:59:59` : '',
+        }));
+    }, [dateRange]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
