@@ -77,7 +77,7 @@ const Address = () => {
     };
 
     return (
-        <div className="">
+        <section className="container mx-auto lg:p-4 py-2 px-1 flex flex-col">
             <div
                 className="p-3 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
             font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between
@@ -262,7 +262,7 @@ const Address = () => {
                     cancelText="Hủy"
                 />
             )}
-        </div>
+        </section>
     );
 };
 

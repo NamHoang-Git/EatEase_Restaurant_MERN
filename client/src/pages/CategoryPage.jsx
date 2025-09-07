@@ -73,7 +73,7 @@ const CategoryPage = () => {
     };
 
     return (
-        <section className="">
+        <section className="container mx-auto lg:p-4 py-2 px-1 flex flex-col">
             {/* Header */}
             <div
                 className="px-3 py-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
@@ -134,7 +134,7 @@ const CategoryPage = () => {
                                         setEditData(category);
                                     }}
                                     className="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-600
-                    font-semibold rounded p-1 flex items-center justify-center gap-1 transition-colors"
+                                font-semibold rounded p-1 flex items-center justify-center gap-1 transition-colors"
                                 >
                                     <svg
                                         className="w-4 h-4 mb-[2px]"

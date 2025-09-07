@@ -13,6 +13,19 @@ export const addCategoryController = async (req, res) => {
             })
         }
 
+        // Check if category with the same name already exists (case insensitive)
+        const existingCategory = await CategoryModel.findOne({
+            name: { $regex: new RegExp(`^${name}$`, 'i') }
+        });
+
+        if (existingCategory) {
+            return res.status(400).json({
+                message: `Danh mục "${name}" đã tồn tại. Vui lòng chọn tên khác.`,
+                error: true,
+                success: false
+            });
+        }
+
         const addCategory = new CategoryModel({
             name,
             image
@@ -22,7 +35,7 @@ export const addCategoryController = async (req, res) => {
 
         if (!saveCategory) {
             return res.status(500).json({
-                message: "Không tạo được",
+                message: "Không tạo được danh mục",
                 error: true,
                 success: false
             })

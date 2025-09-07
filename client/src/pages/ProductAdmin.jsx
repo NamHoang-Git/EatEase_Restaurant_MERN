@@ -260,7 +260,7 @@ const ProductAdmin = () => {
     );
 
     return (
-        <section className="">
+        <section className="container mx-auto lg:p-4 py-2 px-1 flex flex-col gap-2">
             <div
                 className="px-3 py-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
                 font-bold text-secondary-200 sm:text-lg text-sm flex justify-between sm:flex-row flex-col
