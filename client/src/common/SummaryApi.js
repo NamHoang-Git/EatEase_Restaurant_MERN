@@ -188,6 +188,14 @@ const SummaryApi = {
     delete_voucher: {
         url: '/api/voucher/delete-voucher',
         method: 'delete'
+    },
+    bulk_delete_vouchers: {
+        url: '/api/voucher/bulk-delete-vouchers',
+        method: 'delete'
+    },
+    bulk_update_vouchers_status: {
+        url: '/api/voucher/bulk-update-vouchers-status',
+        method: 'put'
     }
 }
 

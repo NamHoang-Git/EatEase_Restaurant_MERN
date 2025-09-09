@@ -160,6 +160,8 @@ const VoucherPage = () => {
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setOpenConfirmBulkDeleteBox(false);
         }
     };
 
@@ -618,13 +620,13 @@ const VoucherPage = () => {
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {format(
                                             new Date(voucher.startDate),
-                                            'dd/MM/yyyy'
+                                            'dd/MM/yyyy' + ' ' + 'HH:mm:ss'
                                         )}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {format(
                                             new Date(voucher.endDate),
-                                            'dd/MM/yyyy'
+                                            'dd/MM/yyyy' + ' ' + 'HH:mm:ss'
                                         )}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap">

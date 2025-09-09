@@ -16,7 +16,12 @@ const formatDateForInput = (dateString) => {
     )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
-const EditVoucher = ({ voucher: voucherData, onClose, fetchVoucher, onSuccess }) => {
+const EditVoucher = ({
+    voucher: voucherData,
+    onClose,
+    fetchVoucher,
+    onSuccess,
+}) => {
     const [editFormData, setEditFormData] = useState({
         _id: voucherData?._id || '',
         code: voucherData?.code || '',
@@ -133,7 +138,9 @@ const EditVoucher = ({ voucher: voucherData, onClose, fetchVoucher, onSuccess })
                 data: submissionData,
             });
 
-            successAlert(response.data.message || 'Cập nhật mã giảm giá thành công');
+            successAlert(
+                response.data.message || 'Cập nhật mã giảm giá thành công'
+            );
             onSuccess();
             fetchVoucher();
         } catch (error) {
@@ -153,20 +160,6 @@ const EditVoucher = ({ voucher: voucherData, onClose, fetchVoucher, onSuccess })
                 className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
             >
                 <div className="p-6">
-                    {/* <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-semibold">
-                            {currentVoucher
-                                ? 'Edit Voucher'
-                                : 'Add New Voucher'}
-                        </h3>
-                        <button
-                            onClick={() => setOpenAddEditModal(false)}
-                            className="text-gray-500 hover:text-gray-700"
-                        >
-                            <IoClose size={24} />
-                        </button>
-                    </div> */}
-
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="col-span-2">
@@ -181,7 +174,6 @@ const EditVoucher = ({ voucher: voucherData, onClose, fetchVoucher, onSuccess })
                                     onChange={handleOnChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
-                                    // disabled={!!currentVoucher}
                                 />
                             </div>
 

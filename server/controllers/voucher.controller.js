@@ -137,3 +137,100 @@ export const deleteVoucherController = async (req, res) => {
         })
     }
 }
+
+export const bulkDeleteVouchersController = async (req, res) => {
+    try {
+        const { voucherIds } = req.body;
+
+        if (!voucherIds || !Array.isArray(voucherIds) || voucherIds.length === 0) {
+            return res.status(400).json({
+                message: 'Danh sách voucher không hợp lệ',
+                error: true,
+                success: false
+            });
+        }
+
+        // Delete multiple vouchers by their IDs
+        const result = await VoucherModel.deleteMany({
+            _id: { $in: voucherIds }
+        });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                message: 'Không tìm thấy voucher để xóa',
+                error: true,
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: `Đã xóa thành công ${result.deletedCount} voucher`,
+            data: { deletedCount: result.deletedCount },
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        console.error('Lỗi khi xóa hàng loạt voucher:', error);
+        return res.status(500).json({
+            message: error.message || 'Đã xảy ra lỗi khi xóa voucher',
+            error: true,
+            success: false
+        });
+    }
+}
+
+export const bulkUpdateVouchersStatusController = async (req, res) => {
+    try {
+        const { voucherIds, isActive } = req.body;
+
+        if (!voucherIds || !Array.isArray(voucherIds) || voucherIds.length === 0) {
+            return res.status(400).json({
+                message: 'Danh sách voucher không hợp lệ',
+                error: true,
+                success: false
+            });
+        }
+
+        if (typeof isActive !== 'boolean') {
+            return res.status(400).json({
+                message: 'Trạng thái không hợp lệ',
+                error: true,
+                success: false
+            });
+        }
+
+        // Update status of multiple vouchers
+        const result = await VoucherModel.updateMany(
+            { _id: { $in: voucherIds } },
+            { $set: { isActive } },
+            { new: true }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({
+                message: 'Không tìm thấy voucher để cập nhật',
+                error: true,
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: `Đã cập nhật trạng thái thành công cho ${result.modifiedCount} voucher`,
+            data: {
+                matchedCount: result.matchedCount,
+                modifiedCount: result.modifiedCount
+            },
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái hàng loạt voucher:', error);
+        return res.status(500).json({
+            message: error.message || 'Đã xảy ra lỗi khi cập nhật trạng thái voucher',
+            error: true,
+            success: false
+        });
+    }
+}
