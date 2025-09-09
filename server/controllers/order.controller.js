@@ -297,6 +297,7 @@ export async function webhookStripe(request, response) {
             case 'checkout.session.completed':
                 const session = event.data.object;
 
+
                 // Log the full session for debugging
                 console.log('Stripe session:', JSON.stringify(session, null, 2));
 
@@ -311,6 +312,7 @@ export async function webhookStripe(request, response) {
                 const orderIds = JSON.parse(tempOrderIds);
 
                 try {
+
                     // Debug the entire session to see what data we're getting
                     console.log('Full session object:', JSON.stringify(session, null, 2));
 
@@ -322,6 +324,7 @@ export async function webhookStripe(request, response) {
                         totalAmount = Number(session.metadata.orderTotal);
                         console.log('Using total amount from metadata (VND):', totalAmount);
                     }
+
                     // Fall back to session amount (in cents)
                     else if (session.amount_total) {
                         totalAmount = Number(session.amount_total) / 100; // Convert from cents to VND
@@ -381,20 +384,6 @@ export async function webhookStripe(request, response) {
                     });
 
                     await Promise.all(updatePromises);
-                    // Get the total amount from the session
-                    const totalAmount = session.amount_total / 100; // Convert from cents to VND
-
-                    // Update orders with payment details
-                    const updatedOrders = await OrderModel.updateMany(
-                        { _id: { $in: orderIds.map(id => new mongoose.Types.ObjectId(id)) } },
-                        {
-                            paymentId: session.payment_intent,
-                            payment_status: 'Đã thanh toán',
-                            $set: {
-                                'earnedPoints': calculatePointsFromOrder(totalAmount)
-                            }
-                        }
-                    );
 
                     // Update product stock
                     const stockUpdateResult = await updateProductStock(orderIds);
@@ -402,18 +391,14 @@ export async function webhookStripe(request, response) {
                         console.error('Failed to update product stock:', stockUpdateResult.message);
                     }
 
-
-                    // Update user's points
-                    if (totalAmount > 0) {
-                        const pointsEarned = calculatePointsFromOrder(totalAmount);
-                        if (pointsEarned > 0) {
-                            await UserModel.findByIdAndUpdate(
-                                userId,
-                                { $inc: { rewardsPoint: pointsEarned } },
-                                { new: true }
-                            );
-                            console.log(`Added ${pointsEarned} points to user ${userId} for order ${orderIds.join(', ')}`);
-                        }
+                    // Update user's points with the total points earned from this order
+                    if (pointsEarned > 0) {
+                        await UserModel.findByIdAndUpdate(
+                            userId,
+                            { $inc: { rewardsPoint: pointsEarned } },
+                            { new: true }
+                        );
+                        console.log(`Added ${pointsEarned} points to user ${userId} for order ${orderIds.join(', ')}`);
                     }
                 } catch (error) {
                     return response.status(500).json({
