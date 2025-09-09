@@ -25,6 +25,7 @@ import PublicRoute from './PublicRoute';
 import CartPage from '../pages/CartPage';
 import BillPage from './../pages/BillPage';
 import ReportPage from './../pages/ReportPage';
+import VoucherPage from '../pages/VoucherPage';
 
 const router = createBrowserRouter([
     {
@@ -120,6 +121,14 @@ const router = createBrowserRouter([
                         element: (
                             <AdminPermission>
                                 <ReportPage />
+                            </AdminPermission>
+                        ),
+                    },
+                    {
+                        path: 'voucher',
+                        element: (
+                            <AdminPermission>
+                                <VoucherPage />
                             </AdminPermission>
                         ),
                     },
