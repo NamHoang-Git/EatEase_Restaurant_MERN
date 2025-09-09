@@ -83,9 +83,31 @@ export async function CashOnDeliveryOrderController(request, response) {
             // Continue with the order even if stock update fails
         }
 
-        return response.json({
-            message: "Đặt hàng thành công",
-            error: false,
+        // Calculate and update user's points
+        try {
+            const pointsEarned = calculatePointsFromOrder(totalAmt);
+            if (pointsEarned > 0) {
+                await UserModel.findByIdAndUpdate(
+                    userId,
+                    { $inc: { rewardsPoint: pointsEarned } },
+                    { new: true }
+                );
+                console.log(`Added ${pointsEarned} points to user ${userId} for COD order ${generatedOrder.map(o => o._id).join(', ')}`);
+
+                // Cập nhật điểm thưởng vào đơn hàng
+                await OrderModel.updateMany(
+                    { _id: { $in: generatedOrder.map(o => o._id) } },
+                    { $set: { earnedPoints: pointsEarned } }
+                );
+            }
+        } catch (error) {
+            console.error('Error updating user points for COD order:', error);
+            // Không cần dừng luồng nếu có lỗi khi cập nhật điểm
+        }
+
+        return response.status(201).json({
+            message: "Tạo đơn hàng thành công!",
+            data: generatedOrder,
             success: true,
             data: generatedOrder
         });
@@ -185,7 +207,8 @@ export async function paymentController(request, response) {
             metadata: {
                 userId: userId.toString(),
                 addressId: addressId.toString(),
-                tempOrderIds: JSON.stringify(tempOrder.map(o => o._id.toString()))
+                tempOrderIds: JSON.stringify(tempOrder.map(o => o._id.toString())),
+                orderTotal: totalAmt.toString() // Add total amount to metadata
             },
             line_items,
             success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -269,6 +292,9 @@ export async function webhookStripe(request, response) {
             case 'checkout.session.completed':
                 const session = event.data.object;
 
+                // Log the full session for debugging
+                console.log('Stripe session:', JSON.stringify(session, null, 2));
+
                 const { userId, addressId, tempOrderIds } = session.metadata || {};
                 if (!userId || !addressId || !tempOrderIds) {
                     return response.status(200).json({
@@ -280,18 +306,82 @@ export async function webhookStripe(request, response) {
                 const orderIds = JSON.parse(tempOrderIds);
 
                 try {
-                    const updatedOrders = await OrderModel.updateMany(
-                        { _id: { $in: orderIds.map(id => new mongoose.Types.ObjectId(id)) } },
-                        {
-                            paymentId: session.payment_intent,
-                            payment_status: 'Đã thanh toán'
-                        }
-                    );
+                    // Debug the entire session to see what data we're getting
+                    console.log('Full session object:', JSON.stringify(session, null, 2));
+
+                    // Get the total amount from the session metadata (preferred) or from the session amount
+                    let totalAmount = 0;
+
+                    // First try to get from metadata (more reliable)
+                    if (session.metadata?.orderTotal) {
+                        totalAmount = Number(session.metadata.orderTotal);
+                        console.log('Using total amount from metadata (VND):', totalAmount);
+                    }
+                    // Fall back to session amount (in cents)
+                    else if (session.amount_total) {
+                        totalAmount = Number(session.amount_total) / 100; // Convert from cents to VND
+                        console.log('Using total amount from session (converted from cents to VND):', totalAmount);
+                    }
+
+                    // Debug logging
+                    console.log('Stripe session details:', {
+                        metadata: session.metadata,
+                        amount_total: session.amount_total,
+                        amount_subtotal: session.amount_subtotal,
+                        currency: session.currency,
+                        payment_status: session.payment_status
+                    });
+
+                    // Verify the amount makes sense for the order
+                    if (totalAmount <= 0) {
+                        console.error('Invalid order amount received:', {
+                            metadata: session.metadata,
+                            amount_total: session.amount_total
+                        });
+                        return response.status(400).json({
+                            message: 'Invalid order amount',
+                            error: true,
+                            success: false
+                        });
+                    }
+
+                    // Calculate points for the entire order (1 point per 10,000 VND)
+                    const pointsEarned = calculatePointsFromOrder(totalAmount);
+                    console.log('Points calculated:', pointsEarned);
+
+                    // Distribute points across order items
+                    const pointsPerItem = Math.floor(pointsEarned / orderIds.length);
+                    const remainingPoints = pointsEarned - (pointsPerItem * (orderIds.length - 1));
+
+                    console.log('Points per item:', pointsPerItem);
+                    console.log('Remaining points for last item:', remainingPoints);
+                    console.log('Number of order items:', orderIds.length);
+
+                    // Update each order with its share of points
+                    const updatePromises = orderIds.map((orderId, index) => {
+                        // For the last item, add any remaining points to handle rounding
+                        const pointsForThisItem = index === orderIds.length - 1 ? remainingPoints : pointsPerItem;
+
+                        return OrderModel.findByIdAndUpdate(
+                            orderId,
+                            {
+                                paymentId: session.payment_intent,
+                                payment_status: 'Đã thanh toán',
+                                $set: {
+                                    'earnedPoints': pointsForThisItem
+                                }
+                            },
+                            { new: true }
+                        );
+                    });
+
+                    await Promise.all(updatePromises);
 
                     const stockUpdateResult = await updateProductStock(orderIds);
                     if (!stockUpdateResult.success) {
                         console.error('Failed to update product stock:', stockUpdateResult.message);
                     }
+
                 } catch (error) {
                     return response.status(500).json({
                         message: 'Lỗi khi cập nhật đơn hàng',
