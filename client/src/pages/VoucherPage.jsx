@@ -48,6 +48,13 @@ const VoucherPage = () => {
         categories: [],
     });
     const [openConfirmBoxDelete, setOpenConfirmBoxDelete] = useState(false);
+    const [openConfirmBulkDeleteBox, setOpenConfirmBulkDeleteBox] =
+        useState(false);
+
+    const [openConfirmBulkStatusUpdateBox, setOpenConfirmBulkStatusUpdateBox] =
+        useState(false);
+    const [pendingStatus, setPendingStatus] = useState(null);
+
     const [deleteVoucher, setDeleteVoucher] = useState({
         _id: '',
     });
@@ -137,11 +144,6 @@ const VoucherPage = () => {
     const handleBulkDelete = async () => {
         if (selectedVouchers.length === 0) return;
 
-        const confirmed = window.confirm(
-            `Bạn có chắc chắn muốn xóa ${selectedVouchers.length} mã giảm giá đã chọn?`
-        );
-        if (!confirmed) return;
-
         try {
             const response = await Axios({
                 ...SummaryApi.bulk_delete_vouchers,
@@ -162,27 +164,23 @@ const VoucherPage = () => {
     };
 
     // Handle bulk status update
-    const handleBulkStatusUpdate = async (newStatus) => {
+    const handleBulkStatusUpdate = async () => {
         if (selectedVouchers.length === 0) return;
 
-        const statusText = newStatus ? 'kích hoạt' : 'vô hiệu hóa';
-        const confirmed = window.confirm(
-            `Bạn có chắc chắn muốn ${statusText} ${selectedVouchers.length} mã giảm giá đã chọn?`
-        );
-        if (!confirmed) return;
+        const statusText = pendingStatus ? 'kích hoạt' : 'vô hiệu hóa';
 
         try {
             const response = await Axios({
                 ...SummaryApi.bulk_update_vouchers_status,
                 data: {
                     voucherIds: selectedVouchers,
-                    isActive: newStatus,
+                    isActive: pendingStatus,
                 },
             });
 
             if (response.data.success) {
                 successAlert(
-                    `Đã cập nhật trạng thái thành công cho ${selectedVouchers.length} mã giảm giá`
+                    `Đã ${statusText} thành công ${selectedVouchers.length} mã giảm giá`
                 );
                 setSelectedVouchers([]);
                 setSelectAll(false);
@@ -190,6 +188,9 @@ const VoucherPage = () => {
             }
         } catch (error) {
             AxiosToastError(error);
+        } finally {
+            setOpenConfirmBulkStatusUpdateBox(false);
+            setPendingStatus(null);
         }
     };
 
@@ -377,19 +378,27 @@ const VoucherPage = () => {
                     {selectedVouchers.length > 0 && (
                         <div className="flex space-x-2 mr-4">
                             <button
-                                onClick={() => handleBulkStatusUpdate(true)}
+                                onClick={() => {
+                                    setOpenConfirmBulkStatusUpdateBox(true);
+                                    setPendingStatus(true);
+                                }}
                                 className="flex items-center gap-1 px-3 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
                             >
                                 Kích hoạt ({selectedVouchers.length})
                             </button>
                             <button
-                                onClick={() => handleBulkStatusUpdate(false)}
+                                onClick={() => {
+                                    setOpenConfirmBulkStatusUpdateBox(true);
+                                    setPendingStatus(false);
+                                }}
                                 className="flex items-center gap-1 px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
                             >
                                 Vô hiệu hóa ({selectedVouchers.length})
                             </button>
                             <button
-                                onClick={handleBulkDelete}
+                                onClick={() =>
+                                    setOpenConfirmBulkDeleteBox(true)
+                                }
                                 className="flex items-center gap-1 px-3 py-1 text-xs bg-red-100 text-red-800 rounded hover:bg-red-200"
                             >
                                 Xóa ({selectedVouchers.length})
@@ -807,6 +816,36 @@ const VoucherPage = () => {
                     title="Xác nhận xóa"
                     message="Bạn có chắc chắn muốn xóa mã giảm giá này?"
                     confirmText="Xóa"
+                    cancelText="Hủy"
+                />
+            )}
+
+            {/* Bulk Delete Confirmation */}
+            {openConfirmBulkDeleteBox && (
+                <ConfirmBox
+                    open={openConfirmBulkDeleteBox}
+                    close={() => setOpenConfirmBulkDeleteBox(false)}
+                    confirm={handleBulkDelete}
+                    cancel={() => setOpenConfirmBulkDeleteBox(false)}
+                    title="Xác nhận xóa"
+                    message={`Bạn có chắc chắn muốn xóa ${selectedVouchers.length} mã giảm giá đã chọn?`}
+                    confirmText="Xóa"
+                    cancelText="Hủy"
+                />
+            )}
+
+            {/* Bulk Status Update Confirmation */}
+            {openConfirmBulkStatusUpdateBox && (
+                <ConfirmBox
+                    open={openConfirmBulkStatusUpdateBox}
+                    close={() => setOpenConfirmBulkStatusUpdateBox(false)}
+                    confirm={handleBulkStatusUpdate}
+                    cancel={() => setOpenConfirmBulkStatusUpdateBox(false)}
+                    title="Xác nhận thay đổi trạng thái"
+                    message={`Bạn có chắc chắn muốn ${
+                        pendingStatus ? 'kích hoạt' : 'vô hiệu hóa'
+                    } ${selectedVouchers.length} mã giảm giá đã chọn?`}
+                    confirmText="Thay đổi"
                     cancelText="Hủy"
                 />
             )}
