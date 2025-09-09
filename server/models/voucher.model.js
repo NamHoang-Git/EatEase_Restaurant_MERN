@@ -72,11 +72,11 @@ const voucherSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     }],
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-        required: true
-    }
+    // createdBy: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'user',
+    //     required: true
+    // }
 }, {
     timestamps: true
 });
