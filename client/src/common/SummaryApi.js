@@ -170,6 +170,24 @@ const SummaryApi = {
     all_orders: {
         url: '/api/order/all-orders',
         method: 'get'
+    },
+
+    // Voucher
+    add_voucher: {
+        url: '/api/voucher/add-voucher',
+        method: 'post'
+    },
+    get_all_voucher: {
+        url: '/api/voucher/get-all-voucher',
+        method: 'get'
+    },
+    update_voucher: {
+        url: '/api/voucher/update-voucher',
+        method: 'put'
+    },
+    delete_voucher: {
+        url: '/api/voucher/delete-voucher',
+        method: 'delete'
     }
 }
 
