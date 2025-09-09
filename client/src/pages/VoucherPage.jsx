@@ -25,15 +25,6 @@ const VoucherPage = () => {
     const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'inactive'
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
-
-    // Pagination logic
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-    // Change page
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
     const [sortConfig, setSortConfig] = useState({
         key: 'startDate',
         direction: 'desc',
@@ -61,13 +52,61 @@ const VoucherPage = () => {
         _id: '',
     });
 
+    // Apply sorting to data
+    const sortedData = useMemo(() => {
+        const sortableItems = [...(filteredData || [])];
+        if (sortConfig !== null && sortConfig.key) {
+            sortableItems.sort((a, b) => {
+                // Handle date fields differently
+                if (['startDate', 'endDate'].includes(sortConfig.key)) {
+                    const dateA = new Date(a[sortConfig.key]);
+                    const dateB = new Date(b[sortConfig.key]);
+                    return sortConfig.direction === 'asc'
+                        ? dateA - dateB
+                        : dateB - dateA;
+                }
+                // Handle string comparison
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [filteredData, sortConfig]);
+
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const paginatedData = sortedData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1; // Ensure at least 1 page
+
+    // Reset to first page if current page exceeds total pages after filtering/sorting
+    useEffect(() => {
+        if (currentPage > 1 && currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [currentPage, totalPages]);
+
+    // Change page
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     // Sort function
     const requestSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
+        } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+            // If clicking the same column for the third time, remove sorting
+            setSortConfig({ key: null, direction: 'asc' });
+            setCurrentPage(1);
+            return;
         }
         setSortConfig({ key, direction });
+        setCurrentPage(1); // Reset to first page when sorting changes
     };
 
     // Handle select/deselect all
@@ -183,23 +222,6 @@ const VoucherPage = () => {
         setSelectedVouchers([]);
         setSelectAll(false);
     }, [data]);
-
-    // Apply sorting to data
-    const sortedData = useMemo(() => {
-        const sortableItems = [...(filteredData || [])];
-        if (sortConfig !== null) {
-            sortableItems.sort((a, b) => {
-                if (a[sortConfig.key] < b[sortConfig.key]) {
-                    return sortConfig.direction === 'asc' ? -1 : 1;
-                }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
-                    return sortConfig.direction === 'asc' ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-        return sortableItems;
-    }, [filteredData, sortConfig]);
 
     // Apply filters and search
     useEffect(() => {
@@ -528,7 +550,7 @@ const VoucherPage = () => {
                                     <Loading />
                                 </td>
                             </tr>
-                        ) : currentItems.length === 0 ? (
+                        ) : paginatedData.length === 0 ? (
                             <tr>
                                 <td
                                     colSpan="9"
@@ -538,7 +560,7 @@ const VoucherPage = () => {
                                 </td>
                             </tr>
                         ) : (
-                            currentItems.map((voucher) => (
+                            paginatedData.map((voucher) => (
                                 <tr
                                     key={voucher._id}
                                     className={`hover:bg-gray-50 ${
@@ -754,6 +776,7 @@ const VoucherPage = () => {
             {openUploadVoucher && (
                 <AddVoucher
                     onClose={() => setOpenUploadVoucher(false)}
+                    fetchVoucher={fetchVoucher}
                     onSuccess={() => {
                         setOpenUploadVoucher(false);
                         fetchVoucher();
@@ -765,6 +788,7 @@ const VoucherPage = () => {
             {openEditVoucher && (
                 <EditVoucher
                     voucher={editFormData}
+                    fetchVoucher={fetchVoucher}
                     onClose={() => setOpenEditVoucher(false)}
                     onSuccess={() => {
                         setOpenEditVoucher(false);

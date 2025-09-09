@@ -16,7 +16,7 @@ const formatDateForInput = (dateString) => {
     )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
-const EditVoucher = ({ voucher: voucherData, onClose, onSuccess }) => {
+const EditVoucher = ({ voucher: voucherData, onClose, fetchVoucher, onSuccess }) => {
     const [editFormData, setEditFormData] = useState({
         _id: voucherData?._id || '',
         code: voucherData?.code || '',
@@ -135,6 +135,7 @@ const EditVoucher = ({ voucher: voucherData, onClose, onSuccess }) => {
 
             successAlert(response.data.message || 'Cập nhật mã giảm giá thành công');
             onSuccess();
+            fetchVoucher();
         } catch (error) {
             AxiosToastError(error);
         } finally {
