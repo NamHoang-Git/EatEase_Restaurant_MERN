@@ -4,6 +4,7 @@ import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
 import CartProductModel from './../models/cartProduct.model.js';
 import { updateProductStock } from "../utils/productStockUpdater.js";
+import { calculatePointsFromOrder } from "../utils/pointsUtils.js";
 
 export async function CashOnDeliveryOrderController(request, response) {
     try {
@@ -18,6 +19,9 @@ export async function CashOnDeliveryOrderController(request, response) {
                 success: false
             });
         }
+
+        // Calculate points for the entire order (1 point per 10,000 VND)
+        const pointsEarned = Math.floor(totalAmt / 10000);
 
         // Tạo payload cho đơn hàng
         const payload = list_items.map(el => {
@@ -39,7 +43,8 @@ export async function CashOnDeliveryOrderController(request, response) {
                 delivery_address: addressId,
                 subTotalAmt: subTotal,
                 totalAmt: subTotal,
-                status: 'pending'
+                status: 'pending',
+                earnedPoints: pointsEarned  // Set points earned for this order
             };
         });
 
@@ -109,7 +114,7 @@ export async function CashOnDeliveryOrderController(request, response) {
             message: "Tạo đơn hàng thành công!",
             data: generatedOrder,
             success: true,
-            data: generatedOrder
+            error: false
         });
     } catch (error) {
         console.error('CashOnDeliveryOrderController Error:', error);
@@ -376,12 +381,40 @@ export async function webhookStripe(request, response) {
                     });
 
                     await Promise.all(updatePromises);
+                    // Get the total amount from the session
+                    const totalAmount = session.amount_total / 100; // Convert from cents to VND
 
+                    // Update orders with payment details
+                    const updatedOrders = await OrderModel.updateMany(
+                        { _id: { $in: orderIds.map(id => new mongoose.Types.ObjectId(id)) } },
+                        {
+                            paymentId: session.payment_intent,
+                            payment_status: 'Đã thanh toán',
+                            $set: {
+                                'earnedPoints': calculatePointsFromOrder(totalAmount)
+                            }
+                        }
+                    );
+
+                    // Update product stock
                     const stockUpdateResult = await updateProductStock(orderIds);
                     if (!stockUpdateResult.success) {
                         console.error('Failed to update product stock:', stockUpdateResult.message);
                     }
 
+
+                    // Update user's points
+                    if (totalAmount > 0) {
+                        const pointsEarned = calculatePointsFromOrder(totalAmount);
+                        if (pointsEarned > 0) {
+                            await UserModel.findByIdAndUpdate(
+                                userId,
+                                { $inc: { rewardsPoint: pointsEarned } },
+                                { new: true }
+                            );
+                            console.log(`Added ${pointsEarned} points to user ${userId} for order ${orderIds.join(', ')}`);
+                        }
+                    }
                 } catch (error) {
                     return response.status(500).json({
                         message: 'Lỗi khi cập nhật đơn hàng',

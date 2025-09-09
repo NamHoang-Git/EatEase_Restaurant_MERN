@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Divider from './Divider';
 import Axios, { setIsLoggingOut } from './../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
-import { logout } from '../store/userSlice';
+import { logout, updateUserPoints } from '../store/userSlice';
 import { clearCart } from '../store/cartProduct';
 import { toast } from 'react-hot-toast';
 import AxiosToastError from './../utils/AxiosToastError';
-import { BiLinkExternal } from 'react-icons/bi';
+import { BiLinkExternal, BiRefresh } from 'react-icons/bi';
 import isAdmin from '../utils/isAdmin';
 
 const UserMenu = ({ close }) => {
@@ -17,6 +17,38 @@ const UserMenu = ({ close }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const menuRef = useRef();
+    const [isLoadingPoints, setIsLoadingPoints] = useState(false);
+
+    // Function to fetch user points
+    const fetchUserPoints = useCallback(async () => {
+        try {
+            setIsLoadingPoints(true);
+            const response = await Axios.get(SummaryApi.userPoints.url, {
+                headers: {
+                    token: localStorage.getItem('token'),
+                },
+            });
+
+            if (response.data.success) {
+                dispatch(updateUserPoints(response.data.data.points));
+            }
+        } catch (error) {
+            console.error('Error fetching user points:', error);
+        } finally {
+            setIsLoadingPoints(false);
+        }
+    }, [dispatch]);
+
+    // Fetch points when menu opens
+    useEffect(() => {
+        const fetchData = async () => {
+            if (user?._id) {
+                await fetchUserPoints();
+            }
+        };
+
+        fetchData();
+    }, [user?._id, fetchUserPoints]);
 
     // Function to check if a path is active
     const isActive = (path) => {
@@ -79,19 +111,42 @@ const UserMenu = ({ close }) => {
         <div ref={menuRef}>
             <div className="font-bold">Tài khoản</div>
             <div className="text-sm flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
-                <span className="max-w-96 md:max-w-60 text-ellipsis line-clamp-1 flex gap-2">
-                    {user.name || user.mobile}
-                    <span className="text-secondary-200 font-bold">
-                        {user.role === 'ADMIN' ? '(Admin)' : ''}
-                    </span>
-                    <Link
-                        onClick={handleClose}
-                        to={'/dashboard/profile'}
-                        className="hover:text-secondary-200 mt-[1.8px]"
-                    >
-                        <BiLinkExternal size={15} />
-                    </Link>
-                </span>
+                <div className="w-full">
+                    <div className="max-w-96 md:max-w-60 text-ellipsis line-clamp-1 flex gap-2 items-center">
+                        {user.name || user.mobile}
+                        <span className="text-secondary-200 font-bold">
+                            {user.role === 'ADMIN' ? '(Admin)' : ''}
+                        </span>
+                        <Link
+                            onClick={handleClose}
+                            to={'/dashboard/profile'}
+                            className="hover:text-secondary-200 mt-[1.8px]"
+                        >
+                            <BiLinkExternal size={15} />
+                        </Link>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1 flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                            <span className="font-medium">Điểm thưởng:</span>
+                            <span className="font-bold text-primary-600">
+                                {user.rewardsPoint?.toLocaleString() || 0} điểm
+                            </span>
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                fetchUserPoints();
+                            }}
+                            className={`text-gray-500 hover:text-primary-600 transition-colors ${
+                                isLoadingPoints ? 'animate-spin' : ''
+                            }`}
+                            disabled={isLoadingPoints}
+                            title="Làm mới điểm"
+                        >
+                            <BiRefresh size={16} />
+                        </button>
+                    </div>
+                </div>
             </div>
             <Divider />
             <div className="text-sm grid gap-2 font-semibold">

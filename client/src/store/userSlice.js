@@ -12,7 +12,8 @@ const initialValue = {
     address_details: [],
     shopping_cart: [],
     orderHistory: [],
-    role: ''
+    role: '',
+    rewardsPoint: 0
 }
 
 const userSlice = createSlice({
@@ -32,6 +33,7 @@ const userSlice = createSlice({
             state.shopping_cart = action.payload?.shopping_cart
             state.orderHistory = action.payload?.orderHistory
             state.role = action.payload?.role
+            state.rewardsPoint = action.payload?.rewardsPoint
         },
         updatedAvatar: (state, action) => {
             state.avatar = action.payload
@@ -49,10 +51,16 @@ const userSlice = createSlice({
             state.shopping_cart = []
             state.orderHistory = []
             state.role = ''
+            state.rewardsPoint = 0
+        },
+        updateUserPoints: (state, action) => {
+            if (action.payload !== undefined) {
+                state.rewardsPoint = action.payload;
+            }
         }
     }
 })
 
-export const { setUserDetails, logout, updatedAvatar } = userSlice.actions
+export const { setUserDetails, logout, updatedAvatar, updateUserPoints } = userSlice.actions
 
 export default userSlice.reducer

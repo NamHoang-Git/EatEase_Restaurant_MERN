@@ -9,6 +9,10 @@ const SummaryApi = {
         url: '/api/user/login',
         method: 'post'
     },
+    userPoints: {
+        url: '/api/user/points',
+        method: 'get'
+    },
     forgot_password: {
         url: '/api/user/forgot-password',
         method: 'put'

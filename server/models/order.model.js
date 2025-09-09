@@ -52,13 +52,59 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        default: 'pending', // Giá trị mặc định
-        enum: ['pending', 'paid', 'cancelled'] // Xác định các trạng thái hợp lệ
+        enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+        default: "pending"
     },
+    earnedPoints: {
+        type: Number,
+        default: 0
+    },
+    usedPoints: {
+        type: Number,
+        default: 0
+    },
+    isPaid: {
+        type: Boolean,
+        default: false
+    },
+    paidAt: {
+        type: Date
+    },
+    isDelivered: {
+        type: Boolean,
+        default: false
+    },
+    deliveredAt: {
+        type: Date
+    }
 }, {
     timestamps: true
 })
 
-const orderModel = mongoose.model("order", orderSchema)
+// Add a post-save hook to update user's points when an order is saved/updated
+orderSchema.post('save', async function(doc) {
+    try {
+        // Only process if the order has earnedPoints and is a new or updated document
+        if (doc.earnedPoints > 0) {
+            // Find the user and update their rewards points
+            await mongoose.model('user').findByIdAndUpdate(
+                doc.userId,
+                { 
+                    $inc: { rewardsPoint: doc.earnedPoints },
+                    $push: { 
+                        orderHistory: doc._id
+                    }
+                },
+                { new: true, useFindAndModify: false }
+            );
+            
+            console.log(`Added ${doc.earnedPoints} points to user ${doc.userId} for order ${doc._id}`);
+        }
+    } catch (error) {
+        console.error('Error updating user points from order:', error);
+    }
+});
 
-export default orderModel
+const OrderModel = mongoose.model("order", orderSchema);
+
+export default OrderModel;

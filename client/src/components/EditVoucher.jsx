@@ -9,11 +9,29 @@ import { IoAdd, IoPencil, IoTrash, IoCalendar, IoClose } from 'react-icons/io5';
 // Function to format date to YYYY-MM-DDThh:mm format for datetime-local input
 const formatDateForInput = (dateString) => {
     if (!dateString) return '';
+
+    // Create date object from the ISO string
     const date = new Date(dateString);
+
+    // Get the timezone offset in minutes and convert to milliseconds
+    const timezoneOffset = date.getTimezoneOffset() * 60000;
+
+    // Adjust the date by the timezone offset to get the correct local time
+    const localDate = new Date(date.getTime() + timezoneOffset);
+
     const pad = (num) => num.toString().padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-        date.getDate()
-    )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+    // Get the date parts in UTC to avoid timezone conversion
+    const year = localDate.getUTCFullYear();
+    const month = pad(localDate.getUTCMonth() + 1);
+    const day = pad(localDate.getUTCDate());
+
+    // Get the time parts in UTC
+    const hours = pad(localDate.getUTCHours());
+    const minutes = pad(localDate.getUTCMinutes());
+
+    // Format as YYYY-MM-DDThh:mm
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 const EditVoucher = ({
