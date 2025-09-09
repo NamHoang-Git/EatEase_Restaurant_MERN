@@ -6,7 +6,7 @@ import AxiosToastError from '../utils/AxiosToastError';
 import Loading from './Loading';
 import { IoAdd, IoPencil, IoTrash, IoCalendar, IoClose } from 'react-icons/io5';
 
-const AddVoucher = ({ close, fetchVoucher }) => {
+const AddVoucher = ({ onClose, fetchVoucher }) => {
     const [formData, setFormData] = useState({
         code: '',
         name: '',
@@ -123,7 +123,7 @@ const AddVoucher = ({ close, fetchVoucher }) => {
 
             if (responseData.success) {
                 successAlert(responseData.message);
-                close();
+                onClose();
                 fetchVoucher();
             }
         } catch (error) {
@@ -135,7 +135,7 @@ const AddVoucher = ({ close, fetchVoucher }) => {
 
     return (
         <section
-            onClick={close}
+            onClick={onClose}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
         >
             <div
@@ -430,7 +430,7 @@ const AddVoucher = ({ close, fetchVoucher }) => {
                         <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
                             <button
                                 type="button"
-                                onClick={() => close()}
+                                onClick={() => onClose()}
                                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                                 Cancel

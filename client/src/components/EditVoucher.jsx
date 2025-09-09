@@ -16,23 +16,23 @@ const formatDateForInput = (dateString) => {
     )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
-const EditVoucher = ({ close, fetchData, data: voucherData }) => {
+const EditVoucher = ({ voucher: voucherData, onClose, onSuccess }) => {
     const [editFormData, setEditFormData] = useState({
-        _id: voucherData._id, // Add _id to the form data
-        code: voucherData.code,
-        name: voucherData.name,
-        description: voucherData.description,
-        discountType: voucherData.discountType,
-        discountValue: voucherData.discountValue,
-        minOrderValue: voucherData.minOrderValue,
-        maxDiscount: voucherData.maxDiscount,
-        startDate: formatDateForInput(voucherData.startDate),
-        endDate: formatDateForInput(voucherData.endDate),
-        usageLimit: voucherData.usageLimit,
-        isActive: voucherData.isActive,
-        applyForAllProducts: voucherData.applyForAllProducts,
-        products: voucherData.products ? [...voucherData.products] : [],
-        categories: voucherData.categories ? [...voucherData.categories] : [],
+        _id: voucherData?._id || '',
+        code: voucherData?.code || '',
+        name: voucherData?.name || '',
+        description: voucherData?.description || '',
+        discountType: voucherData?.discountType || 'percentage',
+        discountValue: voucherData?.discountValue || 0,
+        minOrderValue: voucherData?.minOrderValue || 0,
+        maxDiscount: voucherData?.maxDiscount || null,
+        startDate: formatDateForInput(voucherData?.startDate) || '',
+        endDate: formatDateForInput(voucherData?.endDate) || '',
+        usageLimit: voucherData?.usageLimit || null,
+        isActive: voucherData?.isActive ?? true,
+        applyForAllProducts: voucherData?.applyForAllProducts ?? true,
+        products: voucherData?.products ? [...voucherData.products] : [],
+        categories: voucherData?.categories ? [...voucherData.categories] : [],
     });
 
     const [loading, setLoading] = useState(false);
@@ -133,13 +133,8 @@ const EditVoucher = ({ close, fetchData, data: voucherData }) => {
                 data: submissionData,
             });
 
-            const { data: responseData } = response;
-
-            if (responseData.success) {
-                successAlert(responseData.message);
-                close();
-                fetchData();
-            }
+            successAlert(response.data.message || 'Cập nhật mã giảm giá thành công');
+            onSuccess();
         } catch (error) {
             AxiosToastError(error);
         } finally {
@@ -149,7 +144,7 @@ const EditVoucher = ({ close, fetchData, data: voucherData }) => {
 
     return (
         <section
-            onClick={close}
+            onClick={onClose}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
         >
             <div
@@ -420,7 +415,7 @@ const EditVoucher = ({ close, fetchData, data: voucherData }) => {
                         <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
                             <button
                                 type="button"
-                                onClick={() => close()}
+                                onClick={onClose}
                                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                                 Cancel
