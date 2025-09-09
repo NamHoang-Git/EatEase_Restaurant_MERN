@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateUserPoints } from '../store/userSlice';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -14,8 +15,8 @@ import EditAddressDetails from '../components/EditAddressDetails';
 import { useGlobalContext } from '../provider/GlobalProvider';
 
 const CheckoutPage = () => {
-    const { fetchCartItem, fetchOrder, fetchAddress, reloadAfterPayment } =
-        useGlobalContext();
+    const dispatch = useDispatch();
+    const { fetchAddress, reloadAfterPayment } = useGlobalContext();
     const [openAddress, setOpenAddress] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [editData, setEditData] = useState({});
@@ -170,8 +171,22 @@ const CheckoutPage = () => {
 
             if (responseData.success) {
                 toast.success(responseData.message);
-                if (fetchCartItem) fetchCartItem();
-                if (fetchOrder) fetchOrder();
+                // Fetch updated user data including points
+                try {
+                    const userResponse = await Axios({
+                        ...SummaryApi.user_details,
+                    });
+                    if (userResponse.data.success) {
+                        dispatch(
+                            updateUserPoints(
+                                userResponse.data.data.rewardsPoint || 0
+                            )
+                        );
+                        // dispatch(updateUserPoints(pointsResponse.data.points));
+                    }
+                } catch (error) {
+                    console.error('Error fetching user points:', error);
+                }
                 navigate('/success', { state: { text: 'Order' } }); // This is the correct redirection
             }
         } catch (error) {
