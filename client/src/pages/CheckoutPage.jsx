@@ -232,7 +232,7 @@ const CheckoutPage = () => {
             }
             setLoading(true);
             const response = await Axios({
-                ...SummaryApi.payment_order,
+                ...SummaryApi.payment_url,
                 data: {
                     list_items: filteredItems,
                     addressId: addressList[selectAddress]?._id,
@@ -244,14 +244,19 @@ const CheckoutPage = () => {
 
             const { data: responseData } = response;
 
-            const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-            const stripePromise = await loadStripe(stripePublicKey);
-            const { error } = await stripePromise.redirectToCheckout({
-                sessionId: responseData.id,
-            });
+            if (responseData.isFreeOrder) {
+                toast.success(responseData.message);
+                navigate('/success', { state: { text: 'Order' } });
+            } else {
+                const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+                const stripePromise = await loadStripe(stripePublicKey);
+                const { error } = await stripePromise.redirectToCheckout({
+                    sessionId: responseData.id,
+                });
 
-            if (error) {
-                toast.error('Thanh toán thất bại: ' + error.message);
+                if (error) {
+                    toast.error('Thanh toán thất bại: ' + error.message);
+                }
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Thanh toán thất bại');
@@ -260,6 +265,7 @@ const CheckoutPage = () => {
             setShowConfirmModal({ show: false, type: '' });
         }
     };
+
 
     const hasDiscount = cartItemsList
         .filter((item) => selectedItems.includes(item._id))
@@ -524,46 +530,81 @@ const CheckoutPage = () => {
                                                     id="usePoints"
                                                     checked={usePoints}
                                                     onChange={(e) => {
-                                                        setUsePoints(e.target.checked);
+                                                        setUsePoints(
+                                                            e.target.checked
+                                                        );
                                                         if (!e.target.checked) {
                                                             setPointsToUse(0);
                                                         } else {
                                                             // Default to using all points, but not more than the total
-                                                            const maxPoints = Math.min(
-                                                                userPoints,
-                                                                Math.floor(filteredTotalPrice / pointsValue)
+                                                            const maxPoints =
+                                                                Math.min(
+                                                                    userPoints,
+                                                                    Math.floor(
+                                                                        filteredTotalPrice /
+                                                                            pointsValue
+                                                                    )
+                                                                );
+                                                            setPointsToUse(
+                                                                maxPoints
                                                             );
-                                                            setPointsToUse(maxPoints);
                                                         }
                                                     }}
                                                     className="h-4 w-4 rounded border-gray-300 text-primary-2 focus:ring-primary-2"
                                                 />
-                                                <label htmlFor="usePoints" className="text-sm font-medium text-gray-700">
+                                                <label
+                                                    htmlFor="usePoints"
+                                                    className="text-sm font-medium text-gray-700"
+                                                >
                                                     Sử dụng điểm thưởng
                                                 </label>
                                             </div>
                                             <div className="text-sm text-gray-600">
-                                                Có sẵn: {userPoints.toLocaleString()} điểm ({DisplayPriceInVND(userPoints * pointsValue)})
+                                                Có sẵn:{' '}
+                                                {userPoints.toLocaleString()}{' '}
+                                                điểm (
+                                                {DisplayPriceInVND(
+                                                    userPoints * pointsValue
+                                                )}
+                                                )
                                             </div>
                                         </div>
-                                        
+
                                         {usePoints && (
                                             <div className="pl-6">
                                                 <div className="flex items-center gap-2">
                                                     <input
                                                         type="range"
                                                         min="0"
-                                                        max={Math.min(userPoints, Math.floor(filteredTotalPrice / pointsValue))}
+                                                        max={Math.min(
+                                                            userPoints,
+                                                            Math.floor(
+                                                                filteredTotalPrice /
+                                                                    pointsValue
+                                                            )
+                                                        )}
                                                         value={pointsToUse}
-                                                        onChange={(e) => setPointsToUse(parseInt(e.target.value))}
+                                                        onChange={(e) =>
+                                                            setPointsToUse(
+                                                                parseInt(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            )
+                                                        }
                                                         className="h-2 w-full rounded-lg appearance-none bg-gray-200"
                                                     />
                                                     <span className="w-20 text-sm font-medium">
-                                                        {pointsToUse.toLocaleString()} điểm
+                                                        {pointsToUse.toLocaleString()}{' '}
+                                                        điểm
                                                     </span>
                                                 </div>
                                                 <div className="mt-1 text-xs text-gray-500">
-                                                    Giảm: {DisplayPriceInVND(pointsToUse * pointsValue)}
+                                                    Giảm:{' '}
+                                                    {DisplayPriceInVND(
+                                                        pointsToUse *
+                                                            pointsValue
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
@@ -574,15 +615,24 @@ const CheckoutPage = () => {
                             {usePoints && pointsToUse > 0 && (
                                 <div className="flex justify-between text-green-600">
                                     <p>Giảm giá từ điểm thưởng</p>
-                                    <p>-{DisplayPriceInVND(pointsToUse * pointsValue)}</p>
+                                    <p>
+                                        -
+                                        {DisplayPriceInVND(
+                                            pointsToUse * pointsValue
+                                        )}
+                                    </p>
                                 </div>
                             )}
-                            
+
                             <div className="font-semibold flex items-center justify-between gap-4 border-t border-gray-200 pt-2">
                                 <p>Tổng cộng</p>
                                 <p className="text-secondary-200 font-bold">
                                     {DisplayPriceInVND(
-                                        Math.max(0, filteredTotalPrice - (pointsToUse * pointsValue))
+                                        Math.max(
+                                            0,
+                                            filteredTotalPrice -
+                                                pointsToUse * pointsValue
+                                        )
                                     )}
                                 </p>
                             </div>
@@ -593,20 +643,30 @@ const CheckoutPage = () => {
                         {usePoints && pointsToUse > 0 && (
                             <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
                                 <p className="text-sm text-blue-700">
-                                    Bạn sẽ sử dụng <span className="font-semibold">{pointsToUse.toLocaleString()} điểm</span> 
-                                    (tương đương {DisplayPriceInVND(pointsToUse * pointsValue)}) 
-                                    cho đơn hàng này.
+                                    Bạn sẽ sử dụng{' '}
+                                    <span className="font-semibold">
+                                        {pointsToUse.toLocaleString()} điểm
+                                    </span>
+                                    (tương đương{' '}
+                                    {DisplayPriceInVND(
+                                        pointsToUse * pointsValue
+                                    )}
+                                    ) cho đơn hàng này.
                                 </p>
                                 <p className="text-xs text-blue-600 mt-1">
-                                    Điểm còn lại: {(userPoints - pointsToUse).toLocaleString()} điểm
+                                    Điểm còn lại:{' '}
+                                    {(
+                                        userPoints - pointsToUse
+                                    ).toLocaleString()}{' '}
+                                    điểm
                                 </p>
                             </div>
                         )}
-                        
+
                         <button
                             className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
                         cursor-pointer text-secondary-200 font-semibold"
-                            onClick={handleOnlinePayment}
+                            onClick={() => setShowConfirmModal({ show: true, type: 'online' })}
                             disabled={loading}
                         >
                             {loading ? <Loading /> : 'Thanh toán online'}
@@ -662,11 +722,10 @@ const CheckoutPage = () => {
                             <button
                                 className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded-md text-secondary-200 font-bold cursor-pointer
                             border-[3px] border-inset border-secondary-200"
-                                onClick={
-                                    showConfirmModal.type === 'cash'
-                                        ? confirmCashOnDelivery
-                                        : confirmOnlinePayment
-                                }
+                                onClick={{
+                                    cash: confirmCashOnDelivery,
+                                    online: handleOnlinePayment,
+                                }[showConfirmModal.type] || (() => {})}
                                 disabled={loading}
                             >
                                 {loading ? <Loading /> : 'Xác nhận'}
