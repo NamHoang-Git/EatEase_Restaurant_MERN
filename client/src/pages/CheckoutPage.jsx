@@ -34,8 +34,43 @@ const CheckoutPage = () => {
     const [usePoints, setUsePoints] = useState(false);
     const [pointsToUse, setPointsToUse] = useState(0);
     const [maxPointsToUse, setMaxPointsToUse] = useState(0);
+    const [showVouchers, setShowVouchers] = useState(false);
+    const [selectedVoucher, setSelectedVoucher] = useState(null);
     const userPoints = useSelector((state) => state.user.rewardsPoint || 0);
     const pointsValue = 100; // 1 point = 100 VND (aligned with backend)
+
+    // Sample voucher data - replace with actual API call later
+    const availableVouchers = [
+        {
+            id: 1,
+            code: 'FREESHIP',
+            description: 'Miễn phí vận chuyển',
+            minOrder: 0,
+            discount: 0,
+            discountType: 'freeship',
+            expiryDate: '30/09/2023',
+            isFreeShipping: true
+        },
+        {
+            id: 2,
+            code: 'GIAM50K',
+            description: 'Giảm 50.000đ',
+            minOrder: 500000,
+            discount: 50000,
+            discountType: 'fixed',
+            expiryDate: '30/09/2023'
+        },
+        {
+            id: 3,
+            code: 'GIAM10',
+            description: 'Giảm 10%',
+            minOrder: 1000000,
+            discount: 10,
+            discountType: 'percent',
+            maxDiscount: 200000,
+            expiryDate: '30/09/2023'
+        }
+    ];
 
     // Sắp xếp addressList để địa chỉ isDefault: true lên đầu
     const sortedAddressList = [...addressList].sort((a, b) => {
@@ -535,6 +570,64 @@ const CheckoutPage = () => {
                                     <p className="flex items-center gap-2 italic">
                                         Miễn phí
                                     </p>
+                                </div>
+
+                                {/* Voucher Section */}
+                                <div className="border-t border-gray-200 pt-4 mt-2">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="text-sm font-medium">Mã giảm giá</span>
+                                        <button 
+                                            onClick={() => setShowVouchers(!showVouchers)}
+                                            className="text-sm text-primary-600 hover:underline"
+                                        >
+                                            {showVouchers ? 'Ẩn mã giảm giá' : 'Chọn mã giảm giá'}
+                                        </button>
+                                    </div>
+
+                                    {showVouchers && (
+                                        <div className="space-y-3 mb-4">
+                                            {availableVouchers.map((voucher) => (
+                                                <div key={voucher.id} className="border rounded-md p-3 flex items-start justify-between">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="bg-yellow-100 p-2 rounded-md">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-medium text-gray-900">{voucher.code}</div>
+                                                            <p className="text-sm text-gray-600">{voucher.description}</p>
+                                                            <p className="text-xs text-gray-500 mt-1">Đơn tối thiểu: {voucher.minOrder.toLocaleString()}đ</p>
+                                                            <p className="text-xs text-gray-500">HSD: {voucher.expiryDate}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => setSelectedVoucher(voucher)}
+                                                        className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                                    >
+                                                        Áp dụng
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {selectedVoucher && (
+                                        <div className="bg-green-50 border border-green-100 rounded-md p-3 mt-2 flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-sm text-green-800">Đã áp dụng mã: {selectedVoucher.code}</span>
+                                            </div>
+                                            <button 
+                                                onClick={() => setSelectedVoucher(null)}
+                                                className="text-red-500 hover:text-red-700 text-sm"
+                                            >
+                                                Hủy
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                                 {userPoints == 0 && (
                                     <div className="border-t border-gray-200 pt-4 mt-4">
