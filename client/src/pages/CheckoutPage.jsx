@@ -258,7 +258,7 @@ const CheckoutPage = () => {
                             <label
                                 key={index}
                                 htmlFor={'address' + index}
-                                className={!address.status && 'hidden'}
+                                className={!address.status ? 'hidden' : ''}
                             >
                                 <div
                                     className="border border-secondary-100 rounded-md px-2 sm:px-4 py-3 hover:bg-base-100

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import {
     changePassword, forgotPasswordController, loginController,
     logoutController, refreshTokenController, registerUserController, resetPassword,
-    updateUserDetails, uploadAvatar, userDetails, verifyEmailController,
+    updateUserDetails, uploadAvatar, userDetails, userPoints, verifyEmailController,
     verifyForgotPasswordOtp, verifyPassword
 } from '../controllers/user.controller.js'
 import auth from '../middleware/auth.js'
@@ -23,5 +23,6 @@ userRouter.post('/refresh-token', refreshTokenController)
 userRouter.post('/verify-password', auth, verifyPassword)
 userRouter.put('/change-password', auth, changePassword)
 userRouter.get('/user-details', auth, userDetails)
+userRouter.get('/user-points', auth, userPoints)
 
 export default userRouter

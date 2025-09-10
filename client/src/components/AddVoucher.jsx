@@ -236,7 +236,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                         Percentage (%)
                                     </option>
                                     <option value="fixed">
-                                        Fixed Amount ($)
+                                        Fixed Amount (VND)
                                     </option>
                                 </select>
                             </div>
@@ -284,7 +284,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                     <span className="absolute right-3 top-2 text-gray-500">
                                         {formData.discountType === 'percentage'
                                             ? '%'
-                                            : '$'}
+                                            : '₫'}
                                     </span>
                                 </div>
                                 {formData.discountType === 'percentage' && (
@@ -297,7 +297,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                             {formData.discountType === 'percentage' && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Maximum Discount ($)
+                                        Maximum Discount (VND)
                                     </label>
                                     <div className="relative">
                                         <input
@@ -305,12 +305,13 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                             name="maxDiscount"
                                             value={formData.maxDiscount || ''}
                                             onChange={handleOnChange}
+                                            placeholder="VND "
                                             min="0"
                                             step="1"
                                             className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                         <span className="absolute right-3 top-2 text-gray-500">
-                                            $
+                                            ₫
                                         </span>
                                     </div>
                                 </div>
@@ -328,11 +329,11 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                         onChange={handleOnChange}
                                         min="0"
                                         step="0.01"
-                                        placeholder="0.00"
+                                        placeholder="VND"
                                         className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     <span className="absolute right-3 top-2 text-gray-500">
-                                        $
+                                        ₫
                                     </span>
                                 </div>
                                 <p className="mt-1 text-xs text-gray-500">
@@ -355,6 +356,10 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                     placeholder="Unlimited if empty"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Number of times this voucher can be used (0
+                                    for unlimited)
+                                </p>
                             </div>
 
                             <div>

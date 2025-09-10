@@ -28,10 +28,12 @@ const CartMobileLink = () => {
                             </div>
                         </div>
 
-                        <Link to={'/cart'} className="flex items-center gap-1 hover:opacity-70">
-                            <span className="sm:text-sm text-xs">Xem giỏ hàng</span>
+                        <span className="flex items-center gap-1 hover:opacity-70">
+                            <span className="sm:text-sm text-xs">
+                                Xem giỏ hàng
+                            </span>
                             <FaCaretRight />
-                        </Link>
+                        </span>
                     </div>
                 </Link>
             )}

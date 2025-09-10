@@ -271,7 +271,7 @@ const EditVoucher = ({
                                         Percentage (%)
                                     </option>
                                     <option value="fixed">
-                                        Fixed Amount ($)
+                                        Fixed Amount (VND)
                                     </option>
                                 </select>
                             </div>
@@ -289,7 +289,18 @@ const EditVoucher = ({
                                         name="discountValue"
                                         value={editFormData.discountValue}
                                         onChange={handleOnChange}
-                                        min="0"
+                                        min={
+                                            editFormData.discountType ===
+                                            'percentage'
+                                                ? '0.01'
+                                                : '1'
+                                        }
+                                        max={
+                                            editFormData.discountType ===
+                                            'percentage'
+                                                ? '100'
+                                                : ''
+                                        }
                                         step={
                                             editFormData.discountType ===
                                             'percentage'
@@ -298,20 +309,31 @@ const EditVoucher = ({
                                         }
                                         className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         required
+                                        placeholder={
+                                            editFormData.discountType ===
+                                            'percentage'
+                                                ? '0-100%'
+                                                : 'Enter amount'
+                                        }
                                     />
                                     <span className="absolute right-3 top-2 text-gray-500">
                                         {editFormData.discountType ===
                                         'percentage'
                                             ? '%'
-                                            : '$'}
+                                            : '₫'}
                                     </span>
                                 </div>
+                                {editFormData.discountType === 'percentage' && (
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Enter a value between 0.01% and 100%
+                                    </p>
+                                )}
                             </div>
 
                             {editFormData.discountType === 'percentage' && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Maximum Discount ($)
+                                        Maximum Discount (VND)
                                     </label>
                                     <div className="relative">
                                         <input
@@ -321,12 +343,13 @@ const EditVoucher = ({
                                                 editFormData.maxDiscount || ''
                                             }
                                             onChange={handleOnChange}
+                                            placeholder="VND"
                                             min="0"
                                             step="1"
                                             className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                         <span className="absolute right-3 top-2 text-gray-500">
-                                            $
+                                            ₫
                                         </span>
                                     </div>
                                 </div>
@@ -344,12 +367,17 @@ const EditVoucher = ({
                                         onChange={handleOnChange}
                                         min="0"
                                         step="0.01"
+                                        placeholder="VND"
                                         className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     <span className="absolute right-3 top-2 text-gray-500">
-                                        $
+                                        ₫
                                     </span>
                                 </div>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Minimum order amount to apply this voucher
+                                    (0 for no minimum)
+                                </p>
                             </div>
 
                             <div>
@@ -366,6 +394,10 @@ const EditVoucher = ({
                                     placeholder="Unlimited if empty"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Number of times this voucher can be used (0
+                                    for unlimited)
+                                </p>
                             </div>
 
                             <div>

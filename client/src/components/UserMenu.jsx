@@ -23,14 +23,17 @@ const UserMenu = ({ close }) => {
     const fetchUserPoints = useCallback(async () => {
         try {
             setIsLoadingPoints(true);
-            const response = await Axios.get(SummaryApi.userPoints.url, {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const response = await Axios.get(SummaryApi.user_points.url, {
                 headers: {
-                    token: localStorage.getItem('token'),
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
-            if (response.data.success) {
-                dispatch(updateUserPoints(response.data.data.points));
+            if (response.data.success && response.data.data) {
+                dispatch(updateUserPoints(response.data.data.points || 0));
             }
         } catch (error) {
             console.error('Error fetching user points:', error);

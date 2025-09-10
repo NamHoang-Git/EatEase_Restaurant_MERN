@@ -591,3 +591,24 @@ export async function userDetails(req, res) {
         })
     }
 }
+
+export async function userPoints(req, res) {
+    try {
+        const userId = req.userId
+
+        const user = await UserModel.findById(userId).select('points -password -refresh_token')
+
+        return res.json({
+            message: 'Điểm người dùng',
+            data: user,
+            error: false,
+            success: true
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Có lỗi xảy ra',
+            error: true,
+            success: false
+        })
+    }
+}
