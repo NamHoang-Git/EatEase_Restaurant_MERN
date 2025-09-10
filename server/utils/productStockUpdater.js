@@ -6,12 +6,12 @@ import OrderModel from "../models/order.model.js";
  * @param {Array} orderIds - Array of order IDs to process
  * @returns {Promise<Object>} Result of the stock update operation
  */
-export async function updateProductStock(orderIds) {
+export async function updateProductStock(orderIds, session) {
     try {
         // Get all orders with product information
         const orders = await OrderModel.find({
             _id: { $in: orderIds }
-        }).populate('productId');
+        }).populate('productId').session(session);
 
         // Group quantities by product ID
         const productUpdates = {};
@@ -50,7 +50,7 @@ export async function updateProductStock(orderIds) {
         }
 
         // Execute all updates in bulk
-        const result = await ProductModel.bulkWrite(bulkOps, { ordered: false });
+        const result = await ProductModel.bulkWrite(bulkOps, { ordered: false, session });
 
         return {
             success: true,

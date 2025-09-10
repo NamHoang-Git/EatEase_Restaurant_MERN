@@ -4,126 +4,146 @@ import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
 import CartProductModel from './../models/cartProduct.model.js';
 import { updateProductStock } from "../utils/productStockUpdater.js";
-import { calculatePointsFromOrder } from "../utils/pointsUtils.js";
+import { calculatePointsFromOrder, calculateUsablePoints } from "../utils/pointsUtils.js";
 
 export async function CashOnDeliveryOrderController(request, response) {
-    try {
-        const userId = request.userId;
-        const { list_items, totalAmt, addressId, subTotalAmt } = request.body;
+    const maxRetries = 3;
+    let retryCount = 0;
+    let session;
 
-        // Validate input
-        if (!list_items?.length || !addressId || !subTotalAmt || !totalAmt) {
-            return response.status(400).json({
-                message: "Vui lòng điền đầy đủ các trường bắt buộc.",
+    while (retryCount < maxRetries) {
+        session = await mongoose.startSession();
+
+        try {
+            const result = await session.withTransaction(async () => {
+                const userId = request.userId;
+                const { list_items, totalAmt, addressId, subTotalAmt, pointsToUse = 0 } = request.body;
+
+                // Validate input
+                if (!list_items?.length || !addressId || !subTotalAmt || !totalAmt) {
+                    throw new Error("Vui lòng điền đầy đủ các trường bắt buộc.");
+                }
+
+                const user = await UserModel.findById(userId).session(session);
+                if (!user) {
+                    throw new Error('Người dùng không tồn tại');
+                }
+
+                if (pointsToUse > 0) {
+                    const maxUsablePoints = calculateUsablePoints(user.rewardsPoint, totalAmt);
+                    if (pointsToUse > maxUsablePoints) {
+                        throw new Error(`Bạn chỉ có thể sử dụng tối đa ${maxUsablePoints} điểm cho đơn hàng này`);
+                    }
+                }
+
+                // Create the order
+                const orderItems = list_items.map(item => ({
+                    userId,
+                    orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+                    productId: item.productId._id,
+                    product_details: {
+                        name: item.productId.name,
+                        image: item.productId.image
+                    },
+                    quantity: item.quantity,
+                    payment_status: 'Đang chờ thanh toán',
+                    delivery_address: addressId,
+                    subTotalAmt: item.productId.price * item.quantity,
+                    totalAmt: (item.productId.price * item.quantity) * (1 - (item.productId.discount || 0) / 100),
+                    status: 'pending' // Initial status for COD
+                }));
+
+                const newOrders = await OrderModel.insertMany(orderItems, { session });
+                const newOrderIds = newOrders.map(order => order._id);
+
+                // Update product stock
+                const stockUpdateResult = await updateProductStock(newOrderIds, session);
+                if (!stockUpdateResult.success) {
+                    throw new Error(stockUpdateResult.message); // This will abort the transaction
+                }
+
+                // Calculate points earned from this order
+                const pointsEarned = calculatePointsFromOrder(totalAmt);
+
+                // Update user points
+                let pointsChange = pointsEarned;
+                if (pointsToUse > 0) {
+                    pointsChange -= pointsToUse;
+                }
+
+                if (pointsChange !== 0) {
+                    await UserModel.findByIdAndUpdate(userId,
+                        { $inc: { rewardsPoint: pointsChange } },
+                        { session }
+                    );
+                }
+
+                // Clear cart items
+                const cartItemIds = list_items.map(item => item._id);
+                await CartProductModel.deleteMany({ _id: { $in: cartItemIds } }, { session });
+
+                return {
+                    success: true,
+                    data: {
+                        message: 'Đặt hàng thành công',
+                        orders: newOrders,
+                        pointsEarned,
+                        pointsUsed: pointsToUse
+                    }
+                };
+            });
+
+            return response.status(200).json({
+                message: 'Đặt hàng thành công',
+                error: false,
+                success: true,
+                data: result?.data
+            });
+
+        } catch (error) {
+            console.error('Error in transaction:', error);
+
+            if (error.errorLabels?.includes('TransientTransactionError') || error.code === 112 || error.code === 251) {
+                retryCount++;
+                console.warn(`Transient error detected, retrying (${retryCount}/${maxRetries})...`);
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 100 * retryCount));
+                    continue;
+                }
+            }
+
+            // Hết retry hoặc lỗi khác → trả về luôn
+            let errorMessage = 'Có lỗi xảy ra khi xử lý đơn hàng';
+            if (error.message.includes('Người dùng không tồn tại')) {
+                errorMessage = 'Người dùng không tồn tại';
+            } else if (error.message.includes('không đủ điểm')) {
+                errorMessage = 'Số điểm không đủ để sử dụng';
+            } else if (error.message.includes('Bạn chỉ có thể sử dụng tối đa')) {
+                errorMessage = error.message;
+            } else if (error.message.includes('Vui lòng điền đầy đủ')) {
+                errorMessage = error.message;
+            }
+
+            return response.status(500).json({
+                message: errorMessage,
                 error: true,
                 success: false
             });
-        }
-
-        // Calculate points for the entire order (1 point per 10,000 VND)
-        const pointsEarned = Math.floor(totalAmt / 10000);
-
-        // Tạo payload cho đơn hàng
-        const payload = list_items.map(el => {
-            const quantity = Number(el.quantity) || 1;
-            const price = Number(el.productId.price) || 0;
-            const subTotal = price * quantity;
-
-            return {
-                userId: userId,
-                orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-                productId: el.productId._id,
-                product_details: {
-                    name: el.productId.name || 'Sản phẩm không tên',
-                    image: Array.isArray(el.productId.image) ? el.productId.image : [el.productId.image || '']
-                },
-                quantity: quantity,
-                paymentId: "",
-                payment_status: "Thanh toán khi giao hàng",
-                delivery_address: addressId,
-                subTotalAmt: subTotal,
-                totalAmt: subTotal,
-                status: 'pending',
-                earnedPoints: pointsEarned  // Set points earned for this order
-            };
-        });
-
-        // Tạo đơn hàng
-        const generatedOrder = await OrderModel.insertMany(payload);
-
-        // Lấy danh sách productId từ list_items
-        const productIdsToRemove = list_items.map(el => el.productId._id);
-
-        // Tìm cart items cần xóa để lấy _id của chúng
-        const cartItemsToDelete = await CartProductModel.find({
-            userId: userId,
-            productId: { $in: productIdsToRemove }
-        });
-        const cartItemIds = cartItemsToDelete.map(item => item._id);
-
-        // Xóa chỉ các sản phẩm được chọn khỏi CartProductModel
-        const cartDeleteResult = await CartProductModel.deleteMany({
-            userId: userId,
-            productId: { $in: productIdsToRemove }
-        });
-
-        const userUpdateResult = await UserModel.updateOne(
-            { _id: userId },
-            { $pull: { shopping_cart: { $in: cartItemIds } } }
-        )
-
-        // Cập nhật số lượng tồn kho
-        try {
-            const orderIds = generatedOrder.map(order => order._id);
-            const stockUpdateResult = await updateProductStock(orderIds);
-
-            if (!stockUpdateResult.success) {
-                console.error('Failed to update product stock for COD order:', stockUpdateResult.message);
-                // Continue with the order even if stock update fails, but log the error
-            } else {
-                console.log('Successfully updated product stock for COD order');
+        } finally {
+            if (session) {
+                await session.endSession().catch(endSessionError => {
+                    console.error('Error ending session:', endSessionError);
+                });
             }
-        } catch (stockError) {
-            console.error('Error updating stock for COD order:', stockError);
-            // Continue with the order even if stock update fails
         }
-
-        // Calculate and update user's points
-        try {
-            const pointsEarned = calculatePointsFromOrder(totalAmt);
-            if (pointsEarned > 0) {
-                await UserModel.findByIdAndUpdate(
-                    userId,
-                    { $inc: { rewardsPoint: pointsEarned } },
-                    { new: true }
-                );
-                console.log(`Added ${pointsEarned} points to user ${userId} for COD order ${generatedOrder.map(o => o._id).join(', ')}`);
-
-                // Cập nhật điểm thưởng vào đơn hàng
-                await OrderModel.updateMany(
-                    { _id: { $in: generatedOrder.map(o => o._id) } },
-                    { $set: { earnedPoints: pointsEarned } }
-                );
-            }
-        } catch (error) {
-            console.error('Error updating user points for COD order:', error);
-            // Không cần dừng luồng nếu có lỗi khi cập nhật điểm
-        }
-
-        return response.status(201).json({
-            message: "Tạo đơn hàng thành công!",
-            data: generatedOrder,
-            success: true,
-            error: false
-        });
-    } catch (error) {
-        console.error('CashOnDeliveryOrderController Error:', error);
-        return response.status(500).json({
-            message: error.message || "Internal Server Error",
-            error: true,
-            success: false
-        });
     }
+
+    // Nếu hết retry mà vẫn fail
+    return response.status(500).json({
+        message: 'Không thể hoàn tất đơn hàng do xung đột dữ liệu. Vui lòng thử lại sau.',
+        error: true,
+        success: false
+    });
 }
 
 export const pricewithDiscount = (price, dis = 1) => {

@@ -31,6 +31,11 @@ const CheckoutPage = () => {
     const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [usePoints, setUsePoints] = useState(false);
+    const [pointsToUse, setPointsToUse] = useState(0);
+    const [maxPointsToUse, setMaxPointsToUse] = useState(0);
+    const userPoints = useSelector((state) => state.user.rewardsPoint || 0);
+    const pointsValue = 100; // 1 point = 100 VND (aligned with backend)
 
     // Sắp xếp addressList để địa chỉ isDefault: true lên đầu
     const sortedAddressList = [...addressList].sort((a, b) => {
@@ -120,6 +125,23 @@ const CheckoutPage = () => {
         0
     );
 
+    // Calculate maximum points that can be used (50% of order total)
+    useEffect(() => {
+        const maxPoints = Math.min(
+            Math.floor((filteredTotalPrice * 0.5) / pointsValue),
+            userPoints
+        );
+        setMaxPointsToUse(maxPoints);
+        // Reset points to use if it exceeds the new maximum
+        if (pointsToUse > maxPoints) {
+            setPointsToUse(maxPoints);
+        }
+    }, [filteredTotalPrice, userPoints, pointsToUse, pointsValue]);
+
+    // Calculate points discount and final total
+    const pointsDiscount = pointsToUse * pointsValue;
+    const finalTotal = Math.max(0, filteredTotalPrice - pointsDiscount);
+
     const filteredNotDiscountTotalPrice = filteredItems.reduce(
         (acc, item) =>
             acc + (item.productId?.price || 0) * (item.quantity || 1),
@@ -151,6 +173,10 @@ const CheckoutPage = () => {
     };
 
     const handleCashOnDelivery = async () => {
+        if (usePoints && pointsToUse > 0 && pointsToUse > userPoints) {
+            toast.error('Số điểm sử dụng vượt quá số điểm hiện có');
+            return;
+        }
         setShowConfirmModal({ show: true, type: 'cash' });
     };
 
@@ -163,7 +189,8 @@ const CheckoutPage = () => {
                     list_items: filteredItems,
                     addressId: addressList[selectAddress]?._id,
                     subTotalAmt: filteredTotalPrice,
-                    totalAmt: filteredTotalPrice,
+                    totalAmt: finalTotal,
+                    pointsToUse: usePoints ? pointsToUse : 0,
                 },
             });
 
@@ -198,25 +225,27 @@ const CheckoutPage = () => {
     };
 
     const handleOnlinePayment = async () => {
-        setShowConfirmModal({ show: true, type: 'online' });
-    };
-
-    const confirmOnlinePayment = async () => {
         try {
+            if (usePoints && pointsToUse > 0 && pointsToUse > userPoints) {
+                toast.error('Số điểm sử dụng vượt quá số điểm hiện có');
+                return;
+            }
             setLoading(true);
-            const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-            const stripePromise = await loadStripe(stripePublicKey);
             const response = await Axios({
-                ...SummaryApi.payment_url,
+                ...SummaryApi.payment_order,
                 data: {
                     list_items: filteredItems,
                     addressId: addressList[selectAddress]?._id,
                     subTotalAmt: filteredTotalPrice,
-                    totalAmt: filteredTotalPrice,
+                    totalAmt: finalTotal,
+                    pointsToUse: usePoints ? pointsToUse : 0,
                 },
             });
 
             const { data: responseData } = response;
+
+            const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+            const stripePromise = await loadStripe(stripePublicKey);
             const { error } = await stripePromise.redirectToCheckout({
                 sessionId: responseData.id,
             });
@@ -486,16 +515,94 @@ const CheckoutPage = () => {
                                         Miễn phí
                                     </p>
                                 </div>
+                                {userPoints > 0 && (
+                                    <div className="border-t border-gray-200 pt-4 mt-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="usePoints"
+                                                    checked={usePoints}
+                                                    onChange={(e) => {
+                                                        setUsePoints(e.target.checked);
+                                                        if (!e.target.checked) {
+                                                            setPointsToUse(0);
+                                                        } else {
+                                                            // Default to using all points, but not more than the total
+                                                            const maxPoints = Math.min(
+                                                                userPoints,
+                                                                Math.floor(filteredTotalPrice / pointsValue)
+                                                            );
+                                                            setPointsToUse(maxPoints);
+                                                        }
+                                                    }}
+                                                    className="h-4 w-4 rounded border-gray-300 text-primary-2 focus:ring-primary-2"
+                                                />
+                                                <label htmlFor="usePoints" className="text-sm font-medium text-gray-700">
+                                                    Sử dụng điểm thưởng
+                                                </label>
+                                            </div>
+                                            <div className="text-sm text-gray-600">
+                                                Có sẵn: {userPoints.toLocaleString()} điểm ({DisplayPriceInVND(userPoints * pointsValue)})
+                                            </div>
+                                        </div>
+                                        
+                                        {usePoints && (
+                                            <div className="pl-6">
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max={Math.min(userPoints, Math.floor(filteredTotalPrice / pointsValue))}
+                                                        value={pointsToUse}
+                                                        onChange={(e) => setPointsToUse(parseInt(e.target.value))}
+                                                        className="h-2 w-full rounded-lg appearance-none bg-gray-200"
+                                                    />
+                                                    <span className="w-20 text-sm font-medium">
+                                                        {pointsToUse.toLocaleString()} điểm
+                                                    </span>
+                                                </div>
+                                                <div className="mt-1 text-xs text-gray-500">
+                                                    Giảm: {DisplayPriceInVND(pointsToUse * pointsValue)}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                            <div className="font-semibold flex items-center justify-between gap-4">
+                            {/* Points Discount */}
+                            {usePoints && pointsToUse > 0 && (
+                                <div className="flex justify-between text-green-600">
+                                    <p>Giảm giá từ điểm thưởng</p>
+                                    <p>-{DisplayPriceInVND(pointsToUse * pointsValue)}</p>
+                                </div>
+                            )}
+                            
+                            <div className="font-semibold flex items-center justify-between gap-4 border-t border-gray-200 pt-2">
                                 <p>Tổng cộng</p>
                                 <p className="text-secondary-200 font-bold">
-                                    {DisplayPriceInVND(filteredTotalPrice)}
+                                    {DisplayPriceInVND(
+                                        Math.max(0, filteredTotalPrice - (pointsToUse * pointsValue))
+                                    )}
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className="w-full flex flex-col gap-4 py-4 sm:text-base text-xs">
+                        {/* Points Summary */}
+                        {usePoints && pointsToUse > 0 && (
+                            <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
+                                <p className="text-sm text-blue-700">
+                                    Bạn sẽ sử dụng <span className="font-semibold">{pointsToUse.toLocaleString()} điểm</span> 
+                                    (tương đương {DisplayPriceInVND(pointsToUse * pointsValue)}) 
+                                    cho đơn hàng này.
+                                </p>
+                                <p className="text-xs text-blue-600 mt-1">
+                                    Điểm còn lại: {(userPoints - pointsToUse).toLocaleString()} điểm
+                                </p>
+                            </div>
+                        )}
+                        
                         <button
                             className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
                         cursor-pointer text-secondary-200 font-semibold"

@@ -1,6 +1,31 @@
 import mongoose from "mongoose";
 import OrderModel from "./order.model.js";
 
+// Define points history schema
+const pointsHistorySchema = new mongoose.Schema({
+    orderId: {
+        type: String,
+        required: true
+    },
+    points: {
+        type: Number,
+        required: true
+    },
+    type: {
+        type: String,
+        enum: ['earned', 'redemption', 'expired', 'admin_adjustment'],
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -74,7 +99,9 @@ const userSchema = new mongoose.Schema({
     rewardsPoint: {
         type: Number,
         default: 0,
+        min: 0,
     },
+    pointsHistory: [pointsHistorySchema],
 }, {
     timestamps: true
 })
@@ -90,10 +117,13 @@ OrderModel.schema.post('save', async function (doc) {
                 {
                     $inc: { rewardsPoint: doc.earnedPoints },
                     $push: {
-                        orderHistory: {
-                            orderId: doc._id,
-                            earnedPoints: doc.earnedPoints,
-                            date: new Date()
+                        orderHistory: doc._id,
+                        pointsHistory: {
+                            orderId: doc.orderId,
+                            points: doc.earnedPoints,
+                            type: 'earned',
+                            description: `Tích điểm từ đơn hàng ${doc.orderId}`,
+                            createdAt: new Date()
                         }
                     }
                 },

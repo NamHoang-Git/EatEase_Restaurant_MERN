@@ -36,6 +36,48 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "address",
     },
+    is_deleted: {
+        type: Boolean,
+        default: false
+    },
+    deleted_at: {
+        type: Date,
+        default: null
+    },
+    deleted_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+        default: null
+    },
+    points_used: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    points_value: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    points_earned: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    points_rate: {
+        type: Number,
+        default: 100, // 1 point = 100 VND
+        min: 1
+    },
+    points_expiry_date: {
+        type: Date,
+        default: function() {
+            // Points expire after 1 year by default
+            const expiryDate = new Date();
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+            return expiryDate;
+        }
+    },
     subTotalAmt: {
         type: Number,
         default: 0,
