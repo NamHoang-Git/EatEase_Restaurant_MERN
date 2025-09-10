@@ -536,6 +536,49 @@ const CheckoutPage = () => {
                                         Miễn phí
                                     </p>
                                 </div>
+                                {userPoints == 0 && (
+                                    <div className="border-t border-gray-200 pt-4 mt-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="usePoints"
+                                                    disabled={userPoints == 0}
+                                                    checked={usePoints}
+                                                    onChange={(e) => {
+                                                        setUsePoints(
+                                                            e.target.checked
+                                                        );
+                                                        if (!e.target.checked) {
+                                                            setPointsToUse(0);
+                                                        } else {
+                                                            setPointsToUse(
+                                                                maxPointsToUse
+                                                            );
+                                                        }
+                                                    }}
+                                                    className="h-4 w-4 rounded border-gray-300 text-primary-2 focus:ring-primary-2"
+                                                />
+                                                <label
+                                                    htmlFor="usePoints"
+                                                    className="text-sm font-medium text-gray-700"
+                                                >
+                                                    Sử dụng điểm thưởng
+                                                </label>
+                                            </div>
+                                            <div className="text-sm text-gray-400 italic flex flex-col items-end">
+                                                <p>
+                                                    Bạn chưa có điểm thưởng để
+                                                    sử dụng
+                                                </p>
+                                                <p className="text-xs">
+                                                    Điểm thưởng sẽ được cộng sau
+                                                    khi đơn hàng hoàn tất
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 {userPoints > 0 && (
                                     <div className="border-t border-gray-200 pt-4 mt-4">
                                         <div className="flex items-center justify-between mb-2">
@@ -575,7 +618,7 @@ const CheckoutPage = () => {
                                                     )}
                                                     )
                                                 </p>
-                                                <p className='text-xs'>
+                                                <p className="text-xs">
                                                     Bạn chỉ được dùng tối đa 50%
                                                     giá trị đơn hàng
                                                 </p>
