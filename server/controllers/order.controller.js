@@ -31,8 +31,10 @@ export async function CashOnDeliveryOrderController(request, response) {
 
                 if (pointsToUse > 0) {
                     const maxUsablePoints = calculateUsablePoints(user.rewardsPoint, totalAmt);
-                    if (pointsToUse > maxUsablePoints) {
-                        throw new Error(`Bạn chỉ có thể sử dụng tối đa ${maxUsablePoints} điểm cho đơn hàng này`);
+
+                    // Nếu vượt không đáng kể (do UI rounding), tự động giới hạn lại
+                    if (pointsToUse > maxUsablePoints && pointsToUse <= maxUsablePoints + 5) {
+                        pointsToUse = maxUsablePoints;
                     }
                 }
 

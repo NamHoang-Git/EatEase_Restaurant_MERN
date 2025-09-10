@@ -132,11 +132,14 @@ const CheckoutPage = () => {
             userPoints
         );
         setMaxPointsToUse(maxPoints);
-        // Reset points to use if it exceeds the new maximum
-        if (pointsToUse > maxPoints) {
-            setPointsToUse(maxPoints);
+    }, [filteredTotalPrice, userPoints, pointsValue]);
+
+    // Reset points to use if it exceeds the new maximum
+    useEffect(() => {
+        if (pointsToUse > maxPointsToUse) {
+            setPointsToUse(maxPointsToUse);
         }
-    }, [filteredTotalPrice, userPoints, pointsToUse, pointsValue]);
+    }, [pointsToUse, maxPointsToUse]);
 
     // Calculate points discount and final total
     const pointsDiscount = pointsToUse * pointsValue;
@@ -182,6 +185,10 @@ const CheckoutPage = () => {
 
     const confirmCashOnDelivery = async () => {
         try {
+            // Ensure points don't exceed maximum allowed (50% of order total)
+            const maxPointsAllowed = Math.floor((filteredTotalPrice / 2) / 100);
+            const actualPointsToUse = usePoints ? Math.min(pointsToUse, maxPointsAllowed) : 0;
+            
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.cash_on_delivery_order,
@@ -190,7 +197,7 @@ const CheckoutPage = () => {
                     addressId: addressList[selectAddress]?._id,
                     subTotalAmt: filteredTotalPrice,
                     totalAmt: finalTotal,
-                    pointsToUse: usePoints ? pointsToUse : 0,
+                    pointsToUse: actualPointsToUse,
                 },
             });
 
@@ -226,10 +233,15 @@ const CheckoutPage = () => {
 
     const handleOnlinePayment = async () => {
         try {
+            // Ensure points don't exceed maximum allowed (50% of order total)
+            const maxPointsAllowed = Math.floor((filteredTotalPrice / 2) / 100);
+            const actualPointsToUse = usePoints ? Math.min(pointsToUse, maxPointsAllowed, userPoints) : 0;
+            
             if (usePoints && pointsToUse > 0 && pointsToUse > userPoints) {
                 toast.error('Số điểm sử dụng vượt quá số điểm hiện có');
                 return;
             }
+            
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.payment_url,
@@ -238,7 +250,7 @@ const CheckoutPage = () => {
                     addressId: addressList[selectAddress]?._id,
                     subTotalAmt: filteredTotalPrice,
                     totalAmt: finalTotal,
-                    pointsToUse: usePoints ? pointsToUse : 0,
+                    pointsToUse: actualPointsToUse,
                 },
             });
 
@@ -536,18 +548,7 @@ const CheckoutPage = () => {
                                                         if (!e.target.checked) {
                                                             setPointsToUse(0);
                                                         } else {
-                                                            // Default to using all points, but not more than the total
-                                                            const maxPoints =
-                                                                Math.min(
-                                                                    userPoints,
-                                                                    Math.floor(
-                                                                        filteredTotalPrice /
-                                                                            pointsValue
-                                                                    )
-                                                                );
-                                                            setPointsToUse(
-                                                                maxPoints
-                                                            );
+                                                            setPointsToUse(maxPointsToUse);
                                                         }
                                                     }}
                                                     className="h-4 w-4 rounded border-gray-300 text-primary-2 focus:ring-primary-2"
@@ -576,13 +577,7 @@ const CheckoutPage = () => {
                                                     <input
                                                         type="range"
                                                         min="0"
-                                                        max={Math.min(
-                                                            userPoints,
-                                                            Math.floor(
-                                                                filteredTotalPrice /
-                                                                    pointsValue
-                                                            )
-                                                        )}
+                                                        max={maxPointsToUse}
                                                         value={pointsToUse}
                                                         onChange={(e) =>
                                                             setPointsToUse(
