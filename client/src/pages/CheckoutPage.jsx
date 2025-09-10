@@ -186,9 +186,11 @@ const CheckoutPage = () => {
     const confirmCashOnDelivery = async () => {
         try {
             // Ensure points don't exceed maximum allowed (50% of order total)
-            const maxPointsAllowed = Math.floor((filteredTotalPrice / 2) / 100);
-            const actualPointsToUse = usePoints ? Math.min(pointsToUse, maxPointsAllowed) : 0;
-            
+            const maxPointsAllowed = Math.floor(filteredTotalPrice / 2 / 100);
+            const actualPointsToUse = usePoints
+                ? Math.min(pointsToUse, maxPointsAllowed)
+                : 0;
+
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.cash_on_delivery_order,
@@ -234,14 +236,16 @@ const CheckoutPage = () => {
     const handleOnlinePayment = async () => {
         try {
             // Ensure points don't exceed maximum allowed (50% of order total)
-            const maxPointsAllowed = Math.floor((filteredTotalPrice / 2) / 100);
-            const actualPointsToUse = usePoints ? Math.min(pointsToUse, maxPointsAllowed, userPoints) : 0;
-            
+            const maxPointsAllowed = Math.floor(filteredTotalPrice / 2 / 100);
+            const actualPointsToUse = usePoints
+                ? Math.min(pointsToUse, maxPointsAllowed, userPoints)
+                : 0;
+
             if (usePoints && pointsToUse > 0 && pointsToUse > userPoints) {
                 toast.error('Số điểm sử dụng vượt quá số điểm hiện có');
                 return;
             }
-            
+
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.payment_url,
@@ -277,7 +281,6 @@ const CheckoutPage = () => {
             setShowConfirmModal({ show: false, type: '' });
         }
     };
-
 
     const hasDiscount = cartItemsList
         .filter((item) => selectedItems.includes(item._id))
@@ -548,7 +551,9 @@ const CheckoutPage = () => {
                                                         if (!e.target.checked) {
                                                             setPointsToUse(0);
                                                         } else {
-                                                            setPointsToUse(maxPointsToUse);
+                                                            setPointsToUse(
+                                                                maxPointsToUse
+                                                            );
                                                         }
                                                     }}
                                                     className="h-4 w-4 rounded border-gray-300 text-primary-2 focus:ring-primary-2"
@@ -560,20 +565,26 @@ const CheckoutPage = () => {
                                                     Sử dụng điểm thưởng
                                                 </label>
                                             </div>
-                                            <div className="text-sm text-gray-600">
-                                                Có sẵn:{' '}
-                                                {userPoints.toLocaleString()}{' '}
-                                                điểm (
-                                                {DisplayPriceInVND(
-                                                    userPoints * pointsValue
-                                                )}
-                                                )
+                                            <div className="text-sm text-gray-600 flex flex-col items-end">
+                                                <p>
+                                                    Có sẵn:{' '}
+                                                    {userPoints.toLocaleString()}{' '}
+                                                    điểm (
+                                                    {DisplayPriceInVND(
+                                                        userPoints * pointsValue
+                                                    )}
+                                                    )
+                                                </p>
+                                                <p className='text-xs'>
+                                                    Bạn chỉ được dùng tối đa 50%
+                                                    giá trị đơn hàng
+                                                </p>
                                             </div>
                                         </div>
 
                                         {usePoints && (
                                             <div className="pl-6">
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 mb-2">
                                                     <input
                                                         type="range"
                                                         min="0"
@@ -589,10 +600,104 @@ const CheckoutPage = () => {
                                                         }
                                                         className="h-2 w-full rounded-lg appearance-none bg-gray-200"
                                                     />
-                                                    <span className="w-20 text-sm font-medium">
-                                                        {pointsToUse.toLocaleString()}{' '}
-                                                        điểm
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
+                                                        value={
+                                                            pointsToUse === 0
+                                                                ? ''
+                                                                : pointsToUse
+                                                        }
+                                                        onChange={(e) => {
+                                                            const rawValue =
+                                                                e.target.value;
+                                                            // Allow empty string for better UX when clearing the input
+                                                            if (
+                                                                rawValue === ''
+                                                            ) {
+                                                                setPointsToUse(
+                                                                    0
+                                                                );
+                                                                return;
+                                                            }
+                                                            // Only allow numbers
+                                                            if (
+                                                                /^\d+$/.test(
+                                                                    rawValue
+                                                                )
+                                                            ) {
+                                                                const value =
+                                                                    parseInt(
+                                                                        rawValue,
+                                                                        10
+                                                                    );
+                                                                if (
+                                                                    !isNaN(
+                                                                        value
+                                                                    )
+                                                                ) {
+                                                                    setPointsToUse(
+                                                                        Math.min(
+                                                                            Math.max(
+                                                                                0,
+                                                                                value
+                                                                            ),
+                                                                            maxPointsToUse
+                                                                        )
+                                                                    );
+                                                                }
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            // Ensure we have a valid number when input loses focus
+                                                            const value =
+                                                                parseInt(
+                                                                    e.target
+                                                                        .value
+                                                                ) || 0;
+                                                            setPointsToUse(
+                                                                Math.min(
+                                                                    Math.max(
+                                                                        0,
+                                                                        value
+                                                                    ),
+                                                                    maxPointsToUse
+                                                                )
+                                                            );
+                                                        }}
+                                                        className="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                                                        aria-label="Số điểm sử dụng"
+                                                        placeholder="0"
+                                                    />
+
+                                                    <span className="text-sm font-medium">
+                                                        điểm (tối đa:{' '}
+                                                        {maxPointsToUse.toLocaleString()}
+                                                        )
                                                     </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setPointsToUse(
+                                                                maxPointsToUse
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            pointsToUse ===
+                                                            maxPointsToUse
+                                                        }
+                                                        className={`text-xs px-2 py-1 rounded ${
+                                                            pointsToUse ===
+                                                            maxPointsToUse
+                                                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                                                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                                        }`}
+                                                    >
+                                                        Dùng tối đa
+                                                    </button>
                                                 </div>
                                                 <div className="mt-1 text-xs text-gray-500">
                                                     Giảm:{' '}
@@ -661,7 +766,12 @@ const CheckoutPage = () => {
                         <button
                             className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
                         cursor-pointer text-secondary-200 font-semibold"
-                            onClick={() => setShowConfirmModal({ show: true, type: 'online' })}
+                            onClick={() =>
+                                setShowConfirmModal({
+                                    show: true,
+                                    type: 'online',
+                                })
+                            }
                             disabled={loading}
                         >
                             {loading ? <Loading /> : 'Thanh toán online'}
@@ -717,10 +827,12 @@ const CheckoutPage = () => {
                             <button
                                 className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded-md text-secondary-200 font-bold cursor-pointer
                             border-[3px] border-inset border-secondary-200"
-                                onClick={{
-                                    cash: confirmCashOnDelivery,
-                                    online: handleOnlinePayment,
-                                }[showConfirmModal.type] || (() => {})}
+                                onClick={
+                                    {
+                                        cash: confirmCashOnDelivery,
+                                        online: handleOnlinePayment,
+                                    }[showConfirmModal.type] || (() => {})
+                                }
                                 disabled={loading}
                             >
                                 {loading ? <Loading /> : 'Xác nhận'}
