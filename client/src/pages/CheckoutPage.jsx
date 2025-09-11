@@ -214,17 +214,19 @@ const CheckoutPage = () => {
                     ...voucher, // Spread the voucher data from API first
                     code: voucher.code || voucherCode.trim(),
                     name: voucher.name || 'Mã giảm giá',
-                    discountValue: Number(voucher.discountValue) || 0,
+                    // Use discountValue if available, otherwise fallback to discount
+                    discountValue: Number(
+                        voucher.discountValue || voucher.discount || 0
+                    ),
                     discountType: voucher.discountType || 'fixed',
                     isFreeShipping: voucher.isFreeShipping || false,
                     calculatedDiscount: Number(voucher.calculatedDiscount) || 0,
-                    maxDiscount: Number(voucher.maxDiscount) || 0
+                    maxDiscount: Number(voucher.maxDiscount) || 0,
+                    // Ensure discount is set for backward compatibility
+                    discount: Number(
+                        voucher.discount || voucher.discountValue || 0
+                    ),
                 };
-                
-                // Ensure discountValue is set correctly
-                if (!formattedVoucher.discountValue && formattedVoucher.discount) {
-                    formattedVoucher.discountValue = Number(formattedVoucher.discount);
-                }
 
                 if (formattedVoucher.isFreeShipping) {
                     setSelectedVouchers((prev) => ({
@@ -312,15 +314,17 @@ const CheckoutPage = () => {
 
         // Calculate regular voucher discount if any
         if (selectedVouchers.regular) {
-            const { discountType, discountValue, maxDiscount } = selectedVouchers.regular;
+            const { discountType, discountValue, maxDiscount } =
+                selectedVouchers.regular;
             const discount = Number(discountValue) || 0;
             const maxDiscountValue = Number(maxDiscount) || 0;
 
             if (discountType === 'percentage') {
                 const discountAmount = (filteredTotalPrice * discount) / 100;
-                totalDiscount += maxDiscountValue > 0
-                    ? Math.min(discountAmount, maxDiscountValue)
-                    : discountAmount;
+                totalDiscount +=
+                    maxDiscountValue > 0
+                        ? Math.min(discountAmount, maxDiscountValue)
+                        : discountAmount;
             } else if (discountType === 'fixed') {
                 totalDiscount += Math.min(discount, filteredTotalPrice);
             }
@@ -1715,9 +1719,10 @@ const CheckoutPage = () => {
                                         {voucherCode && (
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    setVoucherCode('')
-                                                }
+                                                onClick={() => {
+                                                    setVoucherCode('');
+                                                    setVoucherError('');
+                                                }}
                                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                             >
                                                 <svg
