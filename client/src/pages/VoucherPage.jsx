@@ -22,7 +22,7 @@ const VoucherPage = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [openEditVoucher, setOpenEditVoucher] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'inactive'
+    const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const [sortConfig, setSortConfig] = useState({
@@ -232,10 +232,35 @@ const VoucherPage = () => {
             let result = [...data];
 
             // Apply status filter
-            if (statusFilter !== 'all') {
-                const isActive = statusFilter === 'active';
+            if (statusFilter === 'active') {
+                result = result.filter((voucher) => voucher.isActive === true);
+            } else if (statusFilter === 'inactive') {
+                result = result.filter((voucher) => voucher.isActive === false);
+            } else if (statusFilter === 'applying') {
                 result = result.filter(
-                    (voucher) => voucher.isActive === isActive
+                    (voucher) =>
+                        new Date(voucher.startDate) < new Date() &&
+                        new Date(voucher.endDate) > new Date()
+                );
+            } else if (statusFilter === 'expired') {
+                result = result.filter(
+                    (voucher) => new Date(voucher.endDate) < new Date()
+                );
+            } else if (statusFilter === 'upcoming') {
+                result = result.filter(
+                    (voucher) => new Date(voucher.startDate) > new Date()
+                );
+            } else if (statusFilter === 'percentage') {
+                result = result.filter(
+                    (voucher) => voucher.discountType === 'percentage'
+                );
+            } else if (statusFilter === 'fixed') {
+                result = result.filter(
+                    (voucher) => voucher.discountType === 'fixed'
+                );
+            } else if (statusFilter === 'free_shipping') {
+                result = result.filter(
+                    (voucher) => voucher.discountType === 'free_shipping'
                 );
             }
 
@@ -425,49 +450,93 @@ const VoucherPage = () => {
             </div>
 
             {/* Filters */}
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center space-x-4">
-                    <div className="relative">
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="block appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option value="all">Tất cả</option>
-                            <option value="active">Đang hoạt động</option>
-                            <option value="inactive">Đã tắt</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            <svg
-                                className="fill-current h-4 w-4"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                    <button
+                        onClick={() => {
+                            setStatusFilter('all');
+                            setSearchTerm('');
+                        }}
+                        className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors whitespace-nowrap"
+                    >
+                        Đặt lại bộ lọc
+                    </button>
+
+                    <div className="w-full sm:w-auto grid grid-cols-2 gap-3">
+                        <div className="relative w-full">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) =>
+                                    setStatusFilter(e.target.value)
+                                }
+                                className="w-full appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                             >
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                            </svg>
+                                <option value="all">Chọn trạng thái</option>
+                                <option value="active">Đang hoạt động</option>
+                                <option value="inactive">Đã tắt</option>
+                                <option value="applying">Đang áp dụng</option>
+                                <option value="expired">Đã hết hạn</option>
+                                <option value="upcoming">Sắp diễn ra</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg
+                                    className="fill-current h-4 w-4"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div className="relative w-full">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) =>
+                                    setStatusFilter(e.target.value)
+                                }
+                                className="w-full appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            >
+                                <option value="all">Chọn loại giảm giá</option>
+                                <option value="percentage">Phần trăm</option>
+                                <option value="fixed">Giảm giá cố định</option>
+                                <option value="free_shipping">
+                                    Miễn phí vận chuyển
+                                </option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg
+                                    className="fill-current h-4 w-4"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm mã giảm giá..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg
-                            className="h-5 w-5 text-gray-400"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
+
+                <div className="w-full md:w-64">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm mã giảm giá..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg
+                                className="h-4 w-4 text-gray-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -504,6 +573,19 @@ const VoucherPage = () => {
                             >
                                 Tên
                                 {sortConfig.key === 'name' && (
+                                    <span>
+                                        {sortConfig.direction === 'asc'
+                                            ? ' ↑'
+                                            : ' ↓'}
+                                    </span>
+                                )}
+                            </th>
+                            <th
+                                className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                onClick={() => requestSort('discountType')}
+                            >
+                                Loại giảm giá
+                                {sortConfig.key === 'discountType' && (
                                     <span>
                                         {sortConfig.direction === 'asc'
                                             ? ' ↑'
@@ -592,16 +674,46 @@ const VoucherPage = () => {
                                             }
                                         />
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {voucher.code}
+                                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex flex-col">
+                                        <p>{voucher.code}</p>
+                                        <span>
+                                            {new Date() <
+                                            new Date(voucher.startDate) ? (
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    Sắp diễn ra
+                                                </span>
+                                            ) : new Date() >
+                                              new Date(voucher.endDate) ? (
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Đã hết hạn
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Đang áp dụng
+                                                </span>
+                                            )}
+                                        </span>
                                     </td>
+
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {voucher.name}
+                                    </td>
+                                    <td>
+                                        {voucher.discountType ===
+                                        'percentage' ? (
+                                            <p>Percentage (%)</p>
+                                        ) : voucher.discountType === 'fixed' ? (
+                                            <p>Fixed (VNĐ)</p>
+                                        ) : (
+                                            <p>Free Shipping</p>
+                                        )}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {voucher.discountType === 'percentage'
                                             ? `${voucher.discountValue}%`
-                                            : `${voucher.discountValue.toLocaleString()}đ`}
+                                            : voucher.discountType === 'fixed'
+                                            ? `${voucher.discountValue.toLocaleString()}đ`
+                                            : `Miễn phí vận chuyển`}
                                         {voucher.maxDiscount &&
                                             voucher.discountType ===
                                                 'percentage' && (
@@ -644,6 +756,26 @@ const VoucherPage = () => {
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
+                                            <div className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    name="isActive"
+                                                    checked={voucher.isActive}
+                                                    onChange={() =>
+                                                        handleToggleStatus(
+                                                            voucher
+                                                        )
+                                                    }
+                                                />
+                                                <div
+                                                    className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+                                                        voucher.isActive
+                                                            ? 'bg-green-300'
+                                                            : 'bg-gray-300'
+                                                    }`}
+                                                ></div>
+                                            </div>
                                             <button
                                                 onClick={() => {
                                                     setEditFormData({
@@ -675,20 +807,6 @@ const VoucherPage = () => {
                                                 className="text-red-600 hover:text-red-900"
                                             >
                                                 <IoTrash size={18} />
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleToggleStatus(voucher)
-                                                }
-                                                className={`${
-                                                    voucher.isActive
-                                                        ? 'text-yellow-600 hover:text-yellow-900'
-                                                        : 'text-green-600 hover:text-green-900'
-                                                }`}
-                                            >
-                                                {voucher.isActive
-                                                    ? 'Tắt'
-                                                    : 'Bật'}
                                             </button>
                                         </div>
                                     </td>
