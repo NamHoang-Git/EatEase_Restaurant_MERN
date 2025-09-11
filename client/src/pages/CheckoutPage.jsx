@@ -36,7 +36,10 @@ const CheckoutPage = () => {
     const [pointsToUse, setPointsToUse] = useState(0);
     const [maxPointsToUse, setMaxPointsToUse] = useState(0);
     const [showVouchers, setShowVouchers] = useState(false);
-    const [selectedVoucher, setSelectedVoucher] = useState(null);
+    const [selectedVouchers, setSelectedVouchers] = useState({
+        freeShipping: null,
+        regular: null,
+    });
     const userPoints = useSelector((state) => state.user.rewardsPoint || 0);
     const pointsValue = 100; // 1 point = 100 VND
     const shippingCost = 30000; // Lấy từ API hoặc config
@@ -175,6 +178,16 @@ const CheckoutPage = () => {
         selectedItems.includes(item._id)
     );
 
+    const filteredTotalPrice = filteredItems.reduce(
+        (acc, item) =>
+            acc +
+            (item.productId?.price || 0) *
+                (item.quantity || 1) *
+                (1 - (item.productId?.discount || 0) / 100) +
+            (selectedVouchers.freeShipping ? 0 : shippingCost),
+        0
+    );
+
     // Cleanup cart after payment
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -208,16 +221,6 @@ const CheckoutPage = () => {
         location.state,
     ]);
 
-    const filteredTotalPrice = filteredItems.reduce(
-        (acc, item) =>
-            acc +
-            (item.productId?.price || 0) *
-                (item.quantity || 1) *
-                (1 - (item.productId?.discount || 0) / 100) +
-            shippingCost,
-        0
-    );
-
     useEffect(() => {
         const maxPoints = Math.min(
             Math.floor((filteredTotalPrice * 0.5) / pointsValue),
@@ -233,59 +236,79 @@ const CheckoutPage = () => {
     }, [pointsToUse, maxPointsToUse]);
 
     const calculateVoucherDiscount = useCallback(() => {
-        if (!selectedVoucher) return 0;
+        let totalDiscount = 0;
 
-        const { discountType, discount, maxDiscount, isFreeShipping } =
-            selectedVoucher;
-        const discountValue = Number(discount) || 0;
-        const maxDiscountValue = Number(maxDiscount) || 0;
-
-        if (isFreeShipping) {
-            return shippingCost;
+        // Calculate free shipping discount if any
+        if (selectedVouchers.freeShipping) {
+            totalDiscount += shippingCost;
         }
 
-        if (discountType === 'percentage') {
-            const discountAmount = (filteredTotalPrice * discountValue) / 100;
-            return maxDiscountValue > 0
-                ? Math.min(discountAmount, maxDiscountValue)
-                : discountAmount;
-        }
+        // Calculate regular voucher discount if any
+        if (selectedVouchers.regular) {
+            const { discountType, discount, maxDiscount } =
+                selectedVouchers.regular;
+            const discountValue = Number(discount) || 0;
+            const maxDiscountValue = Number(maxDiscount) || 0;
 
-        if (discountType === 'fixed') {
-            return Math.min(discountValue, filteredTotalPrice);
-        }
-
-        return 0;
-    }, [selectedVoucher, filteredTotalPrice]);
-
-    const handleSelectVoucher = useCallback(
-        (voucher) => {
-            if (selectedVoucher && selectedVoucher._id === voucher._id) {
-                setSelectedVoucher(null);
-                toast.success('Đã bỏ chọn mã giảm giá');
-            } else {
-                setSelectedVoucher(voucher);
-                setShowVouchers(false);
-                if (voucher.isFreeShipping) {
-                    toast.success('Áp dụng mã miễn phí vận chuyển thành công!');
-                } else if (voucher.discountType === 'percentage') {
-                    toast.success(
-                        `Áp dụng giảm giá ${voucher.discount}% thành công!`
-                    );
-                } else {
-                    toast.success(
-                        `Áp dụng giảm giá ${DisplayPriceInVND(
-                            voucher.discount
-                        )} thành công!`
-                    );
-                }
+            if (discountType === 'percentage') {
+                const discountAmount =
+                    (filteredTotalPrice * discountValue) / 100;
+                totalDiscount +=
+                    maxDiscountValue > 0
+                        ? Math.min(discountAmount, maxDiscountValue)
+                        : discountAmount;
+            } else if (discountType === 'fixed') {
+                totalDiscount += Math.min(discountValue, filteredTotalPrice);
             }
-        },
-        [selectedVoucher]
-    );
+        }
 
-    const removeVoucher = useCallback(() => {
-        setSelectedVoucher(null);
+        return totalDiscount;
+    }, [selectedVouchers, filteredTotalPrice, shippingCost]);
+
+    const handleSelectVoucher = useCallback((voucher) => {
+        setSelectedVouchers((prev) => {
+            const voucherType = voucher.isFreeShipping
+                ? 'freeShipping'
+                : 'regular';
+
+            // Create a new vouchers object first
+            const newVouchers = { ...prev };
+
+            // If clicking the same voucher, deselect it
+            if (prev[voucherType]?.id === voucher.id) {
+                newVouchers[voucherType] = null;
+                toast.success('Đã bỏ chọn mã giảm giá');
+                return newVouchers;
+            }
+
+            // Otherwise, select the new voucher
+            newVouchers[voucherType] = voucher;
+
+            // Show success message
+            if (voucher.isFreeShipping) {
+                toast.success('Áp dụng mã miễn phí vận chuyển thành công!');
+            } else if (voucher.discountType === 'percentage') {
+                toast.success(
+                    `Áp dụng giảm giá ${voucher.discount}% thành công!`
+                );
+            } else if (voucher.discountType === 'fixed') {
+                toast.success(
+                    `Áp dụng giảm giá ${DisplayPriceInVND(
+                        voucher.discount || 0
+                    )} thành công!`
+                );
+            }
+
+            setShowVouchers(false);
+            return newVouchers;
+        });
+    }, []);
+
+    const removeVoucher = useCallback((voucherType) => {
+        setSelectedVouchers((prev) => ({
+            ...prev,
+            [voucherType]: null,
+        }));
         toast.success('Đã xóa mã giảm giá');
     }, []);
 
@@ -676,7 +699,7 @@ const CheckoutPage = () => {
                                 <div className="flex gap-4 justify-between">
                                     <p>Phí vận chuyển</p>
                                     <div className="flex items-center gap-2">
-                                        {selectedVoucher?.isFreeShipping ? (
+                                        {selectedVouchers?.freeShipping ? (
                                             <div className="flex items-center">
                                                 <span className="line-through text-gray-400 mr-2">
                                                     {DisplayPriceInVND(
@@ -698,89 +721,59 @@ const CheckoutPage = () => {
                                 </div>
                                 {/* Voucher Section */}
                                 <div className="border-t border-gray-200 pt-4 mt-2">
-                                    {selectedVoucher ? (
-                                        <div
-                                            className={`mb-2 p-3 rounded-md border ${
-                                                selectedVoucher.isFreeShipping
-                                                    ? 'bg-blue-50 border-blue-200'
-                                                    : 'bg-green-50 border-green-200'
-                                            }`}
-                                        >
+                                    {/* Free Shipping Voucher */}
+                                    {selectedVouchers.freeShipping && (
+                                        <div className="mb-2 p-3 rounded-md border bg-blue-50 border-blue-200">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2">
-                                                        <p className="font-medium text-gray-800">
+                                                        <p className="font-medium">
                                                             {
-                                                                selectedVoucher.code
+                                                                selectedVouchers
+                                                                    .freeShipping
+                                                                    .code
                                                             }
                                                         </p>
-                                                        {selectedVoucher.isFreeShipping && (
-                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                                                Freeship
-                                                            </span>
-                                                        )}
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                            Freeship
+                                                        </span>
                                                     </div>
                                                     <p className="text-sm mt-1 text-gray-600">
-                                                        {selectedVoucher.description ||
-                                                            selectedVoucher.name}
+                                                        {selectedVouchers
+                                                            .freeShipping
+                                                            .description ||
+                                                            selectedVouchers
+                                                                .freeShipping
+                                                                .name}
                                                     </p>
                                                     <div className="mt-2">
-                                                        {selectedVoucher.isFreeShipping ? (
-                                                            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                                <svg
-                                                                    className="mr-1.5 h-3 w-3"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    viewBox="0 0 24 24"
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                >
-                                                                    <path
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        strokeWidth={
-                                                                            2
-                                                                        }
-                                                                        d="M5 13l4 4L19 7"
-                                                                    />
-                                                                </svg>
-                                                                Miễn phí vận
-                                                                chuyển
-                                                            </div>
-                                                        ) : (
-                                                            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                <svg
-                                                                    className="mr-1.5 h-3 w-3"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    viewBox="0 0 24 24"
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                >
-                                                                    <path
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        strokeWidth={
-                                                                            2
-                                                                        }
-                                                                        d="M5 13l4 4L19 7"
-                                                                    />
-                                                                </svg>
-                                                                {selectedVoucher.discountType ===
-                                                                'percentage'
-                                                                    ? `Giảm ${selectedVoucher.discount}%`
-                                                                    : `Giảm ${DisplayPriceInVND(
-                                                                          selectedVoucher.discount
-                                                                      )}`}
-                                                                {selectedVoucher.maxDiscount >
-                                                                    0 &&
-                                                                    ` (tối đa ${DisplayPriceInVND(
-                                                                        selectedVoucher.maxDiscount
-                                                                    )})`}
-                                                            </div>
-                                                        )}
+                                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            <svg
+                                                                className="mr-1.5 h-3 w-3"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M5 13l4 4L19 7"
+                                                                />
+                                                            </svg>
+                                                            Miễn phí vận chuyển
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button
-                                                    onClick={removeVoucher}
+                                                    onClick={() =>
+                                                        removeVoucher(
+                                                            'freeShipping'
+                                                        )
+                                                    }
                                                     className="text-red-500 hover:text-red-700"
                                                 >
                                                     <svg
@@ -800,48 +793,135 @@ const CheckoutPage = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                    ) : (
+                                    )}
+
+                                    {/* Regular Voucher */}
+                                    {selectedVouchers.regular && (
+                                        <div className="mb-2 p-3 rounded-md border bg-green-50 border-green-200">
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-medium">
+                                                            {
+                                                                selectedVouchers
+                                                                    .regular
+                                                                    .code
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-sm mt-1 text-gray-600">
+                                                        {selectedVouchers
+                                                            .regular
+                                                            .description ||
+                                                            selectedVouchers
+                                                                .regular.name}
+                                                    </p>
+                                                    <div className="mt-2">
+                                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            <svg
+                                                                className="mr-1.5 h-3 w-3"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M5 13l4 4L19 7"
+                                                                />
+                                                            </svg>
+                                                            {selectedVouchers
+                                                                .regular
+                                                                .discountType ===
+                                                            'percentage'
+                                                                ? `Giảm ${selectedVouchers.regular.discount}%`
+                                                                : `Giảm ${DisplayPriceInVND(
+                                                                      selectedVouchers
+                                                                          .regular
+                                                                          .discount
+                                                                  )}`}
+                                                            {selectedVouchers
+                                                                .regular
+                                                                .maxDiscount >
+                                                                0 &&
+                                                                ` (tối đa ${DisplayPriceInVND(
+                                                                    selectedVouchers
+                                                                        .regular
+                                                                        .maxDiscount
+                                                                )})`}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() =>
+                                                        removeVoucher('regular')
+                                                    }
+                                                    className="text-red-500 hover:text-red-700"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Show voucher selection button if not both vouchers are selected */}
+                                    {!selectedVouchers.freeShipping ||
+                                    !selectedVouchers.regular ? (
                                         <div
                                             className="flex items-center justify-between cursor-pointer"
                                             onClick={() =>
                                                 setShowVouchers(!showVouchers)
                                             }
                                         >
-                                            <p className="font-medium">
-                                                Mã giảm giá
-                                            </p>
-                                            <div className="flex items-center">
-                                                <span className="text-sm text-gray-500 mr-1">
-                                                    {loadingVouchers
-                                                        ? 'Đang tải...'
-                                                        : `${
-                                                              availableVouchers.filter(
-                                                                  (v) =>
-                                                                      new Date(
-                                                                          v.startDate
-                                                                      ) <=
-                                                                      new Date()
-                                                              ).length
-                                                          } mã khả dụng`}
-                                                </span>
+                                            <div className="flex items-center gap-2 text-sm">
                                                 <svg
-                                                    className={`w-4 h-4 transition-transform ${
-                                                        showVouchers
-                                                            ? 'transform rotate-180'
-                                                            : ''
-                                                    } ${
-                                                        loadingVouchers
-                                                            ? 'animate-spin'
-                                                            : ''
-                                                    }`}
-                                                    fill="none"
-                                                    stroke={
-                                                        loadingVouchers
-                                                            ? '#9CA3AF'
-                                                            : '#6B7280'
-                                                    }
-                                                    viewBox="0 0 24 24"
                                                     xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5 text-green-600"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M15 5v2m0 4v2m0 4v2m5-11h2m0 4h-2m0 4h-2m-6 2a1 1 0 11-2 0 1 1 0 012 0zM7 7a1 1 0 11-2 0 1 1 0 012 0z"
+                                                    />
+                                                </svg>
+                                                <p>
+                                                    Chọn hoặc nhập mã giảm giá
+                                                </p>
+                                            </div>
+                                            <div
+                                                className={`transition-transform ${
+                                                    showVouchers
+                                                        ? 'rotate-180'
+                                                        : ''
+                                                }`}
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4 text-gray-500"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
                                                 >
                                                     <path
                                                         strokeLinecap="round"
@@ -852,7 +932,7 @@ const CheckoutPage = () => {
                                                 </svg>
                                             </div>
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
                                 {showVouchers && (
                                     <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
@@ -889,8 +969,17 @@ const CheckoutPage = () => {
                                                                                 voucher.id
                                                                             }
                                                                             className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                                                                                selectedVoucher?.id ===
-                                                                                voucher.id
+                                                                                (
+                                                                                    voucher.isFreeShipping
+                                                                                        ? selectedVouchers
+                                                                                              .freeShipping
+                                                                                              ?.id ===
+                                                                                          voucher.id
+                                                                                        : selectedVouchers
+                                                                                              .regular
+                                                                                              ?.id ===
+                                                                                          voucher.id
+                                                                                )
                                                                                     ? 'border-green-500 bg-green-50'
                                                                                     : 'border-gray-200 hover:border-green-300'
                                                                             }`}
@@ -909,7 +998,7 @@ const CheckoutPage = () => {
                                                                                     </div>
                                                                                     <p className="text-sm text-gray-600">
                                                                                         {
-                                                                                            voucher.description
+                                                                                            voucher.name
                                                                                         }
                                                                                     </p>
                                                                                     <div className="text-xs text-gray-500">
@@ -918,7 +1007,8 @@ const CheckoutPage = () => {
                                                                                             tối
                                                                                             thiểu:{' '}
                                                                                             {DisplayPriceInVND(
-                                                                                                voucher.minOrderValue ||
+                                                                                                voucher.minOrder ||
+                                                                                                    voucher.minOrderValue ||
                                                                                                     0
                                                                                             )}
                                                                                         </p>
@@ -944,7 +1034,8 @@ const CheckoutPage = () => {
                                                                                         đơn
                                                                                         từ{' '}
                                                                                         {DisplayPriceInVND(
-                                                                                            voucher.minOrderValue ||
+                                                                                            voucher.minOrder ||
+                                                                                                voucher.minOrderValue ||
                                                                                                 0
                                                                                         )}
                                                                                     </p>
@@ -983,8 +1074,17 @@ const CheckoutPage = () => {
                                                                                 voucher.id
                                                                             }
                                                                             className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                                                                                selectedVoucher?.id ===
-                                                                                voucher.id
+                                                                                (
+                                                                                    voucher.isFreeShipping
+                                                                                        ? selectedVouchers
+                                                                                              .freeShipping
+                                                                                              ?.id ===
+                                                                                          voucher.id
+                                                                                        : selectedVouchers
+                                                                                              .regular
+                                                                                              ?.id ===
+                                                                                          voucher.id
+                                                                                )
                                                                                     ? 'border-green-500 bg-green-50'
                                                                                     : 'border-gray-200 hover:border-green-300'
                                                                             }`}
@@ -1003,7 +1103,7 @@ const CheckoutPage = () => {
                                                                                     </div>
                                                                                     <p className="text-sm text-gray-600">
                                                                                         {
-                                                                                            voucher.description
+                                                                                            voucher.name
                                                                                         }
                                                                                     </p>
                                                                                     <div className="text-xs text-gray-500 space-y-1">
@@ -1012,7 +1112,8 @@ const CheckoutPage = () => {
                                                                                             tối
                                                                                             thiểu:{' '}
                                                                                             {DisplayPriceInVND(
-                                                                                                voucher.minOrderValue ||
+                                                                                                voucher.minOrder ||
+                                                                                                    voucher.minOrderValue ||
                                                                                                     0
                                                                                             )}
                                                                                         </p>
@@ -1120,7 +1221,7 @@ const CheckoutPage = () => {
                                                                                             </div>
                                                                                             <p className="text-sm text-gray-600 mt-1">
                                                                                                 {
-                                                                                                    voucher.description
+                                                                                                    voucher.name
                                                                                                 }
                                                                                             </p>
                                                                                             <div className="text-xs text-gray-500 mt-1">
@@ -1129,7 +1230,8 @@ const CheckoutPage = () => {
                                                                                                     tối
                                                                                                     thiểu:{' '}
                                                                                                     {DisplayPriceInVND(
-                                                                                                        voucher.minOrderValue ||
+                                                                                                        voucher.minOrder ||
+                                                                                                            voucher.minOrderValue ||
                                                                                                             0
                                                                                                     )}
                                                                                                 </p>
@@ -1176,7 +1278,8 @@ const CheckoutPage = () => {
                                                                                                     đơn
                                                                                                     từ{' '}
                                                                                                     {DisplayPriceInVND(
-                                                                                                        voucher.minOrderValue ||
+                                                                                                        voucher.minOrder ||
+                                                                                                            voucher.minOrderValue ||
                                                                                                             0
                                                                                                     )}
                                                                                                 </p>
@@ -1235,7 +1338,7 @@ const CheckoutPage = () => {
                                                                                             </div>
                                                                                             <p className="text-sm text-gray-600 mt-1">
                                                                                                 {
-                                                                                                    voucher.description
+                                                                                                    voucher.name
                                                                                                 }
                                                                                             </p>
                                                                                             <div className="text-xs text-gray-500 mt-1">
@@ -1244,7 +1347,8 @@ const CheckoutPage = () => {
                                                                                                     tối
                                                                                                     thiểu:{' '}
                                                                                                     {DisplayPriceInVND(
-                                                                                                        voucher.minOrderValue ||
+                                                                                                        voucher.minOrder ||
+                                                                                                            voucher.minOrderValue ||
                                                                                                             0
                                                                                                     )}
                                                                                                 </p>
@@ -1534,7 +1638,7 @@ const CheckoutPage = () => {
                             </div>
                             <div className="flex justify-between text-sm text-gray-600">
                                 <p>Phí vận chuyển:</p>
-                                {selectedVoucher?.isFreeShipping ? (
+                                {selectedVouchers?.freeShipping ? (
                                     <div className="flex items-center">
                                         <span className="line-through text-gray-400 mr-2">
                                             {DisplayPriceInVND(shippingCost)}
@@ -1547,7 +1651,7 @@ const CheckoutPage = () => {
                                     <p>{DisplayPriceInVND(shippingCost)}</p>
                                 )}
                             </div>
-                            {selectedVoucher && (
+                            {selectedVouchers && (
                                 <div className="flex justify-between text-sm">
                                     <p className="text-gray-600">Giảm giá:</p>
                                     <p className="text-green-600">

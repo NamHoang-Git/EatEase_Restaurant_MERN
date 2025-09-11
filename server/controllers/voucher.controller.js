@@ -311,7 +311,7 @@ export const getAvailableVouchersController = async (req, res) => {
             let description = voucher.description || '';
             if (isFreeShipping) {
                 description = description ? `${description}. ` : '';
-                description += 'Miễn phí vận chuyển cho đơn hàng từ ' + 
+                description += 'Miễn phí vận chuyển cho đơn hàng từ ' +
                     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
                         .format(voucher.minOrderValue || 0);
             }
@@ -332,8 +332,8 @@ export const getAvailableVouchersController = async (req, res) => {
                 isUpcoming,
                 availableFrom: isUpcoming ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : null,
                 // Add human-readable discount text
-                discountText: isFreeShipping 
-                    ? 'Miễn phí vận chuyển' 
+                discountText: isFreeShipping
+                    ? 'Miễn phí vận chuyển'
                     : voucher.discountType === 'percentage'
                         ? `Giảm ${voucher.discountValue}% (Tối đa ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(voucher.maxDiscount || 0)})`
                         : `Giảm ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(voucher.discountValue || 0)}`
