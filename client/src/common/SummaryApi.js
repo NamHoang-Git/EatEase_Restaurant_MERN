@@ -49,6 +49,10 @@ const SummaryApi = {
         url: '/api/user/verify-password',
         method: 'post'
     },
+    get_available_vouchers: {
+        url: '/api/voucher/available',
+        method: 'post'
+    },
     change_password: {
         url: '/api/user/change-password',
         method: 'put'

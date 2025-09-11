@@ -180,6 +180,76 @@ export const bulkDeleteVouchersController = async (req, res) => {
     }
 }
 
+export const getAvailableVouchersController = async (req, res) => {
+    try {
+        const { orderAmount, productIds = [] } = req.body;
+        
+        if (!orderAmount) {
+            return res.status(400).json({
+                message: "Vui lòng cung cấp tổng giá trị đơn hàng",
+                error: true,
+                success: false
+            });
+        }
+
+        const currentDate = new Date();
+        
+        // Find all active vouchers that are valid for the current date
+        const vouchers = await VoucherModel.find({
+            isActive: true,
+            startDate: { $lte: currentDate },
+            endDate: { $gte: currentDate },
+            minOrderValue: { $lte: parseFloat(orderAmount) },
+            $or: [
+                { usageLimit: { $gt: 0 } }, // Has remaining usage
+                { usageLimit: -1 } // Or unlimited usage
+            ]
+        }).sort({ minOrderValue: -1 }); // Sort by minOrderValue descending
+
+        // Filter vouchers that are applicable to the products in the cart
+        const applicableVouchers = vouchers.filter(voucher => {
+            // If voucher is for all products, it's applicable
+            if (voucher.applyForAllProducts) return true;
+            
+            // If no specific products are specified in the voucher, it's applicable
+            if (!voucher.products || voucher.products.length === 0) return true;
+            
+            // Check if any product in the cart is in the voucher's product list
+            return productIds.some(productId => 
+                voucher.products.some(p => p.toString() === productId)
+            );
+        });
+
+        // Format the response
+        const formattedVouchers = applicableVouchers.map(voucher => ({
+            id: voucher._id,
+            code: voucher.code,
+            name: voucher.name,
+            description: voucher.description,
+            minOrder: voucher.minOrderValue,
+            discount: voucher.discountValue,
+            discountType: voucher.discountType,
+            expiryDate: new Date(voucher.endDate).toLocaleDateString('vi-VN'),
+            isFreeShipping: voucher.discountType === 'freeship',
+            maxDiscount: voucher.maxDiscount || null
+        }));
+
+        return res.json({
+            message: 'Danh sách voucher khả dụng',
+            data: formattedVouchers,
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+};
+
 export const bulkUpdateVouchersStatusController = async (req, res) => {
     try {
         const { voucherIds, isActive } = req.body;
