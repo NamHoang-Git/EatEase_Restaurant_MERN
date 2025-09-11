@@ -113,7 +113,15 @@ const CheckoutPage = () => {
                 );
 
                 if (response.data.success) {
-                    setAvailableVouchers(response.data.data || []);
+                    const now = new Date();
+                    // Filter out vouchers that haven't started yet
+                    const activeVouchers = (response.data.data || []).filter(
+                        (voucher) => {
+                            const startDate = new Date(voucher.startDate || 0);
+                            return startDate <= now;
+                        }
+                    );
+                    setAvailableVouchers(activeVouchers);
                 } else {
                     console.error('Vouchers API error:', response.data);
                     toast.error(
@@ -971,8 +979,17 @@ const CheckoutPage = () => {
                                                         d="M15 5v2m0 4v2m0 4v2m5-11h2m0 4h-2m0 4h-2m-6 2a1 1 0 11-2 0 1 1 0 012 0zM7 7a1 1 0 11-2 0 1 1 0 012 0z"
                                                     />
                                                 </svg>
-                                                <p>
+                                                <p className="flex items-center gap-1">
                                                     Chọn hoặc nhập mã giảm giá
+                                                    {availableVouchers.length >
+                                                        0 && (
+                                                        <span className="text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full">
+                                                            {
+                                                                availableVouchers.length
+                                                            }{' '}
+                                                            mã khả dụng
+                                                        </span>
+                                                    )}
                                                 </p>
                                             </div>
                                             <div
