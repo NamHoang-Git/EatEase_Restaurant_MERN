@@ -182,9 +182,15 @@ export const bulkDeleteVouchersController = async (req, res) => {
 
 export const getAvailableVouchersController = async (req, res) => {
     try {
-        const { orderAmount, productIds = [] } = req.body;
-        
-        if (!orderAmount) {
+        const { orderAmount, productIds = [], cartItems = [] } = req.body;
+
+        console.log('Received request with:', {
+            orderAmount,
+            productIds: productIds.length,
+            cartItems: cartItems.length
+        });
+
+        if (orderAmount === undefined || orderAmount === null) {
             return res.status(400).json({
                 message: "Vui lòng cung cấp tổng giá trị đơn hàng",
                 error: true,
@@ -194,45 +200,92 @@ export const getAvailableVouchersController = async (req, res) => {
 
         const currentDate = new Date();
         
-        // Find all active vouchers that are valid for the current date
+        // Calculate the actual total after applying product discounts
+        let actualTotal = 0;
+        if (Array.isArray(cartItems) && cartItems.length > 0) {
+            // First, use the orderAmount as the base (should be the discounted total from frontend)
+            actualTotal = parseFloat(orderAmount);
+            
+            // Then verify by calculating from cart items
+            const calculatedTotal = cartItems.reduce((total, item) => {
+                const product = item.productId || {};
+                const price = product.discountPrice > 0 && product.discountPrice < product.price
+                    ? product.discountPrice
+                    : product.price;
+                const itemTotal = price * (item.quantity || 1);
+                
+                console.log('Item calculation:', {
+                    productId: product._id,
+                    originalPrice: product.price,
+                    discountPrice: product.discountPrice,
+                    quantity: item.quantity,
+                    itemTotal
+                });
+                
+                return total + itemTotal;
+            }, 0);
+            
+            console.log('Order amount from frontend:', actualTotal);
+            console.log('Calculated total from cart items:', calculatedTotal);
+            
+            // Use the smaller of the two values to be safe
+            actualTotal = Math.min(actualTotal, calculatedTotal);
+        } else {
+            actualTotal = parseFloat(orderAmount);
+            console.log('No cart items, using provided order amount:', actualTotal);
+        }
+
+        // Find all active vouchers that match the price range, including upcoming ones
         const vouchers = await VoucherModel.find({
             isActive: true,
-            startDate: { $lte: currentDate },
             endDate: { $gte: currentDate },
-            minOrderValue: { $lte: parseFloat(orderAmount) },
             $or: [
                 { usageLimit: { $gt: 0 } }, // Has remaining usage
                 { usageLimit: -1 } // Or unlimited usage
             ]
-        }).sort({ minOrderValue: -1 }); // Sort by minOrderValue descending
+        }).sort({ startDate: 1 }); // Sort by start date ascending
 
-        // Filter vouchers that are applicable to the products in the cart
+        // Filter vouchers that are applicable to the products in the cart and meet the minimum order value
         const applicableVouchers = vouchers.filter(voucher => {
+            // First check if the actual total meets the minimum order value
+            const meetsMinOrder = actualTotal >= voucher.minOrderValue;
+            if (!meetsMinOrder) return false;
+            
             // If voucher is for all products, it's applicable
             if (voucher.applyForAllProducts) return true;
-            
+
             // If no specific products are specified in the voucher, it's applicable
             if (!voucher.products || voucher.products.length === 0) return true;
-            
+
             // Check if any product in the cart is in the voucher's product list
-            return productIds.some(productId => 
+            return productIds.some(productId =>
                 voucher.products.some(p => p.toString() === productId)
             );
         });
 
         // Format the response
-        const formattedVouchers = applicableVouchers.map(voucher => ({
-            id: voucher._id,
-            code: voucher.code,
-            name: voucher.name,
-            description: voucher.description,
-            minOrder: voucher.minOrderValue,
-            discount: voucher.discountValue,
-            discountType: voucher.discountType,
-            expiryDate: new Date(voucher.endDate).toLocaleDateString('vi-VN'),
-            isFreeShipping: voucher.discountType === 'freeship',
-            maxDiscount: voucher.maxDiscount || null
-        }));
+        const formattedVouchers = applicableVouchers.map(voucher => {
+            const now = new Date();
+            const isUpcoming = new Date(voucher.startDate) > now;
+            const isActive = !isUpcoming && new Date(voucher.endDate) > now;
+
+            return {
+                id: voucher._id,
+                code: voucher.code,
+                name: voucher.name,
+                description: voucher.description,
+                minOrder: voucher.minOrderValue,
+                discount: voucher.discountValue,
+                discountType: voucher.discountType,
+                startDate: voucher.startDate,
+                expiryDate: new Date(voucher.endDate).toLocaleDateString('vi-VN'),
+                isFreeShipping: voucher.discountType === 'freeship',
+                maxDiscount: voucher.maxDiscount || null,
+                isActive,
+                isUpcoming,
+                availableFrom: isUpcoming ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : null
+            };
+        });
 
         return res.json({
             message: 'Danh sách voucher khả dụng',
