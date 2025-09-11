@@ -46,6 +46,8 @@ const CheckoutPage = () => {
 
     const [availableVouchers, setAvailableVouchers] = useState([]);
     const [loadingVouchers, setLoadingVouchers] = useState(false);
+    const [voucherCode, setVoucherCode] = useState('');
+    const [voucherError, setVoucherError] = useState('');
 
     // Calculate total order amount
     const calculateTotal = useCallback(() => {
@@ -187,6 +189,65 @@ const CheckoutPage = () => {
             (selectedVouchers.freeShipping ? 0 : shippingCost),
         0
     );
+
+    // Handle apply voucher
+    const handleApplyVoucher = async () => {
+        if (!voucherCode.trim()) {
+            setVoucherError('Vui lòng nhập mã giảm giá');
+            return;
+        }
+
+        try {
+            setLoadingVouchers(true);
+            setVoucherError('');
+
+            const response = await Axios.post(SummaryApi.apply_voucher.url, {
+                code: voucherCode.trim(),
+                orderAmount: calculateTotal(),
+                productIds: filteredItems.map((item) => item.productId._id),
+            });
+
+            if (response.data.success) {
+                const voucher = response.data.data;
+                // Ensure voucher has all required fields
+                const formattedVoucher = {
+                    ...voucher,
+                    code: voucher.code || voucherCode.trim(),
+                    name: voucher.name || 'Mã giảm giá',
+                    discountValue: voucher.discountValue || 0,
+                    discountType: voucher.discountType || 'fixed',
+                    isFreeShipping: voucher.isFreeShipping || false,
+                    calculatedDiscount: voucher.calculatedDiscount || 0
+                };
+
+                if (formattedVoucher.isFreeShipping) {
+                    setSelectedVouchers((prev) => ({
+                        ...prev,
+                        freeShipping: formattedVoucher,
+                    }));
+                } else {
+                    setSelectedVouchers((prev) => ({
+                        ...prev,
+                        regular: formattedVoucher,
+                    }));
+                }
+                setVoucherCode(''); // Clear input after successful application
+                toast.success('Áp dụng mã giảm giá thành công');
+            } else {
+                setVoucherError(
+                    response.data.message || 'Mã giảm giá không hợp lệ'
+                );
+            }
+        } catch (error) {
+            console.error('Lỗi khi áp dụng mã giảm giá:', error);
+            setVoucherError(
+                error.response?.data?.message ||
+                    'Có lỗi xảy ra khi áp dụng mã giảm giá'
+            );
+        } finally {
+            setLoadingVouchers(false);
+        }
+    };
 
     // Cleanup cart after payment
     useEffect(() => {
@@ -739,12 +800,11 @@ const CheckoutPage = () => {
                                                         </span>
                                                     </div>
                                                     <p className="text-sm mt-1 text-gray-600">
-                                                        {selectedVouchers
-                                                            .freeShipping
-                                                            .description ||
+                                                        {
                                                             selectedVouchers
                                                                 .freeShipping
-                                                                .name}
+                                                                .name
+                                                        }
                                                     </p>
                                                     <div className="mt-2">
                                                         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -810,11 +870,10 @@ const CheckoutPage = () => {
                                                         </p>
                                                     </div>
                                                     <p className="text-sm mt-1 text-gray-600">
-                                                        {selectedVouchers
-                                                            .regular
-                                                            .description ||
+                                                        {
                                                             selectedVouchers
-                                                                .regular.name}
+                                                                .regular.name
+                                                        }
                                                     </p>
                                                     <div className="mt-2">
                                                         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -1635,6 +1694,58 @@ const CheckoutPage = () => {
                             <div className="flex justify-between text-sm text-gray-600 mt-4">
                                 <p>Tạm tính:</p>
                                 <p>{DisplayPriceInVND(filteredTotalPrice)}</p>
+                            </div>
+
+                            {/* Voucher Code Input */}
+                            <div className="mt-3">
+                                <div className="flex gap-2">
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Nhập mã giảm giá"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            value={voucherCode}
+                                            onChange={(e) =>
+                                                setVoucherCode(e.target.value)
+                                            }
+                                        />
+                                        {voucherCode && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setVoucherCode('')
+                                                }
+                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                            >
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M6 18L18 6M6 6l12 12"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyVoucher}
+                                        className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap"
+                                    >
+                                        Áp dụng
+                                    </button>
+                                </div>
+                                {voucherError && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {voucherError}
+                                    </p>
+                                )}
                             </div>
                             <div className="flex justify-between text-sm text-gray-600">
                                 <p>Phí vận chuyển:</p>

@@ -4,7 +4,8 @@ import {
     addVoucerController, bulkDeleteVouchersController,
     bulkUpdateVouchersStatusController, deleteVoucherController,
     getAllVoucherController, updateVoucherController,
-    getAvailableVouchersController
+    getAvailableVouchersController,
+    applyVoucherController
 } from '../controllers/voucher.controller.js';
 
 const voucherRouter = Router()
@@ -18,5 +19,8 @@ voucherRouter.put('/bulk-update-vouchers-status', auth, bulkUpdateVouchersStatus
 
 // Get available vouchers for checkout
 voucherRouter.post('/available', getAvailableVouchersController)
+
+// Apply a voucher
+voucherRouter.post('/apply', applyVoucherController)
 
 export default voucherRouter

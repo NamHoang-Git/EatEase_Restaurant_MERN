@@ -53,6 +53,10 @@ const SummaryApi = {
         url: '/api/voucher/available',
         method: 'post'
     },
+    apply_voucher: {
+        url: '/api/voucher/apply',
+        method: 'post'
+    },
     change_password: {
         url: '/api/user/change-password',
         method: 'put'

@@ -356,6 +356,123 @@ export const getAvailableVouchersController = async (req, res) => {
     }
 };
 
+export const applyVoucherController = async (req, res) => {
+    try {
+        const { code, orderAmount, productIds } = req.body;
+
+        if (!code) {
+            return res.status(400).json({
+                message: 'Vui lòng nhập mã giảm giá',
+                error: true,
+                success: false
+            });
+        }
+
+        const voucher = await VoucherModel.findOne({ code });
+
+        if (!voucher) {
+            return res.status(404).json({
+                message: 'Mã giảm giá không tồn tại',
+                error: true,
+                success: false
+            });
+        }
+
+        // Check if voucher is active
+        if (!voucher.isActive) {
+            return res.status(400).json({
+                message: 'Mã giảm giá đã bị vô hiệu hóa',
+                error: true,
+                success: false
+            });
+        }
+
+        // Check voucher validity
+        const currentDate = new Date();
+        if (voucher.startDate && new Date(voucher.startDate) > currentDate) {
+            return res.status(400).json({
+                message: 'Mã giảm giá chưa đến thời gian áp dụng',
+                error: true,
+                success: false
+            });
+        }
+
+        if (voucher.endDate && new Date(voucher.endDate) < currentDate) {
+            return res.status(400).json({
+                message: 'Mã giảm giá đã hết hạn',
+                error: true,
+                success: false
+            });
+        }
+
+        // Check minimum order value
+        if (orderAmount < (voucher.minOrderValue || 0)) {
+            return res.status(400).json({
+                message: `Đơn hàng tối thiểu ${voucher.minOrderValue.toLocaleString()}đ để áp dụng mã giảm giá này`,
+                error: true,
+                success: false
+            });
+        }
+
+        // Check if voucher applies to all products or specific products
+        if (!voucher.applyForAllProducts && voucher.products && voucher.products.length > 0) {
+            const validProduct = productIds.some(id =>
+                voucher.products.some(p => p.toString() === id.toString())
+            );
+
+            if (!validProduct) {
+                return res.status(400).json({
+                    message: 'Mã giảm giá không áp dụng cho sản phẩm trong đơn hàng',
+                    error: true,
+                    success: false
+                });
+            }
+        }
+
+        // Check usage limit
+        if (voucher.usageLimit && voucher.usedCount >= voucher.usageLimit) {
+            return res.status(400).json({
+                message: 'Mã giảm giá đã hết số lần sử dụng',
+                error: true,
+                success: false
+            });
+        }
+
+        // Calculate discount amount
+        let discountAmount = 0;
+        if (voucher.isFreeShipping) {
+            // For free shipping, the discount amount will be handled by the client
+            discountAmount = 0;
+        } else if (voucher.discountType === 'percentage') {
+            const percentageDiscount = (orderAmount * voucher.discountValue) / 100;
+            discountAmount = voucher.maxDiscount
+                ? Math.min(percentageDiscount, voucher.maxDiscount)
+                : percentageDiscount;
+        } else if (voucher.discountType === 'fixed') {
+            discountAmount = Math.min(voucher.discountValue, orderAmount);
+        }
+
+        // Return the voucher details with calculated discount
+        return res.json({
+            message: 'Áp dụng mã giảm giá thành công',
+            data: {
+                ...voucher.toObject(),
+                calculatedDiscount: discountAmount
+            },
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        console.error('Error applying voucher:', error);
+        return res.status(500).json({
+            message: error.message || 'Có lỗi xảy ra khi áp dụng mã giảm giá',
+            error: true,
+            success: false
+        });
+    }
+};
+
 export const bulkUpdateVouchersStatusController = async (req, res) => {
     try {
         const { voucherIds, isActive } = req.body;
