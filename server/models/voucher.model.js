@@ -20,13 +20,22 @@ const voucherSchema = new mongoose.Schema({
     },
     discountType: {
         type: String,
-        enum: ['percentage', 'fixed'],
+        enum: ['percentage', 'fixed', 'free_shipping'],
         required: true
+    },
+    isFreeShipping: {
+        type: Boolean,
+        default: function() {
+            return this.discountType === 'free_shipping';
+        }
     },
     discountValue: {
         type: Number,
-        required: true,
-        min: 0
+        required: function() {
+            return this.discountType !== 'free_shipping';
+        },
+        min: 0,
+        default: 0
     },
     minOrderValue: {
         type: Number,

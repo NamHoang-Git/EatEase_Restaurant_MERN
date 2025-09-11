@@ -53,6 +53,7 @@ const EditVoucher = ({
         endDate: formatDateForInput(voucherData?.endDate) || '',
         usageLimit: voucherData?.usageLimit || null,
         isActive: voucherData?.isActive ?? true,
+        isFreeShipping: voucherData?.isFreeShipping ?? false,
         applyForAllProducts: voucherData?.applyForAllProducts ?? true,
         products: voucherData?.products ? [...voucherData.products] : [],
         categories: voucherData?.categories ? [...voucherData.categories] : [],
@@ -117,7 +118,7 @@ const EditVoucher = ({
                 });
                 return;
             }
-        } else {
+        } else if (editFormData.discountType === 'fixed') {
             // fixed amount
             if (
                 !editFormData.discountValue ||
@@ -273,62 +274,69 @@ const EditVoucher = ({
                                     <option value="fixed">
                                         Fixed Amount (VND)
                                     </option>
+                                    <option value="free_shipping">
+                                        Miễn phí vận chuyển
+                                    </option>
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {editFormData.discountType === 'percentage'
-                                        ? 'Discount Percentage'
-                                        : 'Fixed Amount'}{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        name="discountValue"
-                                        value={editFormData.discountValue}
-                                        onChange={handleOnChange}
-                                        min={
-                                            editFormData.discountType ===
-                                            'percentage'
-                                                ? '0.01'
-                                                : '1'
-                                        }
-                                        max={
-                                            editFormData.discountType ===
-                                            'percentage'
-                                                ? '100'
-                                                : ''
-                                        }
-                                        step={
-                                            editFormData.discountType ===
-                                            'percentage'
-                                                ? '0.01'
-                                                : '1'
-                                        }
-                                        className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                        placeholder={
-                                            editFormData.discountType ===
-                                            'percentage'
-                                                ? '0-100%'
-                                                : 'Enter amount'
-                                        }
-                                    />
-                                    <span className="absolute right-3 top-2 text-gray-500">
+                            {editFormData.discountType !== 'free_shipping' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {editFormData.discountType ===
                                         'percentage'
-                                            ? '%'
-                                            : '₫'}
-                                    </span>
+                                            ? 'Discount Percentage'
+                                            : 'Fixed Amount'}{' '}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            name="discountValue"
+                                            value={editFormData.discountValue}
+                                            onChange={handleOnChange}
+                                            min={
+                                                editFormData.discountType ===
+                                                'percentage'
+                                                    ? '0.01'
+                                                    : '1'
+                                            }
+                                            max={
+                                                editFormData.discountType ===
+                                                'percentage'
+                                                    ? '100'
+                                                    : ''
+                                            }
+                                            step={
+                                                editFormData.discountType ===
+                                                'percentage'
+                                                    ? '0.01'
+                                                    : '1'
+                                            }
+                                            className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                            placeholder={
+                                                editFormData.discountType ===
+                                                'percentage'
+                                                    ? '0-100%'
+                                                    : 'Enter amount'
+                                            }
+                                        />
+                                        <span className="absolute right-3 top-2 text-gray-500">
+                                            {editFormData.discountType ===
+                                            'percentage'
+                                                ? '%'
+                                                : '₫'}
+                                        </span>
+                                    </div>
+                                    {editFormData.discountType ===
+                                        'percentage' && (
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            Enter a value between 0.01% and 100%
+                                        </p>
+                                    )}
                                 </div>
-                                {editFormData.discountType === 'percentage' && (
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Enter a value between 0.01% and 100%
-                                    </p>
-                                )}
-                            </div>
+                            )}
 
                             {editFormData.discountType === 'percentage' && (
                                 <div>

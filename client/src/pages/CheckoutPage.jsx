@@ -262,18 +262,17 @@ const CheckoutPage = () => {
     const calculateVoucherDiscount = useCallback(() => {
         if (!selectedVoucher) return 0;
 
-        const { discountType, discount, maxDiscount, isFreeShipping } =
-            selectedVoucher;
+        const { discountType, discount, maxDiscount, isFreeShipping } = selectedVoucher;
 
-        // Convert to numbers to ensure proper calculations
+        // Handle free shipping voucher
+        if (isFreeShipping) {
+            // Return the shipping cost that will be deducted (0 means free shipping)
+            return 30000; // Default shipping cost
+        }
+
+        // For other voucher types
         const discountValue = Number(discount) || 0;
         const maxDiscountValue = Number(maxDiscount) || 0;
-
-        if (isFreeShipping) {
-            // Handle free shipping - return the shipping cost that will be deducted
-            const shippingCost = 30000; // Default shipping cost
-            return Math.min(shippingCost, filteredTotalPrice);
-        }
 
         if (discountType === 'percentage') {
             const discountAmount = (filteredTotalPrice * discountValue) / 100;
@@ -283,7 +282,7 @@ const CheckoutPage = () => {
         }
 
         if (discountType === 'fixed') {
-            // Fixed amount discount
+            // Fixed amount discount (can't be more than the order total)
             return Math.min(discountValue, filteredTotalPrice);
         }
 
@@ -297,6 +296,14 @@ const CheckoutPage = () => {
                 setSelectedVoucher(null);
                 toast.success('Đã bỏ chọn mã giảm giá');
             } else {
+                // If it's a free shipping voucher, show a specific message
+                if (voucher.isFreeShipping) {
+                    toast.success('Áp dụng mã miễn phí vận chuyển thành công!');
+                } else if (voucher.discountType === 'percentage') {
+                    toast.success(`Áp dụng giảm giá ${voucher.discount}% thành công!`);
+                } else {
+                    toast.success(`Áp dụng giảm giá ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(voucher.discount)} thành công!`);
+                }
                 setSelectedVoucher(voucher);
                 setShowVouchers(false);
                 toast.success('Áp dụng mã giảm giá thành công');
@@ -709,45 +716,66 @@ const CheckoutPage = () => {
                                 </div>
                                 <div className="flex gap-4 justify-between">
                                     <p>Phí vận chuyển</p>
-                                    <p className="flex items-center gap-2 italic">
-                                        Miễn phí
-                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        {selectedVoucher?.isFreeShipping ? (
+                                            <div className="flex items-center">
+                                                <span className="line-through text-gray-400 mr-2">
+                                                    {DisplayPriceInVND(30000)}
+                                                </span>
+                                                <span className="text-green-600 font-medium">
+                                                    Miễn phí
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="italic">
+                                                Miễn phí
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Voucher Discount Display */}
                                 {selectedVoucher && (
-                                    <div className="flex gap-4 justify-between text-green-600">
+                                    <div className="flex gap-4 justify-between">
                                         <div className="flex items-center">
-                                            <p>
-                                                Mã giảm giá:{' '}
-                                                {selectedVoucher.code}
-                                            </p>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removeVoucher();
-                                                }}
-                                                className="ml-2 text-red-500 hover:text-red-700"
-                                            >
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-4 w-4"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
+                                            <div className="flex items-center">
+                                                <p className={selectedVoucher.isFreeShipping ? 'text-blue-600' : 'text-green-600'}>
+                                                    {selectedVoucher.isFreeShipping 
+                                                        ? 'Miễn phí vận chuyển' 
+                                                        : `Mã giảm giá: ${selectedVoucher.code}`}
+                                                </p>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeVoucher();
+                                                    }}
+                                                    className="ml-2 text-red-500 hover:text-red-700"
+                                                    aria-label="Xóa mã giảm giá"
                                                 >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M6 18L18 6M6 6l12 12"
-                                                    />
-                                                </svg>
-                                            </button>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-4 w-4"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <p className="font-medium">
-                                            -
-                                            {DisplayPriceInVND(voucherDiscount)}
+                                        <p className={`font-medium ${selectedVoucher.isFreeShipping ? 'text-blue-600' : 'text-green-600'}`}>
+                                            -{DisplayPriceInVND(voucherDiscount)}
+                                            {selectedVoucher.isFreeShipping && (
+                                                <span className="text-xs block text-gray-500">
+                                                    (Áp dụng mã: {selectedVoucher.code})
+                                                </span>
+                                            )}
                                         </p>
                                     </div>
                                 )}
@@ -764,30 +792,49 @@ const CheckoutPage = () => {
                                     </div>
                                 )}
 
-                                {/* Voucher Section - Sửa cấu trúc conditional */}
+                                {/* Voucher Section */}
                                 <div className="border-t border-gray-200 pt-4 mt-2">
-                                    {/* Nếu đã chọn voucher, hiển thị summary với nút xóa */}
+                                    {/* Display selected voucher with remove option */}
                                     {selectedVoucher ? (
-                                        <div className="mb-2 p-2 bg-green-50 rounded-md border border-green-200">
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <p className="font-medium text-green-800">
-                                                        {selectedVoucher.code}
+                                        <div className={`mb-2 p-3 rounded-md border ${selectedVoucher.isFreeShipping ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'}`}>
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-medium text-gray-800">
+                                                            {selectedVoucher.code}
+                                                        </p>
+                                                        {selectedVoucher.isFreeShipping && (
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                                Freeship
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    <p className="text-sm mt-1 text-gray-600">
+                                                        {selectedVoucher.description || selectedVoucher.name}
                                                     </p>
-                                                    <p className="text-sm text-green-600">
-                                                        {selectedVoucher.discountType ===
-                                                        'percentage'
-                                                            ? `Giảm ${selectedVoucher.discount}%`
-                                                            : `Giảm ${DisplayPriceInVND(
-                                                                  selectedVoucher.discount
-                                                              )}`}
-                                                        {selectedVoucher.maxDiscount &&
-                                                            selectedVoucher.discountType ===
-                                                                'percentage' &&
-                                                            ` (tối đa ${DisplayPriceInVND(
-                                                                selectedVoucher.maxDiscount
-                                                            )})`}
-                                                    </p>
+                                                    
+                                                    <div className="mt-2">
+                                                        {selectedVoucher.isFreeShipping ? (
+                                                            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                <svg className="mr-1.5 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                Miễn phí vận chuyển
+                                                            </div>
+                                                        ) : (
+                                                            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                <svg className="mr-1.5 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                {selectedVoucher.discountType === 'percentage' 
+                                                                    ? `Giảm ${selectedVoucher.discount}%` 
+                                                                    : `Giảm ${DisplayPriceInVND(selectedVoucher.discount)}`}
+                                                                {selectedVoucher.maxDiscount > 0 && 
+                                                                    ` (tối đa ${DisplayPriceInVND(selectedVoucher.maxDiscount)})`}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <button
                                                     onClick={(e) => {
@@ -1003,75 +1050,65 @@ const CheckoutPage = () => {
                                                                             className="p-3 border border-gray-200 rounded-lg bg-gray-50 opacity-75 cursor-not-allowed"
                                                                         >
                                                                             <div className="flex justify-between items-start">
-                                                                                <div>
-                                                                                    <div className="font-medium text-gray-500">
-                                                                                        {
-                                                                                            voucher.code
-                                                                                        }
+                                                                                <div className="flex-1">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <span className="font-medium text-gray-500">
+                                                                                            {voucher.code}
+                                                                                        </span>
+                                                                                        {voucher.isFreeShipping && (
+                                                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                                                                Freeship
+                                                                                            </span>
+                                                                                        )}
                                                                                     </div>
-                                                                                    <p className="text-sm text-gray-500">
-                                                                                        {
-                                                                                            voucher.description
-                                                                                        }
+                                                                                    <p className="text-sm text-gray-600 mt-1">
+                                                                                        {voucher.description || voucher.name}
                                                                                     </p>
-                                                                                    <div className="text-xs text-gray-400 space-y-1 mt-1">
-                                                                                        <p>
-                                                                                            Đơn
-                                                                                            tối
-                                                                                            thiểu:{' '}
-                                                                                            {DisplayPriceInVND(
-                                                                                                voucher.minOrder
-                                                                                            )}
-                                                                                        </p>
-                                                                                        <p>
-                                                                                            Có
-                                                                                            hiệu
-                                                                                            lực
-                                                                                            từ:{' '}
-                                                                                            {
-                                                                                                voucher.availableFrom
-                                                                                            }
-                                                                                        </p>
-                                                                                        <p>
-                                                                                            HSD:{' '}
-                                                                                            {
-                                                                                                voucher.expiryDate
-                                                                                            }
-                                                                                        </p>
+                                                                                    <div className="text-xs text-gray-500 space-y-1 mt-2">
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                                                                </svg>
+                                                                                                <span>Đơn tối thiểu: {DisplayPriceInVND(voucher.minOrder)}</span>
+                                                                                        </div>
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                                            </svg>
+                                                                                            <span>HSD: {voucher.expiryDate}</span>
+                                                                                        </div>
+                                                                                        {voucher.availableFrom && (
+                                                                                            <div className="flex items-center gap-1">
+                                                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                                </svg>
+                                                                                                <span>Có hiệu lực từ: {voucher.availableFrom}</span>
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="text-right">
+                                                                                <div className="text-right ml-4">
                                                                                     {voucher.isFreeShipping ? (
-                                                                                        <span className="text-gray-400 font-medium">
-                                                                                            Miễn
-                                                                                            phí
-                                                                                            vận
-                                                                                            chuyển
-                                                                                        </span>
+                                                                                        <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md">
+                                                                                            <div className="font-semibold">Miễn phí vận chuyển</div>
+                                                                                        </div>
                                                                                     ) : (
-                                                                                        <span className="text-gray-400 font-medium">
-                                                                                            {voucher.discountType ===
-                                                                                            'percent'
-                                                                                                ? `Giảm ${voucher.discount}%`
-                                                                                                : `Giảm ${DisplayPriceInVND(
-                                                                                                      voucher.discount
-                                                                                                  )}`}
-                                                                                        </span>
-                                                                                    )}
-                                                                                    {voucher.maxDiscount && (
-                                                                                        <p className="text-xs text-gray-400">
-                                                                                            Tối
-                                                                                            đa{' '}
-                                                                                            {DisplayPriceInVND(
-                                                                                                voucher.maxDiscount
+                                                                                        <div className="bg-green-50 text-green-700 px-2 py-1 rounded-md">
+                                                                                            <div className="font-semibold">
+                                                                                                {voucher.discountType === 'percentage'
+                                                                                                    ? `Giảm ${voucher.discount}%`
+                                                                                                    : `Giảm ${DisplayPriceInVND(voucher.discount)}`}
+                                                                                            </div>
+                                                                                            {voucher.maxDiscount > 0 && (
+                                                                                                <div className="text-xs">
+                                                                                                    Tối đa {DisplayPriceInVND(voucher.maxDiscount)}
+                                                                                                </div>
                                                                                             )}
-                                                                                        </p>
+                                                                                        </div>
                                                                                     )}
-                                                                                    <div className="mt-1">
+                                                                                    <div className="mt-2">
                                                                                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                                                            Sắp
-                                                                                            diễn
-                                                                                            ra
+                                                                                            Sắp diễn ra
                                                                                         </span>
                                                                                     </div>
                                                                                 </div>
@@ -1311,11 +1348,54 @@ const CheckoutPage = () => {
                                 )}
                             </div>
 
-                            <div className="font-semibold flex items-center justify-between gap-4 border-t border-gray-200 pt-2">
-                                <p>Tổng cộng</p>
-                                <p className="text-secondary-200 font-bold">
-                                    {DisplayPriceInVND(finalTotal)}{' '}
-                                    {/* Sửa: trừ cả voucherDiscount */}
+                            {/* Subtotal before discounts */}
+                            <div className="flex justify-between text-sm text-gray-600">
+                                <p>Tạm tính:</p>
+                                <p>{DisplayPriceInVND(filteredTotalPrice)}</p>
+                            </div>
+
+                            {/* Shipping cost */}
+                            <div className="flex justify-between text-sm text-gray-600">
+                                <p>Phí vận chuyển:</p>
+                                {selectedVoucher?.isFreeShipping ? (
+                                    <div className="flex items-center">
+                                        <span className="line-through text-gray-400 mr-2">
+                                            {DisplayPriceInVND(30000)}
+                                        </span>
+                                        <span className="text-green-600">
+                                            Miễn phí
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <p>Miễn phí</p>
+                                )}
+                            </div>
+
+                            {/* Voucher discount */}
+                            {selectedVoucher && (
+                                <div className="flex justify-between text-sm">
+                                    <p className="text-gray-600">Giảm giá:</p>
+                                    <p className="text-green-600">
+                                        -{DisplayPriceInVND(voucherDiscount)}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Points discount */}
+                            {usePoints && pointsToUse > 0 && (
+                                <div className="flex justify-between text-sm">
+                                    <p className="text-gray-600">Điểm tích lũy ({pointsToUse} điểm):</p>
+                                    <p className="text-blue-600">
+                                        -{DisplayPriceInVND(pointsToUse * pointsValue)}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Final total */}
+                            <div className="font-semibold flex items-center justify-between gap-4 border-t border-gray-200 pt-2 mt-2">
+                                <p>Tổng cộng:</p>
+                                <p className="text-secondary-200 font-bold text-lg">
+                                    {DisplayPriceInVND(finalTotal)}
                                 </p>
                             </div>
                         </div>

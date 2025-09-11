@@ -3,34 +3,56 @@ import VoucherModel from '../models/voucher.model.js';
 export const addVoucerController = async (req, res) => {
     try {
         const { code, name, description, discountType, discountValue, minOrderValue,
-            maxDiscount, startDate, endDate, usageLimit, isActive, applyForAllProducts, products, categories } = req.body
+            maxDiscount, startDate, endDate, usageLimit, isActive, isFreeShipping, applyForAllProducts, products, categories } = req.body;
 
-        const existVoucher = await VoucherModel.findOne({ code })
+        // Validate free shipping voucher
+        if (discountType === 'free_shipping') {
+            // For free shipping, we don't need discountValue
+            delete req.body.discountValue;
+            delete req.body.maxDiscount; // Free shipping doesn't need max discount
+        } else if (discountType === 'percentage' && !maxDiscount) {
+            return res.status(400).json({
+                message: "Vui lòng nhập giảm giá tối đa cho loại giảm giá phần trăm",
+                error: true,
+                success: false
+            });
+        }
+
+        const existVoucher = await VoucherModel.findOne({ code });
 
         if (existVoucher) {
             return res.status(400).json({
                 message: "Mã voucher đã tồn tại",
                 error: true,
                 success: false
-            })
+            });
         }
 
-        const addVoucher = new VoucherModel({
+        const voucherData = {
             code,
             name,
             description,
             discountType,
-            discountValue,
-            minOrderValue,
-            maxDiscount,
+            minOrderValue: minOrderValue || 0,
             startDate,
             endDate,
-            usageLimit,
-            isActive,
-            applyForAllProducts,
-            products,
-            categories
-        })
+            usageLimit: usageLimit || null,
+            isActive: isActive !== undefined ? isActive : true,
+            isFreeShipping: discountType === 'free_shipping',
+            applyForAllProducts: applyForAllProducts || false,
+            products: applyForAllProducts ? [] : (products || []),
+            categories: applyForAllProducts ? [] : (categories || [])
+        };
+
+        // Only add discountValue and maxDiscount if not free shipping
+        if (discountType !== 'free_shipping') {
+            voucherData.discountValue = discountValue;
+            if (discountType === 'percentage') {
+                voucherData.maxDiscount = maxDiscount;
+            }
+        }
+
+        const addVoucher = new VoucherModel(voucherData);
 
         const saveVoucher = await addVoucher.save()
 
@@ -80,7 +102,7 @@ export const getAllVoucherController = async (req, res) => {
 export const updateVoucherController = async (req, res) => {
     try {
         const { _id, code, name, description, discountType, discountValue, minOrderValue,
-            maxDiscount, startDate, endDate, usageLimit, isActive, applyForAllProducts, products, categories } = req.body
+            maxDiscount, startDate, endDate, usageLimit, isActive, isFreeShipping, applyForAllProducts, products, categories } = req.body
 
         const check = await VoucherModel.findById(_id)
 
@@ -92,12 +114,27 @@ export const updateVoucherController = async (req, res) => {
             })
         }
 
+        const updateData = {
+            code,
+            name,
+            description,
+            discountType,
+            discountValue,
+            minOrderValue,
+            maxDiscount,
+            startDate,
+            endDate,
+            usageLimit,
+            isActive,
+            isFreeShipping: discountType === 'free_shipping' ? true : (isFreeShipping || false),
+            applyForAllProducts,
+            products,
+            categories
+        };
+
         const update = await VoucherModel.findByIdAndUpdate(
             _id,
-            {
-                code, name, description, discountType, discountValue, minOrderValue,
-                maxDiscount, startDate, endDate, usageLimit, isActive, applyForAllProducts, products, categories
-            },
+            updateData,
             { new: true }
         )
 
@@ -199,13 +236,13 @@ export const getAvailableVouchersController = async (req, res) => {
         }
 
         const currentDate = new Date();
-        
+
         // Calculate the actual total after applying product discounts
         let actualTotal = 0;
         if (Array.isArray(cartItems) && cartItems.length > 0) {
             // First, use the orderAmount as the base (should be the discounted total from frontend)
             actualTotal = parseFloat(orderAmount);
-            
+
             // Then verify by calculating from cart items
             const calculatedTotal = cartItems.reduce((total, item) => {
                 const product = item.productId || {};
@@ -213,7 +250,7 @@ export const getAvailableVouchersController = async (req, res) => {
                     ? product.discountPrice
                     : product.price;
                 const itemTotal = price * (item.quantity || 1);
-                
+
                 console.log('Item calculation:', {
                     productId: product._id,
                     originalPrice: product.price,
@@ -221,13 +258,13 @@ export const getAvailableVouchersController = async (req, res) => {
                     quantity: item.quantity,
                     itemTotal
                 });
-                
+
                 return total + itemTotal;
             }, 0);
-            
+
             console.log('Order amount from frontend:', actualTotal);
             console.log('Calculated total from cart items:', calculatedTotal);
-            
+
             // Use the smaller of the two values to be safe
             actualTotal = Math.min(actualTotal, calculatedTotal);
         } else {
@@ -250,7 +287,7 @@ export const getAvailableVouchersController = async (req, res) => {
             // First check if the actual total meets the minimum order value
             const meetsMinOrder = actualTotal >= voucher.minOrderValue;
             if (!meetsMinOrder) return false;
-            
+
             // If voucher is for all products, it's applicable
             if (voucher.applyForAllProducts) return true;
 
@@ -268,22 +305,38 @@ export const getAvailableVouchersController = async (req, res) => {
             const now = new Date();
             const isUpcoming = new Date(voucher.startDate) > now;
             const isActive = !isUpcoming && new Date(voucher.endDate) > now;
+            const isFreeShipping = voucher.discountType === 'free_shipping' || voucher.isFreeShipping === true;
+
+            // Format the description to include free shipping info if applicable
+            let description = voucher.description || '';
+            if (isFreeShipping) {
+                description = description ? `${description}. ` : '';
+                description += 'Miễn phí vận chuyển cho đơn hàng từ ' + 
+                    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+                        .format(voucher.minOrderValue || 0);
+            }
 
             return {
                 id: voucher._id,
                 code: voucher.code,
                 name: voucher.name,
-                description: voucher.description,
+                description,
                 minOrder: voucher.minOrderValue,
-                discount: voucher.discountValue,
+                discount: isFreeShipping ? 0 : voucher.discountValue,
                 discountType: voucher.discountType,
                 startDate: voucher.startDate,
                 expiryDate: new Date(voucher.endDate).toLocaleDateString('vi-VN'),
-                isFreeShipping: voucher.discountType === 'freeship',
-                maxDiscount: voucher.maxDiscount || null,
+                isFreeShipping,
+                maxDiscount: isFreeShipping ? null : (voucher.maxDiscount || null),
                 isActive,
                 isUpcoming,
-                availableFrom: isUpcoming ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : null
+                availableFrom: isUpcoming ? new Date(voucher.startDate).toLocaleDateString('vi-VN') : null,
+                // Add human-readable discount text
+                discountText: isFreeShipping 
+                    ? 'Miễn phí vận chuyển' 
+                    : voucher.discountType === 'percentage'
+                        ? `Giảm ${voucher.discountValue}% (Tối đa ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(voucher.maxDiscount || 0)})`
+                        : `Giảm ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(voucher.discountValue || 0)}`
             };
         });
 
