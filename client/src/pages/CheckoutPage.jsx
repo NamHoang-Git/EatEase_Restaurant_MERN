@@ -211,14 +211,20 @@ const CheckoutPage = () => {
                 const voucher = response.data.data;
                 // Ensure voucher has all required fields
                 const formattedVoucher = {
-                    ...voucher,
+                    ...voucher, // Spread the voucher data from API first
                     code: voucher.code || voucherCode.trim(),
                     name: voucher.name || 'Mã giảm giá',
-                    discountValue: voucher.discountValue || 0,
+                    discountValue: Number(voucher.discountValue) || 0,
                     discountType: voucher.discountType || 'fixed',
                     isFreeShipping: voucher.isFreeShipping || false,
-                    calculatedDiscount: voucher.calculatedDiscount || 0
+                    calculatedDiscount: Number(voucher.calculatedDiscount) || 0,
+                    maxDiscount: Number(voucher.maxDiscount) || 0
                 };
+                
+                // Ensure discountValue is set correctly
+                if (!formattedVoucher.discountValue && formattedVoucher.discount) {
+                    formattedVoucher.discountValue = Number(formattedVoucher.discount);
+                }
 
                 if (formattedVoucher.isFreeShipping) {
                     setSelectedVouchers((prev) => ({
@@ -306,20 +312,17 @@ const CheckoutPage = () => {
 
         // Calculate regular voucher discount if any
         if (selectedVouchers.regular) {
-            const { discountType, discount, maxDiscount } =
-                selectedVouchers.regular;
-            const discountValue = Number(discount) || 0;
+            const { discountType, discountValue, maxDiscount } = selectedVouchers.regular;
+            const discount = Number(discountValue) || 0;
             const maxDiscountValue = Number(maxDiscount) || 0;
 
             if (discountType === 'percentage') {
-                const discountAmount =
-                    (filteredTotalPrice * discountValue) / 100;
-                totalDiscount +=
-                    maxDiscountValue > 0
-                        ? Math.min(discountAmount, maxDiscountValue)
-                        : discountAmount;
+                const discountAmount = (filteredTotalPrice * discount) / 100;
+                totalDiscount += maxDiscountValue > 0
+                    ? Math.min(discountAmount, maxDiscountValue)
+                    : discountAmount;
             } else if (discountType === 'fixed') {
-                totalDiscount += Math.min(discountValue, filteredTotalPrice);
+                totalDiscount += Math.min(discount, filteredTotalPrice);
             }
         }
 
