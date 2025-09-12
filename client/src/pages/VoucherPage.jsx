@@ -626,6 +626,9 @@ const VoucherPage = () => {
                                 )}
                             </th>
                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Số lượng đã sử dụng
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Trạng thái
                             </th>
                             <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -740,6 +743,9 @@ const VoucherPage = () => {
                                             new Date(voucher.endDate),
                                             'dd/MM/yyyy' + ' ' + 'HH:mm:ss'
                                         )}
+                                    </td>
+                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {voucher.usageCount}/{voucher.usageLimit}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap">
                                         <span

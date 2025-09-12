@@ -462,6 +462,9 @@ const CheckoutPage = () => {
                     subTotalAmt: filteredTotalPrice,
                     totalAmt: finalTotal,
                     pointsToUse: actualPointsToUse,
+                    voucherCode: selectedVouchers.regular?.code || '',
+                    freeShippingVoucherCode:
+                        selectedVouchers.freeShipping?.code || '',
                 },
             });
 
@@ -505,15 +508,30 @@ const CheckoutPage = () => {
                 return;
             }
 
+            // Ensure list_items contains valid image URLs
+            const validatedItems = filteredItems.map((item) => ({
+                ...item,
+                productId: {
+                    ...item.productId,
+                    image:
+                        typeof item.productId.image === 'string'
+                            ? item.productId.image
+                            : item.productId.image?.[0] || '', // Handle array or object
+                },
+            }));
+
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.payment_url,
                 data: {
-                    list_items: filteredItems,
+                    list_items: validatedItems,
                     addressId: addressList[selectAddress]?._id,
                     subTotalAmt: filteredTotalPrice,
                     totalAmt: finalTotal,
                     pointsToUse: actualPointsToUse,
+                    voucherCode: selectedVouchers.regular?.code || '',
+                    freeShippingVoucherCode:
+                        selectedVouchers.freeShipping?.code || '',
                 },
             });
 
@@ -526,7 +544,7 @@ const CheckoutPage = () => {
                 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
                 const stripePromise = await loadStripe(stripePublicKey);
                 const { error } = await stripePromise.redirectToCheckout({
-                    sessionId: responseData.id,
+                    sessionId: responseData.data.id,
                 });
 
                 if (error) {
@@ -1392,7 +1410,8 @@ const CheckoutPage = () => {
 
                                                 {/* Upcoming Vouchers */}
                                                 <div className="">
-                                                    {availableVouchers.upcoming.length > 0 && (
+                                                    {availableVouchers.upcoming
+                                                        .length > 0 && (
                                                         <p className="text-sm font-medium text-secondary-200 mt-6 mb-2">
                                                             Mã sắp diễn ra (
                                                             {

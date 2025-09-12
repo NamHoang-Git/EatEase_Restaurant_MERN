@@ -25,13 +25,13 @@ const voucherSchema = new mongoose.Schema({
     },
     isFreeShipping: {
         type: Boolean,
-        default: function() {
+        default: function () {
             return this.discountType === 'free_shipping';
         }
     },
     discountValue: {
         type: Number,
-        required: function() {
+        required: function () {
             return this.discountType !== 'free_shipping';
         },
         min: 0,
@@ -91,7 +91,10 @@ const voucherSchema = new mongoose.Schema({
 });
 
 // Chỉ giữ index compound cho isActive và endDate
-voucherSchema.index({ isActive: 1, endDate: 1 });
+voucherSchema.index({ code: 1, isActive: 1, startDate: 1, endDate: 1 });
+voucherSchema.index({ products: 1 });
+voucherSchema.index({ categories: 1 });
+voucherSchema.index({ usersUsed: 1 });
 
 // Áp dụng plugin trước khi tạo model
 voucherSchema.plugin(mongoosePaginate);
