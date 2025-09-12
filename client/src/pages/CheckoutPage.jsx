@@ -1392,26 +1392,17 @@ const CheckoutPage = () => {
 
                                                 {/* Upcoming Vouchers */}
                                                 <div className="">
-                                                    {availableVouchers.upcoming.filter(
-                                                        (v) =>
-                                                            v.isUpcoming &&
-                                                            v.isFreeShipping
-                                                    ).length > 0 ||
-                                                        (availableVouchers.upcoming.filter(
-                                                            (v) =>
-                                                                v.isUpcoming &&
-                                                                !v.isFreeShipping
-                                                        ).length > 0 && (
-                                                            <p className="text-sm font-medium text-secondary-200 mt-6 mb-2">
-                                                                Mã sắp diễn ra (
-                                                                {
-                                                                    availableVouchers
-                                                                        .upcoming
-                                                                        .length
-                                                                }
-                                                                )
-                                                            </p>
-                                                        ))}
+                                                    {availableVouchers.upcoming.length > 0 && (
+                                                        <p className="text-sm font-medium text-secondary-200 mt-6 mb-2">
+                                                            Mã sắp diễn ra (
+                                                            {
+                                                                availableVouchers
+                                                                    .upcoming
+                                                                    .length
+                                                            }
+                                                            )
+                                                        </p>
+                                                    )}
                                                     <div className="flex flex-col gap-4">
                                                         {availableVouchers.upcoming.filter(
                                                             (v) =>
