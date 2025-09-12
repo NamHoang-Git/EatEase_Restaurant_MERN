@@ -508,30 +508,15 @@ const CheckoutPage = () => {
                 return;
             }
 
-            // Ensure list_items contains valid image URLs
-            const validatedItems = filteredItems.map((item) => ({
-                ...item,
-                productId: {
-                    ...item.productId,
-                    image:
-                        typeof item.productId.image === 'string'
-                            ? item.productId.image
-                            : item.productId.image?.[0] || '', // Handle array or object
-                },
-            }));
-
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.payment_url,
                 data: {
-                    list_items: validatedItems,
+                    list_items: filteredItems,
                     addressId: addressList[selectAddress]?._id,
                     subTotalAmt: filteredTotalPrice,
                     totalAmt: finalTotal,
                     pointsToUse: actualPointsToUse,
-                    voucherCode: selectedVouchers.regular?.code || '',
-                    freeShippingVoucherCode:
-                        selectedVouchers.freeShipping?.code || '',
                 },
             });
 
@@ -544,7 +529,7 @@ const CheckoutPage = () => {
                 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
                 const stripePromise = await loadStripe(stripePublicKey);
                 const { error } = await stripePromise.redirectToCheckout({
-                    sessionId: responseData.data.id,
+                    sessionId: responseData.id,
                 });
 
                 if (error) {

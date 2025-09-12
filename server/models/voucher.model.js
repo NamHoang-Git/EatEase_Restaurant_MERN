@@ -94,7 +94,6 @@ const voucherSchema = new mongoose.Schema({
 voucherSchema.index({ code: 1, isActive: 1, startDate: 1, endDate: 1 });
 voucherSchema.index({ products: 1 });
 voucherSchema.index({ categories: 1 });
-voucherSchema.index({ usersUsed: 1 });
 
 // Áp dụng plugin trước khi tạo model
 voucherSchema.plugin(mongoosePaginate);
