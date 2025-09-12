@@ -30,14 +30,6 @@ export async function CashOnDeliveryOrderController(request, response) {
                     throw new Error('Người dùng không tồn tại');
                 }
 
-                // Validate points
-                if (pointsToUse > 0) {
-                    const maxUsablePoints = calculateUsablePoints(user.rewardsPoint, totalAmt);
-                    if (pointsToUse > maxUsablePoints) {
-                        throw new Error(`Bạn chỉ có thể sử dụng tối đa ${maxUsablePoints} điểm`);
-                    }
-                }
-
                 // Validate vouchers
                 let regularVoucher = null;
                 let freeShippingVoucher = null;
@@ -322,7 +314,7 @@ export const pricewithDiscount = (price, dis = 1) => {
 export async function paymentController(request, response) {
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
         const userId = request.userId;
         const { list_items, totalAmt, addressId, subTotalAmt, pointsToUse = 0, voucherCode, freeShippingVoucherCode } = request.body;
@@ -390,11 +382,11 @@ export async function paymentController(request, response) {
             // Validate products/categories if not applyForAllProducts
             if (!regularVoucher.applyForAllProducts) {
                 const productIds = list_items.map(item => item.productId._id.toString());
-                const isValidProducts = regularVoucher.products.length === 0 || 
+                const isValidProducts = regularVoucher.products.length === 0 ||
                     productIds.some(id => regularVoucher.products.includes(id));
-                const isValidCategories = regularVoucher.categories.length === 0 || 
+                const isValidCategories = regularVoucher.categories.length === 0 ||
                     list_items.some(item => regularVoucher.categories.includes(item.productId.category));
-                
+
                 if (!isValidProducts && !isValidCategories) {
                     await session.abortTransaction();
                     session.endSession();
@@ -454,11 +446,11 @@ export async function paymentController(request, response) {
             // Validate products/categories if not applyForAllProducts
             if (!freeShippingVoucher.applyForAllProducts) {
                 const productIds = list_items.map(item => item.productId._id.toString());
-                const isValidProducts = freeShippingVoucher.products.length === 0 || 
+                const isValidProducts = freeShippingVoucher.products.length === 0 ||
                     productIds.some(id => freeShippingVoucher.products.includes(id));
-                const isValidCategories = freeShippingVoucher.categories.length === 0 || 
+                const isValidCategories = freeShippingVoucher.categories.length === 0 ||
                     list_items.some(item => freeShippingVoucher.categories.includes(item.productId.category));
-                
+
                 if (!isValidProducts && !isValidCategories) {
                     await session.abortTransaction();
                     session.endSession();
@@ -491,18 +483,18 @@ export async function paymentController(request, response) {
                     const orderItems = list_items.map(item => {
                         const itemSubTotal = item.productId.price * item.quantity;
                         let itemTotal = itemSubTotal * (1 - (item.productId.discount || 0) / 100);
-                        
+
                         // Apply voucher discount proportionally to each item
                         if (discountAmount > 0) {
                             const itemDiscount = (itemSubTotal / subTotalAmt) * discountAmount;
                             itemTotal -= itemDiscount;
                         }
-                        
+
                         // If free shipping, don't include shipping cost in item total
                         if (shippingCost === 0) {
                             itemTotal = itemSubTotal * (1 - (item.productId.discount || 0) / 100);
                         }
-                        
+
                         return {
                             userId,
                             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
@@ -643,14 +635,14 @@ export async function paymentController(request, response) {
         const line_items = list_items.map((item) => {
             const product = item.productId;
             let unitAmount = Math.round(product.price * (1 - (product.discount || 0) / 100));
-            
+
             // Apply voucher discount proportionally to each item
             if (discountAmount > 0) {
                 const itemSubTotal = product.price * item.quantity;
                 const itemDiscount = Math.round((itemSubTotal / subTotalAmt) * discountAmount);
                 unitAmount = Math.max(0, unitAmount - Math.round(itemDiscount / item.quantity));
             }
-            
+
             // For VND, we don't need to multiply by 100 as it doesn't have decimals
             unitAmount = Math.max(1, unitAmount); // Ensure minimum amount is 1 VND
 
@@ -659,8 +651,8 @@ export async function paymentController(request, response) {
                     currency: 'vnd',
                     product_data: {
                         name: product.name,
-                        images: Array.isArray(product.image) 
-                            ? product.image 
+                        images: Array.isArray(product.image)
+                            ? product.image
                             : [typeof product.image === 'string' ? product.image : ''],
                         metadata: {
                             productId: product._id?.toString() || ''
@@ -674,7 +666,7 @@ export async function paymentController(request, response) {
                 quantity: item.quantity || 1
             };
         });
-        
+
         // Add shipping as a separate line item if not free
         if (shippingCost > 0 && shippingCost < 100000000) { // Check Stripe's max amount
             line_items.push({
@@ -715,7 +707,7 @@ export async function paymentController(request, response) {
             success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.FRONTEND_URL}/cancel`
         };
-        
+
         // Commit the transaction before creating the Stripe session
         await session.commitTransaction();
         session.endSession();
@@ -723,13 +715,13 @@ export async function paymentController(request, response) {
         // Create the Stripe session
         const stripeSession = await Stripe.checkout.sessions.create(params);
         return response.status(200).json(stripeSession);
-        
+
     } catch (error) {
         // If there's an error, abort any open transaction
         if (session.inTransaction()) {
             await session.abortTransaction();
         }
-        
+
         console.error('Error in payment controller:', error);
         return response.status(500).json({
             message: error.message || "Lỗi Server",
@@ -854,14 +846,28 @@ export async function webhookStripe(request, response) {
                             );
                         }
 
-                        // Update voucher usage count if voucher was used
-                        const { voucherCode } = stripeSession.metadata || {};
+                        // Update voucher usage count if vouchers were used
+                        const { voucherCode, freeShippingVoucherCode } = stripeSession.metadata || {};
+
+                        // Update regular voucher usage
                         if (voucherCode) {
                             await VoucherModel.findOneAndUpdate(
                                 { code: voucherCode },
-                                { 
+                                {
                                     $inc: { usageCount: 1 },
-                                    $addToSet: { usedBy: userId }
+                                    $addToSet: { usersUsed: userId }
+                                },
+                                { session: dbSession, new: true }
+                            );
+                        }
+
+                        // Update free shipping voucher usage
+                        if (freeShippingVoucherCode) {
+                            await VoucherModel.findOneAndUpdate(
+                                { code: freeShippingVoucherCode },
+                                {
+                                    $inc: { usageCount: 1 },
+                                    $addToSet: { usersUsed: userId }
                                 },
                                 { session: dbSession, new: true }
                             );

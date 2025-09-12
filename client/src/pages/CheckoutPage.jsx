@@ -455,7 +455,7 @@ const CheckoutPage = () => {
 
             setLoading(true);
             // Format product data to ensure it's serializable
-            const formattedItems = filteredItems.map(item => ({
+            const formattedItems = filteredItems.map((item) => ({
                 ...item,
                 productId: {
                     _id: item.productId._id,
@@ -463,12 +463,14 @@ const CheckoutPage = () => {
                     price: item.productId.price,
                     discount: item.productId.discount || 0,
                     // Ensure image is a single URL string, not an object or array
-                    image: Array.isArray(item.productId.image) 
-                        ? item.productId.image[0] 
-                        : (typeof item.productId.image === 'string' ? item.productId.image : ''),
-                    category: item.productId.category
+                    image: Array.isArray(item.productId.image)
+                        ? item.productId.image[0]
+                        : typeof item.productId.image === 'string'
+                        ? item.productId.image
+                        : '',
+                    category: item.productId.category,
                 },
-                quantity: item.quantity
+                quantity: item.quantity,
             }));
 
             const response = await Axios({
@@ -480,7 +482,8 @@ const CheckoutPage = () => {
                     totalAmt: finalTotal,
                     pointsToUse: actualPointsToUse,
                     voucherCode: selectedVouchers.regular?.code || '',
-                    freeShippingVoucherCode: selectedVouchers.freeShipping?.code || '',
+                    freeShippingVoucherCode:
+                        selectedVouchers.freeShipping?.code || '',
                 },
             });
 
@@ -526,7 +529,7 @@ const CheckoutPage = () => {
 
             setLoading(true);
             // Format product data to ensure it's serializable
-            const formattedItems = filteredItems.map(item => ({
+            const formattedItems = filteredItems.map((item) => ({
                 ...item,
                 productId: {
                     _id: item.productId._id,
@@ -534,22 +537,28 @@ const CheckoutPage = () => {
                     price: item.productId.price,
                     discount: item.productId.discount || 0,
                     // Ensure image is a single URL string, not an object or array
-                    image: Array.isArray(item.productId.image) 
-                        ? item.productId.image[0] 
-                        : (typeof item.productId.image === 'string' ? item.productId.image : ''),
-                    category: item.productId.category
+                    image: Array.isArray(item.productId.image)
+                        ? item.productId.image[0]
+                        : typeof item.productId.image === 'string'
+                        ? item.productId.image
+                        : '',
+                    category: item.productId.category,
                 },
-                quantity: item.quantity
+                quantity: item.quantity,
             }));
 
             // Convert amounts to integers (VND doesn't use decimals)
             const amountInVND = Math.round(finalTotal);
-            
+
             // Validate amount is within Stripe's limits
-            if (amountInVND > 99999999) { // 99,999,999 VND is Stripe's max
-                throw new Error('Số tiền thanh toán vượt quá giới hạn cho phép (99,999,999 VND)');
+            if (amountInVND > 99999999) {
+                // 99,999,999 VND is Stripe's max
+                throw new Error(
+                    'Số tiền thanh toán vượt quá giới hạn cho phép (99,999,999 VND)'
+                );
             }
-            if (amountInVND < 1000) { // Minimum amount in VND
+            if (amountInVND < 1000) {
+                // Minimum amount in VND
                 throw new Error('Số tiền thanh toán tối thiểu là 1,000 VND');
             }
 
@@ -562,7 +571,8 @@ const CheckoutPage = () => {
                     totalAmt: amountInVND, // Send the rounded amount
                     pointsToUse: actualPointsToUse,
                     voucherCode: selectedVouchers.regular?.code || '',
-                    freeShippingVoucherCode: selectedVouchers.freeShipping?.code || '',
+                    freeShippingVoucherCode:
+                        selectedVouchers.freeShipping?.code || '',
                 },
             });
 
