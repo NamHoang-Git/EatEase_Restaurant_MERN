@@ -320,9 +320,12 @@ export const pricewithDiscount = (price, dis = 1) => {
 }
 
 export async function paymentController(request, response) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
     try {
         const userId = request.userId;
-        const { list_items, totalAmt, addressId, subTotalAmt, pointsToUse = 0 } = request.body;
+        const { list_items, totalAmt, addressId, subTotalAmt, pointsToUse = 0, voucherCode, freeShippingVoucherCode } = request.body;
 
         if (!list_items?.length || !addressId || !subTotalAmt || !totalAmt) {
             return response.status(400).json({
@@ -332,8 +335,10 @@ export async function paymentController(request, response) {
             });
         }
 
-        const user = await UserModel.findById(userId);
+        const user = await UserModel.findById(userId).session(session);
         if (!user) {
+            await session.abortTransaction();
+            session.endSession();
             return response.status(404).json({
                 message: "Không tìm thấy User",
                 error: true,
@@ -341,30 +346,226 @@ export async function paymentController(request, response) {
             });
         }
 
-        // Handle case where total amount is 0 after using points
-        if (totalAmt === 0) {
+        // Validate vouchers
+        let regularVoucher = null;
+        let freeShippingVoucher = null;
+        let discountAmount = 0;
+        let shippingCost = 30000; // Default shipping cost
+        const now = new Date();
+
+        // Validate regular voucher
+        if (voucherCode) {
+            regularVoucher = await VoucherModel.findOne({
+                code: voucherCode,
+                isActive: true,
+                startDate: { $lte: now },
+                endDate: { $gte: now },
+                $or: [
+                    { usageLimit: null },
+                    { $expr: { $gt: ['$usageLimit', '$usageCount'] } }
+                ],
+                usersUsed: { $nin: [userId] }
+            }).session(session);
+
+            if (!regularVoucher) {
+                await session.abortTransaction();
+                session.endSession();
+                return response.status(400).json({
+                    message: 'Mã voucher giảm giá không hợp lệ hoặc đã hết hạn',
+                    error: true,
+                    success: false
+                });
+            }
+
+            if (subTotalAmt < regularVoucher.minOrderValue) {
+                await session.abortTransaction();
+                session.endSession();
+                return response.status(400).json({
+                    message: `Đơn hàng phải có giá trị tối thiểu ${regularVoucher.minOrderValue} để sử dụng voucher này`,
+                    error: true,
+                    success: false
+                });
+            }
+
+            // Validate products/categories if not applyForAllProducts
+            if (!regularVoucher.applyForAllProducts) {
+                const productIds = list_items.map(item => item.productId._id.toString());
+                const isValidProducts = regularVoucher.products.length === 0 || 
+                    productIds.some(id => regularVoucher.products.includes(id));
+                const isValidCategories = regularVoucher.categories.length === 0 || 
+                    list_items.some(item => regularVoucher.categories.includes(item.productId.category));
+                
+                if (!isValidProducts && !isValidCategories) {
+                    await session.abortTransaction();
+                    session.endSession();
+                    return response.status(400).json({
+                        message: 'Voucher này không áp dụng cho sản phẩm trong giỏ hàng',
+                        error: true,
+                        success: false
+                    });
+                }
+            }
+
+            if (regularVoucher.discountType === 'percentage') {
+                discountAmount = (subTotalAmt * regularVoucher.discountValue) / 100;
+                if (regularVoucher.maxDiscount && discountAmount > regularVoucher.maxDiscount) {
+                    discountAmount = regularVoucher.maxDiscount;
+                }
+            } else if (regularVoucher.discountType === 'fixed') {
+                discountAmount = regularVoucher.discountValue;
+            }
+        }
+
+        // Validate free shipping voucher
+        if (freeShippingVoucherCode) {
+            freeShippingVoucher = await VoucherModel.findOne({
+                code: freeShippingVoucherCode,
+                isActive: true,
+                startDate: { $lte: now },
+                endDate: { $gte: now },
+                isFreeShipping: true,
+                $or: [
+                    { usageLimit: null },
+                    { $expr: { $gt: ['$usageLimit', '$usageCount'] } }
+                ],
+                usersUsed: { $nin: [userId] }
+            }).session(session);
+
+            if (!freeShippingVoucher) {
+                await session.abortTransaction();
+                session.endSession();
+                return response.status(400).json({
+                    message: 'Mã voucher miễn phí vận chuyển không hợp lệ hoặc đã hết hạn',
+                    error: true,
+                    success: false
+                });
+            }
+
+            if (subTotalAmt < freeShippingVoucher.minOrderValue) {
+                await session.abortTransaction();
+                session.endSession();
+                return response.status(400).json({
+                    message: `Đơn hàng phải có giá trị tối thiểu ${freeShippingVoucher.minOrderValue} để sử dụng voucher miễn phí vận chuyển`,
+                    error: true,
+                    success: false
+                });
+            }
+
+            // Validate products/categories if not applyForAllProducts
+            if (!freeShippingVoucher.applyForAllProducts) {
+                const productIds = list_items.map(item => item.productId._id.toString());
+                const isValidProducts = freeShippingVoucher.products.length === 0 || 
+                    productIds.some(id => freeShippingVoucher.products.includes(id));
+                const isValidCategories = freeShippingVoucher.categories.length === 0 || 
+                    list_items.some(item => freeShippingVoucher.categories.includes(item.productId.category));
+                
+                if (!isValidProducts && !isValidCategories) {
+                    await session.abortTransaction();
+                    session.endSession();
+                    return response.status(400).json({
+                        message: 'Voucher miễn phí vận chuyển này không áp dụng cho sản phẩm trong giỏ hàng',
+                        error: true,
+                        success: false
+                    });
+                }
+            }
+
+            shippingCost = 0;
+        }
+
+        // Calculate final amount after applying vouchers
+        let finalTotal = totalAmt;
+        if (discountAmount > 0) {
+            finalTotal = Math.max(0, finalTotal - discountAmount);
+        }
+        if (shippingCost === 0) {
+            finalTotal = Math.max(0, finalTotal - 30000); // Subtract default shipping cost if free shipping
+        }
+
+        // Handle case where total amount is 0 after using points and vouchers
+        if (finalTotal === 0) {
             const session = await mongoose.startSession();
             try {
                 const result = await session.withTransaction(async () => {
-                    const orderItems = list_items.map(item => ({
-                        userId,
-                        orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-                        productId: item.productId._id,
-                        product_details: {
-                            name: item.productId.name,
-                            image: item.productId.image
-                        },
-                        quantity: item.quantity,
-                        payment_status: 'Đã thanh toán', // Paid with points
-                        delivery_address: addressId,
-                        subTotalAmt: item.productId.price * item.quantity,
-                        totalAmt: 0,
-                        status: 'pending'
-                    }));
+                    // Calculate item totals with discounts
+                    const orderItems = list_items.map(item => {
+                        const itemSubTotal = item.productId.price * item.quantity;
+                        let itemTotal = itemSubTotal * (1 - (item.productId.discount || 0) / 100);
+                        
+                        // Apply voucher discount proportionally to each item
+                        if (discountAmount > 0) {
+                            const itemDiscount = (itemSubTotal / subTotalAmt) * discountAmount;
+                            itemTotal -= itemDiscount;
+                        }
+                        
+                        // If free shipping, don't include shipping cost in item total
+                        if (shippingCost === 0) {
+                            itemTotal = itemSubTotal * (1 - (item.productId.discount || 0) / 100);
+                        }
+                        
+                        return {
+                            userId,
+                            orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+                            productId: item.productId._id,
+                            product_details: {
+                                name: item.productId.name,
+                                image: item.productId.image
+                            },
+                            quantity: item.quantity,
+                            payment_status: 'Đã thanh toán', // Paid with points
+                            delivery_address: addressId,
+                            subTotalAmt: itemSubTotal,
+                            totalAmt: Math.max(0, itemTotal),
+                            status: 'pending',
+                            voucherApplied: [
+                                regularVoucher ? {
+                                    code: regularVoucher.code,
+                                    discountType: regularVoucher.discountType,
+                                    discountValue: discountAmount,
+                                    isFreeShipping: false
+                                } : null,
+                                freeShippingVoucher ? {
+                                    code: freeShippingVoucher.code,
+                                    discountType: 'free_shipping',
+                                    discountValue: 0,
+                                    isFreeShipping: true
+                                } : null
+                            ].filter(Boolean)
+                        };
+                    });
 
                     const newOrders = await OrderModel.insertMany(orderItems, { session });
                     const newOrderIds = newOrders.map(order => order._id);
 
+                    // Update voucher usage
+                    const updatePromises = [];
+                    if (regularVoucher) {
+                        updatePromises.push(
+                            VoucherModel.findByIdAndUpdate(
+                                regularVoucher._id,
+                                {
+                                    $inc: { usageCount: 1 },
+                                    $addToSet: { usedBy: userId }
+                                },
+                                { session }
+                            )
+                        );
+                    }
+                    if (freeShippingVoucher) {
+                        updatePromises.push(
+                            VoucherModel.findByIdAndUpdate(
+                                freeShippingVoucher._id,
+                                {
+                                    $inc: { usageCount: 1 },
+                                    $addToSet: { usedBy: userId }
+                                },
+                                { session }
+                            )
+                        );
+                    }
+                    await Promise.all(updatePromises);
+
+                    // Update product stock
                     const stockUpdateResult = await updateProductStock(newOrderIds, session);
                     if (!stockUpdateResult.success) {
                         throw new Error(stockUpdateResult.message);
@@ -378,23 +579,27 @@ export async function paymentController(request, response) {
                     const cartItemIds = list_items.map(item => item._id);
                     await CartProductModel.deleteMany({ _id: { $in: cartItemIds } }, { session });
 
-                    return {
+                    // Commit the transaction
+                    await session.commitTransaction();
+                    session.endSession();
+
+                    return response.status(200).json({
+                        message: 'Đặt hàng thành công',
+                        error: false,
                         success: true,
                         data: {
                             message: 'Đặt hàng thành công bằng điểm thưởng',
                             orders: newOrders,
-                            pointsUsed: pointsToUse
-                        }
-                    };
+                            pointsUsed: pointsToUse,
+                            voucherCode: regularVoucher?.code,
+                            freeShippingVoucherCode: freeShippingVoucher?.code
+                        },
+                        isFreeOrder: true
+                    });
                 });
 
-                return response.status(200).json({
-                    message: 'Đặt hàng thành công',
-                    error: false,
-                    success: true,
-                    data: result?.data,
-                    isFreeOrder: true // Custom flag for client to handle redirect
-                });
+                // If we get here, the transaction was already committed
+                return;
 
             } catch (error) {
                 console.error('Error in zero-amount order transaction:', error);
@@ -413,7 +618,7 @@ export async function paymentController(request, response) {
 
                 return {
                     userId,
-                    orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+                    orderId: `TEMP-${new mongoose.Types.ObjectId()}`,
                     productId: el.productId._id,
                     product_details: {
                         name: el.productId.name || 'Sản phẩm không tên',
@@ -421,38 +626,69 @@ export async function paymentController(request, response) {
                     },
                     quantity: quantity,
                     paymentId: '',
-                    payment_status: 'Đang chờ thanh toán',
+                    payment_status: 'Chờ thanh toán',
                     delivery_address: addressId,
                     subTotalAmt: subTotal,
                     totalAmt: subTotal, // For individual items, totalAmt is same as subTotal
-                    status: 'pending'
+                    status: 'pending',
+                    isTemporary: true,
+                    voucherCode: regularVoucher?.code || undefined,
+                    freeShippingVoucherCode: freeShippingVoucher?.code || undefined
                 };
-            })
+            }),
+            { session }
         );
 
-        const line_items = list_items.map(item => {
-            if (!item.productId?._id || !item.productId?.name || !item.productId?.price) {
-                throw new Error(`Không tìm thấy sản phẩm: ${JSON.stringify(item)}`);
+        // For VND, we don't need to multiply by 100 as it doesn't have decimals
+        const line_items = list_items.map((item) => {
+            const product = item.productId;
+            let unitAmount = Math.round(product.price * (1 - (product.discount || 0) / 100));
+            
+            // Apply voucher discount proportionally to each item
+            if (discountAmount > 0) {
+                const itemSubTotal = product.price * item.quantity;
+                const itemDiscount = Math.round((itemSubTotal / subTotalAmt) * discountAmount);
+                unitAmount = Math.max(0, unitAmount - Math.round(itemDiscount / item.quantity));
             }
+            
+            // For VND, we don't need to multiply by 100 as it doesn't have decimals
+            unitAmount = Math.max(1, unitAmount); // Ensure minimum amount is 1 VND
+
             return {
                 price_data: {
                     currency: 'vnd',
                     product_data: {
-                        name: item.productId.name,
-                        images: Array.isArray(item.productId.image) ? item.productId.image : [item.productId.image],
+                        name: product.name,
+                        images: Array.isArray(product.image) 
+                            ? product.image 
+                            : [typeof product.image === 'string' ? product.image : ''],
                         metadata: {
-                            productId: item.productId._id.toString()
+                            productId: product._id?.toString() || ''
                         }
                     },
-                    unit_amount: pricewithDiscount(item.productId.price, item.productId.discount)
+                    unit_amount: unitAmount,
                 },
                 adjustable_quantity: {
-                    enabled: true,
-                    minimum: 1
+                    enabled: false, // Disable quantity adjustment to prevent price miscalculations
                 },
                 quantity: item.quantity || 1
             };
         });
+        
+        // Add shipping as a separate line item if not free
+        if (shippingCost > 0 && shippingCost < 100000000) { // Check Stripe's max amount
+            line_items.push({
+                price_data: {
+                    currency: 'vnd',
+                    product_data: {
+                        name: 'Phí vận chuyển',
+                        description: 'Phí vận chuyển tiêu chuẩn',
+                    },
+                    unit_amount: Math.round(shippingCost), // No need to multiply by 100 for VND
+                },
+                quantity: 1,
+            });
+        }
 
         const params = {
             submit_type: 'pay',
@@ -463,23 +699,48 @@ export async function paymentController(request, response) {
                 userId: userId.toString(),
                 addressId: addressId.toString(),
                 tempOrderIds: JSON.stringify(tempOrder.map(o => o._id.toString())),
-                orderTotal: totalAmt.toString(), // Add total amount to metadata
+                orderTotal: Math.round(finalTotal).toString(), // Ensure we're sending a rounded number
                 pointsToUse: pointsToUse.toString(),
-                voucherCode: request.body.voucherCode || ''
+                voucherCode: regularVoucher?.code || '',
+                freeShippingVoucherCode: freeShippingVoucher?.code || ''
+            },
+            payment_intent_data: {
+                metadata: {
+                    userId: userId.toString(),
+                    addressId: addressId.toString(),
+                    orderTotal: Math.round(finalTotal).toString()
+                }
             },
             line_items,
             success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.FRONTEND_URL}/cancel`
         };
+        
+        // Commit the transaction before creating the Stripe session
+        await session.commitTransaction();
+        session.endSession();
 
-        const session = await Stripe.checkout.sessions.create(params);
-        return response.status(200).json(session);
+        // Create the Stripe session
+        const stripeSession = await Stripe.checkout.sessions.create(params);
+        return response.status(200).json(stripeSession);
+        
     } catch (error) {
+        // If there's an error, abort any open transaction
+        if (session.inTransaction()) {
+            await session.abortTransaction();
+        }
+        
+        console.error('Error in payment controller:', error);
         return response.status(500).json({
             message: error.message || "Lỗi Server",
             error: true,
             success: false
         });
+    } finally {
+        // Always end the session
+        if (session.inTransaction()) {
+            await session.endSession();
+        }
     }
 }
 
