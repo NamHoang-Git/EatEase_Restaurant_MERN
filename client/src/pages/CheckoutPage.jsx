@@ -517,6 +517,8 @@ const CheckoutPage = () => {
                     subTotalAmt: filteredTotalPrice,
                     totalAmt: finalTotal,
                     pointsToUse: actualPointsToUse,
+                    voucherCode: selectedVouchers.regular?.code || '',
+                    freeShippingVoucherCode: selectedVouchers.freeShipping?.code || '',
                 },
             });
 

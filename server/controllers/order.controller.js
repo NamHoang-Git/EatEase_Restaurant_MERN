@@ -464,7 +464,8 @@ export async function paymentController(request, response) {
                 addressId: addressId.toString(),
                 tempOrderIds: JSON.stringify(tempOrder.map(o => o._id.toString())),
                 orderTotal: totalAmt.toString(), // Add total amount to metadata
-                pointsToUse: pointsToUse.toString()
+                pointsToUse: pointsToUse.toString(),
+                voucherCode: request.body.voucherCode || ''
             },
             line_items,
             success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -589,6 +590,19 @@ export async function webhookStripe(request, response) {
                             await UserModel.findByIdAndUpdate(userId,
                                 { $inc: { rewardsPoint: pointsChange } },
                                 { session: dbSession }
+                            );
+                        }
+
+                        // Update voucher usage count if voucher was used
+                        const { voucherCode } = stripeSession.metadata || {};
+                        if (voucherCode) {
+                            await VoucherModel.findOneAndUpdate(
+                                { code: voucherCode },
+                                { 
+                                    $inc: { usageCount: 1 },
+                                    $addToSet: { usedBy: userId }
+                                },
+                                { session: dbSession, new: true }
                             );
                         }
                     });
