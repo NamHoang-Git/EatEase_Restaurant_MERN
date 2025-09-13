@@ -7,9 +7,9 @@ const NoData = () => {
             <img
                 src={noDataImage}
                 alt="No Data"
-                className="w-full h-full max-w-xs max-h-xs block"
+                className="w-full h-full sm:max-w-xs max-w-56 block"
             />
-            <p className="text-slate-400 font-bold">Không có dữ liệu</p>
+            <p className="text-slate-400 font-bold sm:text-base text-sm">Không có dữ liệu</p>
         </div>
     );
 };

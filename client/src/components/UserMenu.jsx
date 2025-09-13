@@ -157,7 +157,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/category'}
-                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        className={`px-4 lg:px-2 py-1 hover:bg-base-100 rounded-md transition-colors ${
                             isActive('/dashboard/category')
                                 ? 'bg-primary-100 text-secondary-200'
                                 : ''
@@ -171,7 +171,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/product'}
-                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        className={`px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md transition-colors ${
                             isActive('/dashboard/product')
                                 ? 'bg-primary-100 text-secondary-200'
                                 : ''
@@ -185,7 +185,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/bill'}
-                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        className={`px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md transition-colors ${
                             isActive('/dashboard/bill')
                                 ? 'bg-primary-100 text-secondary-200'
                                 : ''
@@ -199,7 +199,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/report'}
-                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        className={`px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md transition-colors ${
                             isActive('/dashboard/report')
                                 ? 'bg-primary-100 text-secondary-200'
                                 : ''
@@ -213,7 +213,7 @@ const UserMenu = ({ close }) => {
                     <Link
                         onClick={handleClose}
                         to={'/dashboard/voucher'}
-                        className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                        className={`px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md transition-colors ${
                             isActive('/dashboard/voucher')
                                 ? 'bg-primary-100 text-secondary-200'
                                 : ''
@@ -226,7 +226,7 @@ const UserMenu = ({ close }) => {
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/address'}
-                    className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                    className={`px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md transition-colors ${
                         isActive('/dashboard/address')
                             ? 'bg-primary-100 text-secondary-200'
                             : ''
@@ -238,7 +238,7 @@ const UserMenu = ({ close }) => {
                 <Link
                     onClick={handleClose}
                     to={'/dashboard/my-orders'}
-                    className={`px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md transition-colors ${
+                    className={`px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md transition-colors ${
                         isActive('/dashboard/my-orders')
                             ? 'bg-primary-100 text-secondary-200'
                             : ''
@@ -250,7 +250,7 @@ const UserMenu = ({ close }) => {
                 <Divider />
                 <button
                     onClick={handleLogout}
-                    className="text-left px-4 lg:px-2 py-2 sm:py-1 hover:bg-base-100 rounded-md"
+                    className="text-left px-4 lg:px-2 py-[6px] hover:bg-base-100 rounded-md"
                 >
                     Đăng xuất
                 </button>

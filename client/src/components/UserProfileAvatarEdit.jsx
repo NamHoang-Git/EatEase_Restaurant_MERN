@@ -52,7 +52,7 @@ const UserProfileAvatarEdit = ({ close }) => {
                 {/* Header */}
                 <div className="border-b border-gray-200 px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-base sm:text-lg font-semibold text-secondary-200">
+                        <h3 className="text-base sm:text-lg font-bold text-secondary-200">
                             Cập nhật ảnh đại diện
                         </h3>
                         <button
@@ -84,17 +84,17 @@ const UserProfileAvatarEdit = ({ close }) => {
                         )}
                     </div>
 
-                    <p className="text-sm sm:text-lg text-gray-500 text-center">
+                    <p className="text-sm sm:text-lg text-rose-500 font-medium text-center">
                         Tải lên ảnh đại diện mới của bạn
                     </p>
 
                     <label
                         htmlFor="uploadProfile"
-                        className="inline-flex items-center px-4 py-2 bg-primary text-secondary-200 font-medium rounded-lg
-                    hover:opacity-80 transition-colors cursor-pointer shadow-md shadow-secondary-100 gap-2 mt-2"
+                        className="inline-flex items-center px-4 sm:py-2 py-[6px] bg-primary text-secondary-200 font-medium rounded-lg
+                    hover:opacity-80 transition-colors cursor-pointer shadow-md shadow-secondary-100 gap-2 mt-2 sm:text-base text-sm"
                     >
                         <svg
-                            className="w-5 h-5 mb-[4px]"
+                            className="sm:w-5 sm:h-5 w-4 h-4 mb-[4px]"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -118,7 +118,7 @@ const UserProfileAvatarEdit = ({ close }) => {
                         />
                     </label>
 
-                    <p className="text-xs text-gray-400 text-center italic">
+                    <p className="sm:text-xs text-[10px] text-rose-400 text-center italic">
                         Định dạng: JPG, PNG (tối đa 5MB)
                     </p>
                 </div>

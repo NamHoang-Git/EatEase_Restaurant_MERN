@@ -622,7 +622,7 @@ const ProductDisplayPage = () => {
                 <h2 className="sm:text-xl text-base font-bold text-secondary-200">
                     Sản phẩm tương tự
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] gap-2">
                     {relatedProducts.length > 0 ? (
                         relatedProducts.map((item) => (
                             <CardProduct key={item._id} data={item} />

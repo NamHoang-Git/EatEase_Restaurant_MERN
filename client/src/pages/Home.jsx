@@ -96,8 +96,8 @@ const Home = () => {
                                       >
                                           <div
                                               className="grid grid-flow-col grid-cols-[2fr_1fr] h-[4rem] sm:h-[5rem] md:h-[5rem] lg:h-[6rem] gap-2
-                                            place-items-center border-[3px] border-inset border-primary-200 rounded-2xl sm:rounded-3xl bg-primary-5
-                                            shadow-md shadow-primary-100 cursor-pointer group"
+                                            place-items-center shadow-md shadow-secondary-100 rounded-2xl sm:rounded-3xl bg-primary-5
+                                            cursor-pointer group"
                                           >
                                               <p className="text-xs sm:text-sm md:text-base lg:text-base text-center p-2 text-secondary-200 font-bold">
                                                   {cat.name}

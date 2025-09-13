@@ -160,12 +160,10 @@ const AddAddress = ({ close }) => {
 
     return (
         <section
-            onClick={close}
             className="bg-neutral-800 z-50 bg-opacity-60 fixed top-0 left-0 right-0 bottom-0 overflow-auto
-        flex items-center justify-center px-2"
+        flex items-center justify-center px-3"
         >
             <div
-                onClick={(e) => e.stopPropagation()}
                 className="bg-white px-4 py-6 w-full max-w-xl mx-auto rounded-md shadow-md
                 flex flex-col gap-4"
             >
@@ -175,14 +173,14 @@ const AddAddress = ({ close }) => {
                     </h2>
                     <button
                         onClick={close}
-                        className="hover:text-secondary-200"
+                        className="hover:text-secondary-100 text-secondary-200"
                     >
                         <IoClose size={25} />
                     </button>
                 </div>
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="grid gap-4 text-base font-medium"
+                    className="grid gap-4 sm:text-base text-sm font-medium"
                 >
                     <div className="grid gap-1">
                         <label htmlFor="addressline">Địa chỉ:</label>
@@ -193,6 +191,7 @@ const AddAddress = ({ close }) => {
                             className="border-2 bg-base-100 p-2 rounded outline-none
                         focus-within:border-secondary-100"
                             {...register('addressline', { required: true })}
+                            spellCheck={false}
                         />
                     </div>
                     <div className="grid gap-1">
@@ -269,13 +268,14 @@ const AddAddress = ({ close }) => {
                                     message: 'Số điện thoại không hợp lệ',
                                 },
                             })}
+                            spellCheck={false}
                         />
                     </div>
                     <div className="flex items-center gap-2">
                         <input
                             type="checkbox"
                             id="isDefault"
-                            className="h-4 w-4"
+                            className="h-4 w-4 mb-[3px]"
                             {...register('isDefault')}
                         />
                         <label

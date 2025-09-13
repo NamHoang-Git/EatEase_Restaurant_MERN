@@ -26,7 +26,7 @@ const ConfirmBox = ({
             flex flex-col gap-4"
             >
                 <div className="flex justify-between items-center gap-4">
-                    <h1 className="font-semibold text-lg text-secondary-200">{title}</h1>
+                    <h1 className="font-semibold sm:text-lg text-base text-secondary-200">{title}</h1>
                     <button
                         onClick={close}
                         className="hover:text-secondary-200"
@@ -34,8 +34,8 @@ const ConfirmBox = ({
                         <IoClose size={25} />
                     </button>
                 </div>
-                <p className="my-2 text-base font-medium">{message}</p>
-                <div className="w-fit ml-auto flex items-center gap-3 bg-white">
+                <p className="my-2 sm:text-base text-sm font-medium">{message}</p>
+                <div className="w-fit ml-auto flex items-center gap-3 sm:text-base text-sm bg-white">
                     <button
                         onClick={async () => {
                             setConfirmLoading(true);

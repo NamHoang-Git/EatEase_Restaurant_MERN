@@ -87,12 +87,12 @@ const ChangePassword = ({ close }) => {
             >
                 <div className="p-4 sm:p-6 grid gap-4">
                     <div className="flex justify-between items-center">
-                        <h2 className="sm:text-xl text-base font-semibold text-gray-800 flex items-center">
+                        <h2 className="sm:text-xl text-base text-secondary-200 flex items-center">
                             <FaLock
-                                className="mr-2 mb-[5px] text-secondary-200"
+                                className="mr-2 mb-[4px] "
                                 size={18}
                             />
-                            <p className="font-semibold">
+                            <p className="font-bold">
                                 Xác minh danh tính của bạn
                             </p>
                         </h2>
@@ -104,14 +104,14 @@ const ChangePassword = ({ close }) => {
                         </button>
                     </div>
 
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 sm:text-base text-sm">
                         Vì lý do bảo mật, vui lòng nhập mật khẩu hiện tại của
                         bạn để tiếp tục.
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-secondary-200 mb-2">
                                 Mật khẩu hiện tại
                             </label>
                             <div className="relative">
@@ -125,7 +125,7 @@ const ChangePassword = ({ close }) => {
                                     value={formData.currentPassword}
                                     onChange={handleChange}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
-                                    focus:border-secondary-200 pr-10"
+                                    focus:border-secondary-200 pr-10 sm:text-sm text-xs text-red-700"
                                     placeholder="Nhập mật khẩu hiện tại"
                                     required
                                     autoFocus
@@ -148,7 +148,7 @@ const ChangePassword = ({ close }) => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-4">
+                        <div className="flex sm:text-base text-sm justify-end gap-4">
                             <button
                                 type="button"
                                 onClick={close}

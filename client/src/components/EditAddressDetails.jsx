@@ -221,7 +221,7 @@ const EditAddressDetails = ({ close, data }) => {
                     </h2>
                     <button
                         onClick={close}
-                        className="hover:text-secondary-200"
+                        className="hover:text-secondary-100 text-secondary-200"
                     >
                         <IoClose size={25} />
                     </button>
@@ -231,13 +231,14 @@ const EditAddressDetails = ({ close, data }) => {
                     className="grid gap-4 sm:text-base text-sm font-medium"
                 >
                     <div className="grid gap-1">
-                        <label htmlFor="addressline">Địa chỉ chi tiết:</label>
+                        <label htmlFor="addressline">Địa chỉ:</label>
                         <input
                             type="text"
                             id="addressline"
                             className="border-2 bg-base-100 p-2 rounded outline-none
                         focus-within:border-secondary-100"
                             {...register('address_line', { required: true })}
+                            spellCheck={false}
                         />
                     </div>
                     <div className="grid gap-1">
@@ -314,13 +315,14 @@ const EditAddressDetails = ({ close, data }) => {
                                     message: 'Số điện thoại không hợp lệ',
                                 },
                             })}
+                            spellCheck={false}
                         />
                     </div>
                     <div className="flex items-center gap-2">
                         <input
                             type="checkbox"
                             id="isDefault"
-                            className="h-4 w-4"
+                            className="h-4 w-4 mb-[3px]"
                             disabled={data.isDefault}
                             checked={watch('isDefault')}
                             onChange={(e) =>

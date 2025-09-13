@@ -72,12 +72,14 @@ const Profile = () => {
         <div className="max-w-5xl mx-auto py-2 md:p-6">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 {/* Header */}
-                <div className="px-3 py-4 bg-primary-4 rounded-md shadow-md text-secondary-200
-                shadow-secondary-100 font-bold">
+                <div
+                    className="px-3 py-4 bg-primary-4 rounded-md shadow-md text-secondary-200
+                shadow-secondary-100 font-bold"
+                >
                     <h1 className="text-ellipsis line-clamp-1 uppercase">
                         Tài khoản của tôi
                     </h1>
-                    <p className="text-[12px] sm:text-base text-secondary-100">
+                    <p className="text-xs sm:text-base text-secondary-100">
                         Quản lý thông tin cá nhân và bảo mật của bạn
                     </p>
                 </div>
@@ -86,7 +88,7 @@ const Profile = () => {
                     {/* Left Column - Avatar */}
                     <div className="md:w-1/3 flex flex-col items-center mb-6 md:mb-0">
                         <div className="relative group">
-                            <div className="w-28 h-28 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-inset border-primary-200 shadow-lg">
+                            <div className="w-24 h-24 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-inset border-primary-200 shadow-lg">
                                 <img
                                     src={user.avatar || defaultAvatar}
                                     alt={user.name}
@@ -95,25 +97,25 @@ const Profile = () => {
                             </div>
                             <button
                                 onClick={() => setOpenProfileAvatarEdit(true)}
-                                className="absolute bottom-2 right-2 bg-primary-2 text-secondary-200 p-[6px] rounded-lg
-                                hover:bg-blue-700 transition-all duration-200 transform hover:scale-110 shadow-lg"
+                                className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-primary-2 text-secondary-200 p-[6px] rounded-lg
+                            transition-all duration-200 transform hover:scale-110 shadow-lg"
                                 title="Change Avatar"
                             >
                                 <FaEdit />
                             </button>
                         </div>
 
-                        <h2 className="mt-4 text-xl font-semibold text-gray-800">
+                        <h2 className="mt-4 sm:text-xl text-lg font-semibold text-gray-800">
                             {user.name}
                         </h2>
-                        <p className="text-secondary-200 font-bold text-base">
+                        <p className="text-secondary-200 font-bold sm:text-base text-sm">
                             {user.role}
                         </p>
 
                         <button
                             onClick={() => setShowChangePassword(true)}
                             className="mt-4 flex items-center gap-2 px-4 py-[6px] bg-white border-2 border-secondary-200
-                            text-secondary-200 rounded-lg hover:bg-secondary-200 hover:text-white transition-colors w-full justify-center"
+                            text-secondary-200 rounded-lg sm:text-base text-sm hover:bg-secondary-200 hover:text-white transition-colors w-full justify-center"
                         >
                             <FaLock />
                             <p className="font-semibold mt-[5px]">
@@ -126,14 +128,17 @@ const Profile = () => {
                     <div className="md:w-2/3 sm:text-lg text-sm">
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="bg-gray-50 px-2 py-4 sm:p-6 rounded-lg">
-                                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                    <FaUser className="mr-2 mb-[2px] text-secondary-200" size={18} />{' '}
+                                <h3 className="sm:text-lg text-base font-semibold text-secondary-200 mb-4 flex items-center">
+                                    <FaUser
+                                        className="mr-2 mb-[4px]"
+                                        size={18}
+                                    />{' '}
                                     Thông tin cá nhân
                                 </h3>
 
-                                <div className="space-y-4">
+                                <div className="space-y-4 sm:text-base text-sm text-secondary-200">
                                     <div>
-                                        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+                                        <label className="block font-bold mb-1">
                                             Họ và tên
                                         </label>
                                         <div className="relative">
@@ -145,17 +150,18 @@ const Profile = () => {
                                                 name="name"
                                                 onChange={handleOnChange}
                                                 required
+                                                spellCheck={false}
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+                                        <label className="block font-bold mb-1">
                                             Địa chỉ email
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaEnvelope className="text-gray-400" />
+                                                <FaEnvelope className="text-secondary-100" />
                                             </div>
                                             <input
                                                 type="email"
@@ -165,17 +171,18 @@ const Profile = () => {
                                                 onChange={handleOnChange}
                                                 required
                                                 disabled
+                                                spellCheck={false}
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+                                        <label className="block font-bold mb-1">
                                             Số điện thoại
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaPhone className="text-gray-400" />
+                                                <FaPhone className="text-secondary-100" />
                                             </div>
                                             <input
                                                 type="text"
@@ -185,6 +192,7 @@ const Profile = () => {
                                                 name="mobile"
                                                 onChange={handleOnChange}
                                                 required
+                                                spellCheck={false}
                                             />
                                         </div>
                                     </div>

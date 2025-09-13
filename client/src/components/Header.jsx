@@ -111,7 +111,7 @@ const Header = () => {
                                     />
                                     <img
                                         src={logo}
-                                        width={75}
+                                        width={80}
                                         alt="logo"
                                         className="lg:hidden sm:hidden"
                                     />
@@ -126,7 +126,7 @@ const Header = () => {
                                         src={user.avatar || defaultAvatar}
                                         alt={user.name}
                                         onClick={handleMobileUser}
-                                        className="w-8 h-8 rounded-full border-[3px] border-inset border-white cursor-pointer lg:hidden"
+                                        className="w-10 h-10 rounded-full border-[3px] border-inset border-white cursor-pointer lg:hidden"
                                     />
                                 ) : (
                                     <div
@@ -137,9 +137,9 @@ const Header = () => {
                                             className="text-secondary-200 flex items-center justify-end
                                         border-2 border-primary-200 bg-primary-4 rounded-xl p-[5px]"
                                         >
-                                            <FaUserTimes size={16} />
+                                            <FaUserTimes size={18} />
                                         </button>
-                                        <p className="text-[8px] text-white font-semibold underline">
+                                        <p className="text-[10px] text-white font-semibold underline">
                                             Đăng nhập
                                         </p>
                                     </div>
