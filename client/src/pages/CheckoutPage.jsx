@@ -752,7 +752,7 @@ const CheckoutPage = () => {
                         Thêm địa chỉ
                     </div>
                 </div>
-                <div className="w-full lg:max-w-2xl bg-white flex flex-col gap-3 shadow-md px-2">
+                <div className="w-full  bg-white flex flex-col gap-3 shadow-md px-2 pt-2 pb-4">
                     <h3 className="sm:text-lg text-sm font-bold shadow-md px-2 py-3">
                         Đơn hàng
                     </h3>
@@ -876,7 +876,7 @@ const CheckoutPage = () => {
                                 <div className="border-t border-gray-200 pt-4 mt-2 flex flex-col gap-2">
                                     {/* Voucher Code Input */}
                                     <div className="">
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 py-1">
                                             <div className="flex-1 relative">
                                                 <input
                                                     type="text"
@@ -918,7 +918,7 @@ const CheckoutPage = () => {
                                             <button
                                                 type="button"
                                                 onClick={handleApplyVoucher}
-                                                className="px-3 py-2 h-8 bg-blue-500 text-white sm:text-sm text-xs font-medium rounded-md hover:bg-blue-600
+                                                className="px-3 h-8 bg-blue-500 text-white sm:text-sm text-xs font-medium rounded-md hover:bg-blue-600
                                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap"
                                             >
                                                 Áp dụng
@@ -932,32 +932,41 @@ const CheckoutPage = () => {
                                     </div>
                                     {/* Free Shipping Voucher */}
                                     {selectedVouchers.freeShipping && (
-                                        <div className="mb-2 p-3 rounded-md border bg-blue-50 border-blue-200">
+                                        <div
+                                            title={
+                                                selectedVouchers.freeShipping
+                                                    .description
+                                            }
+                                            className="p-3 rounded-md border bg-blue-50 border-blue-200 sm:text-sm text-[10px]"
+                                        >
                                             <div className="flex justify-between items-start">
-                                                <div className="flex-1">
+                                                <div className="flex-1 select-none">
                                                     <div className="flex items-center gap-2">
-                                                        <p className="font-medium">
+                                                        <p className="font-bold text-blue-700">
                                                             {
                                                                 selectedVouchers
                                                                     .freeShipping
                                                                     .code
                                                             }
                                                         </p>
-                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <span
+                                                            className="inline-flex items-center px-2 sm:py-0.5 py-[1px] rounded sm:text-sm text-[9px] font-semibold
+                                                    bg-blue-100 text-blue-800"
+                                                        >
                                                             Freeship
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm mt-1 text-gray-600">
+                                                    <p className="mt-1 text-gray-600 font-semibold">
                                                         {
                                                             selectedVouchers
                                                                 .freeShipping
                                                                 .name
                                                         }
                                                     </p>
-                                                    <div className="mt-2">
-                                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    <div className="mt-1">
+                                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">
                                                             <svg
-                                                                className="mr-1.5 h-3 w-3"
+                                                                className="mr-1.5 h-3 w-3 mb-[2px]"
                                                                 fill="none"
                                                                 stroke="currentColor"
                                                                 viewBox="0 0 24 24"
@@ -986,7 +995,7 @@ const CheckoutPage = () => {
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-5 w-5"
+                                                        className="sm:h-5 sm:w-5 h-[14px] w-[14px]"
                                                         fill="none"
                                                         viewBox="0 0 24 24"
                                                         stroke="currentColor"
@@ -1005,11 +1014,11 @@ const CheckoutPage = () => {
 
                                     {/* Regular Voucher */}
                                     {selectedVouchers.regular && (
-                                        <div className="mb-2 p-3 rounded-md border bg-green-50 border-green-200">
+                                        <div className="mb-2 p-3 rounded-md border bg-pink-100 border-pink-300 sm:text-sm text-[10px]">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2">
-                                                        <p className="font-medium">
+                                                        <p className="font-bold text-pink-700">
                                                             {
                                                                 selectedVouchers
                                                                     .regular
@@ -1017,16 +1026,16 @@ const CheckoutPage = () => {
                                                             }
                                                         </p>
                                                     </div>
-                                                    <p className="text-sm mt-1 text-gray-600">
+                                                    <p className="mt-1 text-gray-600 font-semibold">
                                                         {
                                                             selectedVouchers
                                                                 .regular.name
                                                         }
                                                     </p>
-                                                    <div className="mt-2">
-                                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <div className="mt-1">
+                                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-pink-200 text-pink-800">
                                                             <svg
-                                                                className="mr-1.5 h-3 w-3"
+                                                                className="mr-1.5 h-3 w-3 mb-[2px]"
                                                                 fill="none"
                                                                 stroke="currentColor"
                                                                 viewBox="0 0 24 24"
@@ -1071,7 +1080,7 @@ const CheckoutPage = () => {
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-5 w-5"
+                                                        className="sm:h-5 sm:w-5 h-[14px] w-[14px]"
                                                         fill="none"
                                                         viewBox="0 0 24 24"
                                                         stroke="currentColor"
@@ -1239,9 +1248,12 @@ const CheckoutPage = () => {
                                                                                                 voucher
                                                                                             )
                                                                                         }
+                                                                                        title={
+                                                                                            voucher.description
+                                                                                        }
                                                                                     >
-                                                                                        <div className="grid grid-flow-col grid-cols-[2fr_1fr] justify-between items-start sm:text-sm text-[10px]">
-                                                                                            <div className="flex-2">
+                                                                                        <div className="grid grid-flow-col grid-cols-[2fr_1fr] justify-between sm:text-sm text-[10px]">
+                                                                                            <div className="w-full">
                                                                                                 <div className="font-bold text-blue-700">
                                                                                                     {
                                                                                                         voucher.code
@@ -1257,7 +1269,7 @@ const CheckoutPage = () => {
                                                                                                         Đơn
                                                                                                         tối
                                                                                                         thiểu:{' '}
-                                                                                                        <p className="font-bold">
+                                                                                                        <p className="font-medium text-blue-400">
                                                                                                             {DisplayPriceInVND(
                                                                                                                 voucher.minOrder ||
                                                                                                                     voucher.minOrderValue ||
@@ -1291,31 +1303,13 @@ const CheckoutPage = () => {
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div className="text-right flex-1">
-                                                                                                <span className="text-blue-600 font-medium sm:block hidden">
+                                                                                            <div className="text-right">
+                                                                                                <span className="text-blue-600 font-semibold sm:text-sm text-[9px]">
                                                                                                     Miễn
                                                                                                     phí
                                                                                                     vận
                                                                                                     chuyển
                                                                                                 </span>
-                                                                                                <span className="text-blue-600 font-medium sm:hidden bg-blue-50">
-                                                                                                    Miễn
-                                                                                                    phí
-                                                                                                    vận
-                                                                                                    chuyển
-                                                                                                </span>
-                                                                                                <p className="text-gray-400 sm:block hidden">
-                                                                                                    Áp
-                                                                                                    dụng
-                                                                                                    cho
-                                                                                                    đơn
-                                                                                                    từ{' '}
-                                                                                                    {DisplayPriceInVND(
-                                                                                                        voucher.minOrder ||
-                                                                                                            voucher.minOrderValue ||
-                                                                                                            0
-                                                                                                    )}
-                                                                                                </p>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -1382,6 +1376,9 @@ const CheckoutPage = () => {
                                                                                                 voucher
                                                                                             )
                                                                                         }
+                                                                                        title={
+                                                                                            voucher.description
+                                                                                        }
                                                                                     >
                                                                                         <div className="flex justify-between items-start sm:text-sm text-[10px]">
                                                                                             <div>
@@ -1395,16 +1392,18 @@ const CheckoutPage = () => {
                                                                                                         voucher.name
                                                                                                     }
                                                                                                 </p>
-                                                                                                <div className="text-gray-500 space-y-1">
-                                                                                                    <p>
+                                                                                                <div className="text-gray-500">
+                                                                                                    <p className="flex gap-1">
                                                                                                         Đơn
                                                                                                         tối
                                                                                                         thiểu:{' '}
-                                                                                                        {DisplayPriceInVND(
-                                                                                                            voucher.minOrder ||
-                                                                                                                voucher.minOrderValue ||
-                                                                                                                0
-                                                                                                        )}
+                                                                                                        <p className="font-medium text-pink-500">
+                                                                                                            {DisplayPriceInVND(
+                                                                                                                voucher.minOrder ||
+                                                                                                                    voucher.minOrderValue ||
+                                                                                                                    0
+                                                                                                            )}
+                                                                                                        </p>
                                                                                                     </p>
                                                                                                     <div className="flex items-center gap-1">
                                                                                                         <svg
@@ -1432,8 +1431,8 @@ const CheckoutPage = () => {
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div className="text-right">
-                                                                                                <span className="text-pink-600 font-medium">
+                                                                                            <div className="text-right sm:text-sm text-[9px]">
+                                                                                                <span className="text-pink-600 font-semibold">
                                                                                                     {voucher.discountType ===
                                                                                                     'percentage'
                                                                                                         ? `Giảm ${voucher.discount}%`
@@ -1442,7 +1441,7 @@ const CheckoutPage = () => {
                                                                                                           )}`}
                                                                                                 </span>
                                                                                                 {voucher.maxDiscount && (
-                                                                                                    <p className="text-gray-400">
+                                                                                                    <p className="text-pink-400 font-medium">
                                                                                                         Tối
                                                                                                         đa{' '}
                                                                                                         {DisplayPriceInVND(
@@ -1517,39 +1516,51 @@ const CheckoutPage = () => {
                                                                                     }
                                                                                     className="p-3 border border-blue-200 rounded-lg bg-blue-50 opacity-75 cursor-not-allowed"
                                                                                 >
-                                                                                    <div className="flex justify-between items-start sm:text-sm text-[10px]">
-                                                                                        <div className="sm:flex-1">
-                                                                                            <div className="flex sm:items-center items-start sm:flex-row flex-col-reverse sm:gap-2 gap-1">
-                                                                                                <span className="font-bold text-blue-500">
-                                                                                                    {
-                                                                                                        voucher.code
-                                                                                                    }
-                                                                                                </span>
-                                                                                                <span className="text-[9px] font-semibold bg-blue-100 text-blue-700 px-2 sm:py-0.5 rounded">
-                                                                                                    Sắp
-                                                                                                    diễn
-                                                                                                    ra
-                                                                                                </span>
+                                                                                    <div className="sm:text-sm text-[10px]">
+                                                                                        <div className="">
+                                                                                            <div className="grid grid-flow-col grid-cols-[2fr_1fr] justify-between">
+                                                                                                <div className="flex sm:items-center items-start sm:flex-row flex-col-reverse sm:gap-2 gap-0">
+                                                                                                    <span className="font-bold text-blue-500">
+                                                                                                        {
+                                                                                                            voucher.code
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                    <span className="text-[8px] sm:text-xs font-semibold bg-blue-100 text-blue-700 sm:px-2 px-1 sm:py-0.5 rounded">
+                                                                                                        Sắp
+                                                                                                        diễn
+                                                                                                        ra
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                                <div className="text-blue-700 text-right">
+                                                                                                    <div className="font-semibold sm:text-sm text-[9px]">
+                                                                                                        Miễn
+                                                                                                        phí
+                                                                                                        vận
+                                                                                                        chuyển
+                                                                                                    </div>
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <p className="text-gray-600 mt-1">
+                                                                                            <p className="text-gray-600">
                                                                                                 {
                                                                                                     voucher.name
                                                                                                 }
                                                                                             </p>
-                                                                                            <div className="text-xs text-gray-500 mt-1">
-                                                                                                <p>
+                                                                                            <div className=" text-gray-500">
+                                                                                                <p className="flex gap-1">
                                                                                                     Đơn
                                                                                                     tối
                                                                                                     thiểu:{' '}
-                                                                                                    {DisplayPriceInVND(
-                                                                                                        voucher.minOrder ||
-                                                                                                            voucher.minOrderValue ||
-                                                                                                            0
-                                                                                                    )}
+                                                                                                    <p className="text-blue-500 font-semibold">
+                                                                                                        {DisplayPriceInVND(
+                                                                                                            voucher.minOrder ||
+                                                                                                                voucher.minOrderValue ||
+                                                                                                                0
+                                                                                                        )}
+                                                                                                    </p>
                                                                                                 </p>
                                                                                                 <div className="flex items-center gap-1 mt-0.5">
                                                                                                     <svg
-                                                                                                        className="w-3 h-3"
+                                                                                                        className="w-3 h-3 mb-[2px]"
                                                                                                         fill="none"
                                                                                                         stroke="currentColor"
                                                                                                         viewBox="0 0 24 24"
@@ -1575,28 +1586,6 @@ const CheckoutPage = () => {
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
-                                                                                        <div className="text-right ml-4">
-                                                                                            <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md">
-                                                                                                <div className="font-semibold">
-                                                                                                    Miễn
-                                                                                                    phí
-                                                                                                    vận
-                                                                                                    chuyển
-                                                                                                </div>
-                                                                                                <p className="text-xs">
-                                                                                                    Áp
-                                                                                                    dụng
-                                                                                                    cho
-                                                                                                    đơn
-                                                                                                    từ{' '}
-                                                                                                    {DisplayPriceInVND(
-                                                                                                        voucher.minOrder ||
-                                                                                                            voucher.minOrderValue ||
-                                                                                                            0
-                                                                                                    )}
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
                                                                             )
@@ -1610,7 +1599,7 @@ const CheckoutPage = () => {
                                                                 !v.isFreeShipping
                                                         ).length > 0 && (
                                                             <div className="">
-                                                                <p className="font-medium text-green-700 mb-2">
+                                                                <p className="font-medium text-pink-600 mb-2">
                                                                     <i className="fas fa-tag mr-3"></i>
                                                                     Mã giảm giá
                                                                     (
@@ -1625,7 +1614,7 @@ const CheckoutPage = () => {
                                                                     }
                                                                     )
                                                                 </p>
-                                                                <div className="space-y-2 pl-2 border-l-[3px] border-green-200">
+                                                                <div className="space-y-2 pl-2 border-l-[3px] border-pink-200">
                                                                     {availableVouchers.upcoming
                                                                         .filter(
                                                                             (
@@ -1644,67 +1633,22 @@ const CheckoutPage = () => {
                                                                                     }
                                                                                     className="p-3 border border-gray-200 rounded-lg bg-gray-50 opacity-75 cursor-not-allowed"
                                                                                 >
-                                                                                    <div className="flex justify-between items-start">
-                                                                                        <div className="flex-1">
-                                                                                            <div className="flex items-center gap-2">
-                                                                                                <span className="font-medium text-gray-500">
+                                                                                    <div className="sm:text-sm text-[10px]">
+                                                                                        <div className="grid grid-flow-col grid-cols-[2fr_1fr] justify-between">
+                                                                                            <div className="flex sm:items-center items-start sm:flex-row flex-col-reverse sm:gap-2 gap-0">
+                                                                                                <span className="font-bold text-pink-700">
                                                                                                     {
                                                                                                         voucher.code
                                                                                                     }
                                                                                                 </span>
-                                                                                                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                                                                                                <span className="text-[8px] sm:text-xs font-semibold bg-pink-100 text-pink-700 sm:px-2 px-1 sm:py-0.5 rounded">
                                                                                                     Sắp
                                                                                                     diễn
                                                                                                     ra
                                                                                                 </span>
                                                                                             </div>
-                                                                                            <p className="text-gray-600 mt-1">
-                                                                                                {
-                                                                                                    voucher.name
-                                                                                                }
-                                                                                            </p>
-                                                                                            <div className="text-xs text-gray-500 mt-1">
-                                                                                                <p>
-                                                                                                    Đơn
-                                                                                                    tối
-                                                                                                    thiểu:{' '}
-                                                                                                    {DisplayPriceInVND(
-                                                                                                        voucher.minOrder ||
-                                                                                                            voucher.minOrderValue ||
-                                                                                                            0
-                                                                                                    )}
-                                                                                                </p>
-                                                                                                <div className="flex items-center gap-1 mt-0.5">
-                                                                                                    <svg
-                                                                                                        className="w-3 h-3"
-                                                                                                        fill="none"
-                                                                                                        stroke="currentColor"
-                                                                                                        viewBox="0 0 24 24"
-                                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                                    >
-                                                                                                        <path
-                                                                                                            strokeLinecap="round"
-                                                                                                            strokeLinejoin="round"
-                                                                                                            strokeWidth={
-                                                                                                                2
-                                                                                                            }
-                                                                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                                                                        />
-                                                                                                    </svg>
-                                                                                                    <span>
-                                                                                                        Bắt
-                                                                                                        đầu
-                                                                                                        từ:{' '}
-                                                                                                        {
-                                                                                                            voucher.startDate
-                                                                                                        }
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div className="text-right ml-4">
-                                                                                            <div className="bg-green-100 text-green-700 px-2 py-1 rounded-md">
-                                                                                                <div className="font-semibold">
+                                                                                            <div className="text-pink-700 sm:text-sm text-[9px] flex flex-col items-end w-full">
+                                                                                                <div className="text-pink-600 font-semibold">
                                                                                                     {voucher.discountType ===
                                                                                                     'percentage'
                                                                                                         ? `Giảm ${voucher.discount}%`
@@ -1713,7 +1657,7 @@ const CheckoutPage = () => {
                                                                                                           )}`}
                                                                                                 </div>
                                                                                                 {voucher.maxDiscount && (
-                                                                                                    <p className="text-xs">
+                                                                                                    <p className="text-pink-400 font-medium">
                                                                                                         Tối
                                                                                                         đa{' '}
                                                                                                         {DisplayPriceInVND(
@@ -1721,6 +1665,51 @@ const CheckoutPage = () => {
                                                                                                         )}
                                                                                                     </p>
                                                                                                 )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <p className="text-gray-600">
+                                                                                            {
+                                                                                                voucher.name
+                                                                                            }
+                                                                                        </p>
+                                                                                        <div className="text-gray-500">
+                                                                                            <p className="flex gap-1">
+                                                                                                Đơn
+                                                                                                tối
+                                                                                                thiểu:{' '}
+                                                                                                <p className="font-medium text-pink-500">
+                                                                                                    {DisplayPriceInVND(
+                                                                                                        voucher.minOrder ||
+                                                                                                            voucher.minOrderValue ||
+                                                                                                            0
+                                                                                                    )}
+                                                                                                </p>
+                                                                                            </p>
+                                                                                            <div className="flex items-center gap-1 mt-0.5">
+                                                                                                <svg
+                                                                                                    className="w-3 h-3 mb-[2px]"
+                                                                                                    fill="none"
+                                                                                                    stroke="currentColor"
+                                                                                                    viewBox="0 0 24 24"
+                                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                                >
+                                                                                                    <path
+                                                                                                        strokeLinecap="round"
+                                                                                                        strokeLinejoin="round"
+                                                                                                        strokeWidth={
+                                                                                                            2
+                                                                                                        }
+                                                                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                                                    />
+                                                                                                </svg>
+                                                                                                <span>
+                                                                                                    Bắt
+                                                                                                    đầu
+                                                                                                    từ:{' '}
+                                                                                                    {
+                                                                                                        voucher.startDate
+                                                                                                    }
+                                                                                                </span>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -1771,7 +1760,7 @@ const CheckoutPage = () => {
                                                 />
                                                 <label
                                                     htmlFor="usePoints"
-                                                    className="sm:text-sm text-xs font-medium text-gray-700 px-2 cursor-pointer"
+                                                    className="sm:text-sm font-medium text-gray-700 px-2 cursor-pointer hover:opacity-80"
                                                 >
                                                     Sử dụng điểm thưởng
                                                 </label>
@@ -1779,12 +1768,12 @@ const CheckoutPage = () => {
                                             <div className="sm:text-sm text-xs text-gray-600 flex flex-col sm:items-end gap-1 select-none">
                                                 <p className="flex gap-1">
                                                     Có sẵn:{' '}
-                                                    <p className="font-bold">
+                                                    <p className="font-bold text-green-700">
                                                         {userPoints.toLocaleString()}
                                                     </p>
-                                                    điểm (~
-                                                    <p className="font-bold">
-                                                        {DisplayPriceInVND(
+                                                    điểm (
+                                                    <p className="font-bold text-green-700">
+                                                        ~ {DisplayPriceInVND(
                                                             userPoints *
                                                                 pointsValue
                                                         )}
@@ -1798,7 +1787,7 @@ const CheckoutPage = () => {
                                             </div>
                                         </div>
                                         {usePoints && (
-                                            <div className="pl-6">
+                                            <div className="pt-3 sm:text-sm text-xs">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <input
                                                         type="range"
@@ -1816,79 +1805,86 @@ const CheckoutPage = () => {
                                                         className="h-2 w-full rounded-lg appearance-none bg-gray-200"
                                                     />
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        pattern="[0-9]*"
-                                                        value={
-                                                            pointsToUse === 0
-                                                                ? ''
-                                                                : pointsToUse
-                                                        }
-                                                        onChange={(e) => {
-                                                            const rawValue =
-                                                                e.target.value;
-                                                            if (
-                                                                rawValue === ''
-                                                            ) {
-                                                                setPointsToUse(
-                                                                    0
-                                                                );
-                                                                return;
+                                                <div className="flex items-center sm:justify-normal justify-between py-1 gap-3">
+                                                    <div className="flex items-center gap-1">
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            pattern="[0-9]*"
+                                                            value={
+                                                                pointsToUse ===
+                                                                0
+                                                                    ? ''
+                                                                    : pointsToUse
                                                             }
-                                                            if (
-                                                                /^\d+$/.test(
-                                                                    rawValue
-                                                                )
-                                                            ) {
-                                                                const value =
-                                                                    parseInt(
-                                                                        rawValue,
-                                                                        10
-                                                                    );
+                                                            onChange={(e) => {
+                                                                const rawValue =
+                                                                    e.target
+                                                                        .value;
                                                                 if (
-                                                                    !isNaN(
-                                                                        value
-                                                                    )
+                                                                    rawValue ===
+                                                                    ''
                                                                 ) {
                                                                     setPointsToUse(
-                                                                        Math.min(
-                                                                            Math.max(
-                                                                                0,
-                                                                                value
-                                                                            ),
-                                                                            maxPointsToUse
-                                                                        )
+                                                                        0
                                                                     );
+                                                                    return;
                                                                 }
-                                                            }
-                                                        }}
-                                                        onBlur={(e) => {
-                                                            const value =
-                                                                parseInt(
-                                                                    e.target
-                                                                        .value
-                                                                ) || 0;
-                                                            setPointsToUse(
-                                                                Math.min(
-                                                                    Math.max(
-                                                                        0,
-                                                                        value
-                                                                    ),
-                                                                    maxPointsToUse
-                                                                )
-                                                            );
-                                                        }}
-                                                        className="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-right"
-                                                        aria-label="Số điểm sử dụng"
-                                                        placeholder="0"
-                                                    />
-                                                    <span className="text-sm font-medium">
-                                                        điểm (tối đa:{' '}
-                                                        {maxPointsToUse.toLocaleString()}
-                                                        )
-                                                    </span>
+                                                                if (
+                                                                    /^\d+$/.test(
+                                                                        rawValue
+                                                                    )
+                                                                ) {
+                                                                    const value =
+                                                                        parseInt(
+                                                                            rawValue,
+                                                                            10
+                                                                        );
+                                                                    if (
+                                                                        !isNaN(
+                                                                            value
+                                                                        )
+                                                                    ) {
+                                                                        setPointsToUse(
+                                                                            Math.min(
+                                                                                Math.max(
+                                                                                    0,
+                                                                                    value
+                                                                                ),
+                                                                                maxPointsToUse
+                                                                            )
+                                                                        );
+                                                                    }
+                                                                }
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                const value =
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value
+                                                                    ) || 0;
+                                                                setPointsToUse(
+                                                                    Math.min(
+                                                                        Math.max(
+                                                                            0,
+                                                                            value
+                                                                        ),
+                                                                        maxPointsToUse
+                                                                    )
+                                                                );
+                                                            }}
+                                                            className="sm:w-24 w-20 px-2 py-1 border border-gray-300 rounded text-right text-secondary-200 font-medium"
+                                                            aria-label="Số điểm sử dụng"
+                                                            placeholder="0"
+                                                        />
+                                                        <span className="flex gap-1">
+                                                            điểm (tối đa:{' '}
+                                                            <p className="font-semibold">
+                                                                {maxPointsToUse.toLocaleString()}
+                                                            </p>
+                                                            )
+                                                        </span>
+                                                    </div>
                                                     <button
                                                         type="button"
                                                         onClick={() =>
@@ -1900,7 +1896,7 @@ const CheckoutPage = () => {
                                                             pointsToUse ===
                                                             maxPointsToUse
                                                         }
-                                                        className={`text-xs px-2 py-1 rounded ${
+                                                        className={`px-2 py-1 font-semibold rounded ${
                                                             pointsToUse ===
                                                             maxPointsToUse
                                                                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
@@ -1910,12 +1906,14 @@ const CheckoutPage = () => {
                                                         Dùng tối đa
                                                     </button>
                                                 </div>
-                                                <div className="mt-1 text-xs text-gray-500">
+                                                <div className="mt-[6px] font-semibold text-gray-500 flex gap-1">
                                                     Giảm:{' '}
-                                                    {DisplayPriceInVND(
-                                                        pointsToUse *
-                                                            pointsValue
-                                                    )}
+                                                    <p className="text-secondary-200">
+                                                        {DisplayPriceInVND(
+                                                            pointsToUse *
+                                                                pointsValue
+                                                        )}
+                                                    </p>
                                                 </div>
                                             </div>
                                         )}
@@ -1953,11 +1951,15 @@ const CheckoutPage = () => {
                             )}
 
                             {usePoints && pointsToUse > 0 && (
-                                <div className="flex justify-between text-sm">
-                                    <p className="text-gray-600">
-                                        Điểm tích lũy ({pointsToUse} điểm):
+                                <div className="flex justify-between sm:text-sm text-xs">
+                                    <p className="text-gray-600 flex">
+                                        Điểm tích lũy (
+                                        <p className="font-semibold text-secondary-200 pr-1">
+                                            {pointsToUse}
+                                        </p>
+                                        điểm):
                                     </p>
-                                    <p className="text-blue-600">
+                                    <p className="text-blue-600 font-semibold">
                                         -
                                         {DisplayPriceInVND(
                                             pointsToUse * pointsValue
@@ -1972,59 +1974,58 @@ const CheckoutPage = () => {
                                 </p>
                             </div>
                         </div>
-                    </div>
-                    <div className="w-full flex flex-col gap-4 py-4 sm:text-base text-xs">
-                        {usePoints && pointsToUse > 0 && (
-                            <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
-                                <p className="text-sm text-blue-700">
-                                    Bạn sẽ sử dụng{' '}
-                                    <span className="font-semibold">
-                                        {pointsToUse.toLocaleString()} điểm
-                                    </span>
-                                    (tương đương{' '}
-                                    {DisplayPriceInVND(
-                                        pointsToUse * pointsValue
-                                    )}
-                                    ) cho đơn hàng này.
-                                </p>
-                                <p className="text-xs text-blue-600 mt-1">
-                                    Điểm còn lại:{' '}
-                                    {(
-                                        userPoints - pointsToUse
-                                    ).toLocaleString()}{' '}
-                                    điểm
-                                </p>
-                            </div>
-                        )}
-                        <button
-                            className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
+
+                        <div className="w-full flex flex-col gap-4 sm:text-sm text-xs">
+                            {usePoints && pointsToUse > 0 && (
+                                <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
+                                    <p className="text-blue-700 flex">
+                                        Sử dụng{' '}
+                                        <span className="font-bold px-1">
+                                            {pointsToUse.toLocaleString()}
+                                        </span>
+                                        điểm cho đơn hàng này.
+                                    </p>
+                                    <p className="text-green-700 mt-1 flex gap-1">
+                                        Điểm còn lại:
+                                        <p className="font-bold">
+                                            {(
+                                                userPoints - pointsToUse
+                                            ).toLocaleString()}
+                                        </p>
+                                        điểm
+                                    </p>
+                                </div>
+                            )}
+                            <button
+                                className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
                         cursor-pointer text-secondary-200 font-semibold"
-                            onClick={() =>
-                                setShowConfirmModal({
-                                    show: true,
-                                    type: 'online',
-                                })
-                            }
-                            disabled={
-                                loading ||
-                                filteredItems.length === 0 ||
-                                !hasValidAddress
-                            }
-                        >
-                            {loading ? <Loading /> : 'Thanh toán online'}
-                        </button>
-                        <button
-                            className="py-2 px-4 border-[3px] border-red-darker font-semibold text-red-darker hover:bg-red-darker
+                                onClick={() =>
+                                    setShowConfirmModal({
+                                        show: true,
+                                        type: 'online',
+                                    })
+                                }
+                                disabled={
+                                    loading ||
+                                    filteredItems.length === 0 ||
+                                    !hasValidAddress
+                                }
+                            >
+                                {loading ? <Loading /> : 'Thanh toán online'}
+                            </button>
+                            <button
+                                className="py-2 px-4 border-[3px] border-red-darker font-semibold text-red-darker hover:bg-red-darker
                         hover:text-white rounded cursor-pointer transition-all"
-                            onClick={handleCashOnDelivery}
-                            disabled={
-                                loading ||
-                                filteredItems.length === 0 ||
-                                !hasValidAddress
-                            }
-                        >
-                            Thanh toán khi nhận hàng
-                        </button>
+                                onClick={handleCashOnDelivery}
+                                disabled={
+                                    loading ||
+                                    filteredItems.length === 0 ||
+                                    !hasValidAddress
+                                }
+                            >
+                                Thanh toán khi nhận hàng
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
