@@ -112,11 +112,58 @@ const MyOrders = () => {
                                     {order?.payment_status || 'Chưa xác định'}
                                 </span>
                             </div>
-                            <div className="flex gap-2">
-                                <p className="font-semibold">Tổng tiền:</p>
-                                <p className="flex items-center gap-2 text-secondary-200 font-semibold">
-                                    {DisplayPriceInVND(order?.totalAmt || 0)}
-                                </p>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex gap-2 items-center">
+                                    <p className="font-semibold">Thành tiền:</p>
+                                    <p className="flex items-center gap-2 text-secondary-200 font-semibold text-lg">
+                                        {DisplayPriceInVND(
+                                            order?.totalAmt || 0
+                                        )}
+                                    </p>
+                                </div>
+                                {order?.points_used > 0 && (
+                                    <div className="flex gap-2 text-sm text-green-600">
+                                        <p>
+                                            Đã dùng {order.points_used} điểm (-
+                                            {DisplayPriceInVND(
+                                                order.points_value || 0
+                                            )}
+                                            )
+                                        </p>
+                                    </div>
+                                )}
+                                {order?.voucherApplied?.length > 0 && (
+                                    <div className="flex flex-col gap-1 text-sm text-blue-600">
+                                        {order.voucherApplied.map(
+                                            (voucher, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center gap-1"
+                                                >
+                                                    <span>
+                                                        Mã giảm giá:{' '}
+                                                        {voucher.code}
+                                                    </span>
+                                                    {voucher.isFreeShipping ? (
+                                                        <span>
+                                                            (Miễn phí vận
+                                                            chuyển)
+                                                        </span>
+                                                    ) : (
+                                                        <span>
+                                                            (-
+                                                            {DisplayPriceInVND(
+                                                                voucher.discountValue ||
+                                                                    0
+                                                            )}
+                                                            )
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex sm:flex-row flex-col items-baseline gap-2">
                                 <p className="font-semibold">

@@ -175,12 +175,6 @@ const DisplayCartItem = ({ close }) => {
                                             {totalQty} sản phẩm
                                         </p>
                                     </div>
-                                    <div className="flex gap-4 justify-between">
-                                        <p>Phí giao hàng</p>
-                                        <p className="flex items-center gap-2 italic">
-                                            Miễn phí
-                                        </p>
-                                    </div>
                                 </div>
                                 <div className="font-semibold flex items-center justify-between gap-4">
                                     <p>Tổng cộng</p>

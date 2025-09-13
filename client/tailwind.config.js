@@ -20,7 +20,45 @@ export default {
         "red-normal": "#EF4444",
         "red-dark": "#DC2626",
         "red-darker": "#B91C1C",
-      }
+        price: {
+          DEFAULT: '#E60023', // đỏ giá
+          light: '#FF4D6D',
+          dark: '#B3001A',
+        },
+        success: {
+          DEFAULT: '#16A34A', // xanh thành công
+          light: '#4ADE80',
+          dark: '#166534',
+        },
+        warning: {
+          DEFAULT: '#F59E0B', // vàng cảnh báo
+          light: '#FCD34D',
+          dark: '#B45309',
+        },
+        error: {
+          DEFAULT: '#DC2626', // đỏ lỗi
+          light: '#F87171',
+          dark: '#991B1B',
+        },
+      },
+      fontSize: {
+        // Tiêu đề trang, banner
+        'title-page': ['32px', { lineHeight: '40px', fontWeight: '700' }],
+        // Tiêu đề mục nhỏ
+        'title-section': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+        // Tên sản phẩm
+        'product-name': ['16px', { lineHeight: '24px', fontWeight: '500' }],
+        // Giá chính
+        'price-main': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+        // Giá gốc
+        'price-old': ['14px', { lineHeight: '20px', fontWeight: '400' }],
+        // Mô tả, metadata
+        'meta': ['13px', { lineHeight: '18px', fontWeight: '400' }],
+        // Body text
+        'body': ['15px', { lineHeight: '22px', fontWeight: '400' }],
+        // Footer
+        'footer': ['12px', { lineHeight: '16px', fontWeight: '400' }],
+      },
     },
   },
   plugins: [],
