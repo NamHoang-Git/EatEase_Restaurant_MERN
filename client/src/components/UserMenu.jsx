@@ -112,26 +112,26 @@ const UserMenu = ({ close }) => {
 
     return (
         <div ref={menuRef}>
-            <div className="font-bold">Tài khoản</div>
-            <div className="text-sm flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
+            <div className="text-base font-bold text-secondary-200">Tài khoản</div>
+            <div className="lg:text-sm text-xs flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
                 <div className="w-full">
-                    <div className="max-w-96 md:max-w-60 text-ellipsis line-clamp-1 flex gap-2 items-center">
+                    <div className="font-bold text-ellipsis line-clamp-1 flex lg:gap-2 gap-1 items-center">
                         {user.name || user.mobile}
                         <span className="text-secondary-200 font-bold">
-                            {user.role === 'ADMIN' ? '(Admin)' : ''}
+                            {user.role === 'ADMIN' ? '(Quản trị viên)' : ''}
                         </span>
                         <Link
                             onClick={handleClose}
                             to={'/dashboard/profile'}
-                            className="hover:text-secondary-200 mt-[1.8px]"
+                            className="hover:text-secondary-100 text-secondary-200 lg:mb-[2px] mb-[1px]"
                         >
                             <BiLinkExternal size={15} />
                         </Link>
                     </div>
-                    <div className="text-sm text-gray-600 mt-1 flex items-center justify-between">
+                    <div className="text-gray-600 mt-1 flex items-center gap-2">
                         <div className="flex items-center gap-1">
-                            <span className="font-medium">Điểm thưởng:</span>
-                            <span className="font-bold text-primary-600">
+                            <span className="font-medium text-yellow-600">Điểm thưởng:</span>
+                            <span className="font-bold text-yellow-600">
                                 {user.rewardsPoint?.toLocaleString() || 0} điểm
                             </span>
                         </div>
@@ -140,7 +140,7 @@ const UserMenu = ({ close }) => {
                                 e.stopPropagation();
                                 fetchUserPoints();
                             }}
-                            className={`text-gray-500 hover:text-primary-600 transition-colors ${
+                            className={`text-yellow-600 hover:text-yellow-500 transition-colors ${
                                 isLoadingPoints ? 'animate-spin' : ''
                             }`}
                             disabled={isLoadingPoints}
@@ -152,7 +152,7 @@ const UserMenu = ({ close }) => {
                 </div>
             </div>
             <Divider />
-            <div className="text-sm grid gap-2 font-semibold">
+            <div className="lg:text-sm text-xs grid gap-2 font-semibold">
                 {isAdmin(user.role) && (
                     <Link
                         onClick={handleClose}

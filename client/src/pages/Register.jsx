@@ -104,44 +104,52 @@ const Register = () => {
             >
                 {/* Register Form */}
                 <div className="bg-white p-6 rounded-s-md">
-                    <p className="font-bold text-lg text-center text-secondary-200 uppercase">
+                    <p className="font-bold lg:text-lg text-base text-center text-secondary-200 uppercase">
                         Đăng ký
                     </p>
                     <form
                         action=""
-                        className="grid gap-4 mt-6"
+                        className="grid gap-4 mt-6 lg:text-base text-sm text-secondary-200"
                         onSubmit={handleSubmit}
                     >
                         <div className="grid gap-2">
-                            <label htmlFor="name">Tên: </label>
+                            <label className="font-medium" htmlFor="name">
+                                Tên:{' '}
+                            </label>
                             <input
                                 type="text"
                                 id="name"
                                 autoFocus
-                                className="bg-base-100 p-2 border rounded outline-none focus-within:border-secondary-200"
+                                className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded outline-none focus-within:border-secondary-200"
                                 name="name"
                                 placeholder="Nhập tên của bạn"
                                 value={data.name}
                                 onChange={handleChange}
                                 onKeyDown={handleKeyDown}
+                                spellCheck={false}
                             />
                         </div>
                         <div className="grid gap-2">
-                            <label htmlFor="email">Email: </label>
+                            <label className="font-medium" htmlFor="email">
+                                Email:{' '}
+                            </label>
                             <input
                                 type="email"
                                 id="email"
-                                className="bg-base-100 p-2 border rounded outline-none focus-within:border-secondary-200"
+                                className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded outline-none focus-within:border-secondary-200"
                                 name="email"
                                 placeholder="Nhập email của bạn"
                                 value={data.email}
                                 onChange={handleChange}
                                 onKeyDown={handleKeyDown}
+                                spellCheck={false}
                             />
                         </div>
                         <div className="grid gap-2">
-                            <label htmlFor="password">Mật khẩu: </label>
-                            <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
+                            <label className="font-medium" htmlFor="password">
+                                Mật khẩu:{' '}
+                            </label>
+                            <div className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded flex items-center focus-within:border-secondary-200">
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     id="password"
@@ -151,12 +159,13 @@ const Register = () => {
                                     value={data.password}
                                     onChange={handleChange}
                                     onKeyDown={handleKeyDown}
+                                    spellCheck={false}
                                 />
                                 <div
                                     onClick={() =>
                                         setShowPassword((prev) => !prev)
                                     }
-                                    className="cursor-pointer text-secondary-100"
+                                    className="cursor-pointer text-secondary-100 lg:block hidden"
                                 >
                                     {showPassword ? (
                                         <FaEye size={20} />
@@ -164,13 +173,29 @@ const Register = () => {
                                         <FaEyeSlash size={20} />
                                     )}
                                 </div>
+
+                                <div
+                                    onClick={() =>
+                                        setShowPassword((prev) => !prev)
+                                    }
+                                    className="cursor-pointer text-secondary-100 lg:hidden block"
+                                >
+                                    {showPassword ? (
+                                        <FaEye size={16} />
+                                    ) : (
+                                        <FaEyeSlash size={16} />
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="grid gap-2">
-                            <label htmlFor="confirmPassword">
+                            <label
+                                className="font-medium"
+                                htmlFor="confirmPassword"
+                            >
                                 Xác nhận mật khẩu:{' '}
                             </label>
-                            <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
+                            <div className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded flex items-center focus-within:border-secondary-200">
                                 <input
                                     type={
                                         showConfirmPassword
@@ -183,17 +208,31 @@ const Register = () => {
                                     placeholder="Nhập lại mật khẩu để xác nhận"
                                     value={data.confirmPassword}
                                     onChange={handleChange}
+                                    spellCheck={false}
                                 />
                                 <div
                                     onClick={() =>
                                         setShowConfirmPassword((prev) => !prev)
                                     }
-                                    className="cursor-pointer text-secondary-100"
+                                    className="cursor-pointer text-secondary-100 lg:block hidden"
                                 >
                                     {showConfirmPassword ? (
                                         <FaEye size={20} />
                                     ) : (
                                         <FaEyeSlash size={20} />
+                                    )}
+                                </div>
+
+                                <div
+                                    onClick={() =>
+                                        setShowConfirmPassword((prev) => !prev)
+                                    }
+                                    className="cursor-pointer text-secondary-100 lg:hidden block"
+                                >
+                                    {showConfirmPassword ? (
+                                        <FaEye size={16} />
+                                    ) : (
+                                        <FaEyeSlash size={16} />
                                     )}
                                 </div>
                             </div>
@@ -204,13 +243,13 @@ const Register = () => {
                                 valideValue
                                     ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
                                     : 'bg-gray-400 text-white cursor-no-drop'
-                            } py-2 rounded-md font-bold my-2`}
+                            } py-2 rounded-md font-bold mt-1 mb-2`}
                         >
                             {loading ? <Loading /> : 'Đăng ký'}
                         </button>
                     </form>
 
-                    <p className="py-2">
+                    <p className="py-2 lg:text-base text-xs font-medium">
                         Bạn đã có tài khoản?{' '}
                         <Link
                             to={'/login'}

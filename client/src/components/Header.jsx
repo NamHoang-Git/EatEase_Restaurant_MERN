@@ -122,21 +122,27 @@ const Header = () => {
                             <div className="lg:flex-1">
                                 {/* { User icons display in only Mobile version } */}
                                 {user?._id ? (
-                                    <button
-                                        className="text-secondary-200 flex items-center justify-end lg:hidden
-                                border-2 border-secondary-100 bg-primary-2 rounded-xl p-[6px]"
+                                    <img
+                                        src={user.avatar || defaultAvatar}
+                                        alt={user.name}
                                         onClick={handleMobileUser}
-                                    >
-                                        <FaUserCheck size={18} />
-                                    </button>
+                                        className="w-8 h-8 rounded-full border-[2px] border-inset border-secondary-200 cursor-pointer lg:hidden"
+                                    />
                                 ) : (
-                                    <button
-                                        className="text-secondary-200 flex items-center justify-end lg:hidden
-                                border-2 border-primary-200 bg-primary-4 rounded-xl p-[6px]"
+                                    <div
                                         onClick={handleMobileUser}
+                                        className="flex flex-col items-center gap-1 cursor-pointer lg:hidden"
                                     >
-                                        <FaUserTimes size={18} />
-                                    </button>
+                                        <button
+                                            className="text-secondary-200 flex items-center justify-end
+                                        border-2 border-primary-200 bg-primary-4 rounded-xl p-[5px]"
+                                        >
+                                            <FaUserTimes size={16} />
+                                        </button>
+                                        <p className="text-[8px] text-white font-semibold underline">
+                                            Đăng nhập
+                                        </p>
+                                    </div>
                                 )}
 
                                 {/* { Desktop } */}
@@ -173,7 +179,7 @@ const Header = () => {
                                             </div>
                                             {openUserMenu && (
                                                 <div className="absolute right-0 top-[60px]">
-                                                    <div className="bg-white min-w-[216px] lg:shadow-md lg:shadow-secondary-100 rounded p-4">
+                                                    <div className="bg-white min-w-[300px] lg:shadow-md lg:shadow-secondary-100 rounded p-4">
                                                         <UserMenu
                                                             close={
                                                                 handleCloseUserMenu

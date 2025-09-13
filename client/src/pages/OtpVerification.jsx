@@ -62,22 +62,26 @@ const OtpVerification = () => {
     return (
         <section className="container mx-auto my-12 max-w-lg px-2">
             <div className="bg-white rounded-md p-6 shadow-md shadow-secondary-100">
-                <p className="font-bold text-lg text-secondary-200 uppercase">
+                <p className="font-bold lg:text-lg text-base text-secondary-200 uppercase">
                     Xác nhận OTP
                 </p>
                 <form
                     action=""
-                    className="grid gap-4 mt-4"
+                    className="grid gap-4 mt-4 lg:text-base text-sm text-secondary-200"
                     onSubmit={handleSubmit}
                 >
                     <div className="grid gap-2">
-                        <label htmlFor="otp">Nhập mã OTP:</label>
+                        <label className="font-medium" htmlFor="otp">
+                            Nhập mã OTP:
+                        </label>
                         <div className="flex items-center justify-between gap-2">
                             {data.map((element, index) => {
                                 return (
                                     <input
                                         key={'otp' + index}
-                                        type="text"
+                                        type="number"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
                                         id="otp"
                                         ref={(ref) => {
                                             inputRef.current[index] = ref;
@@ -100,7 +104,7 @@ const OtpVerification = () => {
                                         maxLength={1}
                                         className="bg-base-100 w-full max-w-16 p-2 border rounded
                                         outline-none focus-within:border-secondary-200 text-center
-                                        font-bold text-secondary-200"
+                                        font-bold text-secondary-200 no-spinner"
                                     />
                                 );
                             })}
@@ -112,14 +116,14 @@ const OtpVerification = () => {
                             valideValue
                                 ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
                                 : 'bg-gray-400 text-white cursor-no-drop'
-                        } py-2 rounded-md font-bold my-2`}
+                        } py-2 rounded-md font-bold mt-1 mb-2`}
                     >
                         {loading ? <Loading /> : 'Xác nhận OTP'}
                     </button>
                 </form>
 
-                <p className="py-2">
-                    Bạn đã có tài khoản?{' '}
+                <p className="py-2 lg:text-base text-xs font-medium">
+                    Bạn muốn đăng nhập?{' '}
                     <Link
                         to={'/login'}
                         className="font-bold text-secondary-200 hover:text-secondary-100"

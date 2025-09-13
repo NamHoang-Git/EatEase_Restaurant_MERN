@@ -58,20 +58,22 @@ const ForgotPassword = () => {
     return (
         <section className="container mx-auto my-12 max-w-lg px-2">
             <div className="bg-white rounded-md p-6 shadow-md shadow-secondary-100">
-                <p className="font-bold text-lg text-secondary-200 uppercase">
+                <p className="font-bold lg:text-lg text-base text-secondary-200 uppercase">
                     Quên Mật Khẩu
                 </p>
                 <form
                     action=""
-                    className="grid gap-4 mt-4"
+                    className="grid gap-4 mt-4 lg:text-base text-sm text-secondary-200"
                     onSubmit={handleSubmit}
                 >
                     <div className="grid gap-2">
-                        <label htmlFor="email">Email: </label>
+                        <label className="font-medium" htmlFor="email">
+                            Email:{' '}
+                        </label>
                         <input
                             type="email"
                             id="email"
-                            className="bg-base-100 p-2 border rounded outline-none focus-within:border-secondary-200"
+                            className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded outline-none focus-within:border-secondary-200"
                             name="email"
                             placeholder="Nhập email của bạn"
                             value={data.email}
@@ -84,14 +86,14 @@ const ForgotPassword = () => {
                             valideValue
                                 ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
                                 : 'bg-gray-400 text-white cursor-no-drop'
-                        } py-2 rounded-md font-bold my-2`}
+                        } py-2 rounded-md font-bold mt-1 mb-2`}
                     >
                         Gửi OTP
                     </button>
                 </form>
 
-                <p className="py-2">
-                    Bạn đã có tài khoản?{' '}
+                <p className="py-2 lg:text-base text-xs font-medium">
+                    Bạn muốn đăng nhập?{' '}
                     <Link
                         to={'/login'}
                         className="font-bold text-secondary-200 hover:text-secondary-100"

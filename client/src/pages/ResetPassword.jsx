@@ -105,17 +105,19 @@ const ResetPassword = () => {
     return (
         <section className="container mx-auto my-12 max-w-lg px-2">
             <div className="bg-white rounded-md p-6 shadow-md shadow-secondary-100">
-                <p className="font-bold text-lg text-secondary-200 uppercase">
+                <p className="font-bold lg:text-lg text-base text-secondary-200 uppercase">
                     Đổi mật khẩu
                 </p>
                 <form
                     action=""
-                    className="grid gap-4 mt-4"
+                    className="grid gap-4 mt-4 lg:text-base text-sm text-secondary-200"
                     onSubmit={handleSubmit}
                 >
                     <div className="grid gap-2">
-                        <label htmlFor="newPassword">Mật khẩu mới: </label>
-                        <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
+                        <label className="font-medium" htmlFor="newPassword">
+                            Mật khẩu mới:{' '}
+                        </label>
+                        <div className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded flex items-center focus-within:border-secondary-200">
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 id="newPassword"
@@ -127,7 +129,7 @@ const ResetPassword = () => {
                             />
                             <div
                                 onClick={() => setShowPassword((prev) => !prev)}
-                                className="cursor-pointer text-secondary-100"
+                                className="cursor-pointer text-secondary-100 lg:block hidden"
                             >
                                 {showPassword ? (
                                     <FaEye size={20} />
@@ -135,13 +137,27 @@ const ResetPassword = () => {
                                     <FaEyeSlash size={20} />
                                 )}
                             </div>
+
+                            <div
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                className="cursor-pointer text-secondary-100 lg:hidden block"
+                            >
+                                {showPassword ? (
+                                    <FaEye size={16} />
+                                ) : (
+                                    <FaEyeSlash size={16} />
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="grid gap-2">
-                        <label htmlFor="confirmPassword">
+                        <label
+                            className="font-medium"
+                            htmlFor="confirmPassword"
+                        >
                             Xác nhận mật khẩu:{' '}
                         </label>
-                        <div className="bg-base-100 p-2 border rounded flex items-center focus-within:border-secondary-200">
+                        <div className="bg-base-100 lg:p-2 px-2 py-[6px] lg:text-base text-xs border rounded flex items-center focus-within:border-secondary-200">
                             <input
                                 type={showConfirmPassword ? 'text' : 'password'}
                                 id="confirmPassword"
@@ -155,12 +171,25 @@ const ResetPassword = () => {
                                 onClick={() =>
                                     setShowConfirmPassword((prev) => !prev)
                                 }
-                                className="cursor-pointer text-secondary-100"
+                                className="cursor-pointer text-secondary-100 lg:block hidden"
                             >
                                 {showConfirmPassword ? (
                                     <FaEye size={20} />
                                 ) : (
                                     <FaEyeSlash size={20} />
+                                )}
+                            </div>
+
+                            <div
+                                onClick={() =>
+                                    setShowConfirmPassword((prev) => !prev)
+                                }
+                                className="cursor-pointer text-secondary-100 lg:hidden block"
+                            >
+                                {showConfirmPassword ? (
+                                    <FaEye size={16} />
+                                ) : (
+                                    <FaEyeSlash size={16} />
                                 )}
                             </div>
                         </div>
@@ -170,15 +199,15 @@ const ResetPassword = () => {
                         className={`${
                             valideValue
                                 ? 'bg-primary-2 border border-secondary-200 text-secondary-200 hover:opacity-80 cursor-pointer'
-                                : 'bg-gray-400 cursor-no-drop'
+                                : 'bg-gray-400 cursor-no-drop text-white'
                         } py-2 rounded-md font-bold my-2`}
                     >
                         {loading ? <Loading /> : 'Xác nhận'}
                     </button>
                 </form>
 
-                <p className="py-2">
-                    Bạn đã có tài khoản?{' '}
+                <p className="py-2 lg:text-base text-xs font-medium">
+                    Bạn muốn đăng nhập?{' '}
                     <Link
                         to={'/login'}
                         className="font-bold text-secondary-200 hover:text-secondary-100"

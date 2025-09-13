@@ -139,7 +139,7 @@ const AddToCartButton = ({ data }) => {
                         className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
                         disabled={loading}
                     >
-                        <FaMinus className="sm:hidden" size={12} />
+                        <FaMinus className="sm:hidden" size={10} />
                         <FaMinus className="hidden sm:block" size={14} />
                     </button>
 
@@ -152,7 +152,7 @@ const AddToCartButton = ({ data }) => {
                         className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
                         disabled={loading}
                     >
-                        <FaPlus className="sm:hidden" size={12} />
+                        <FaPlus className="sm:hidden" size={10} />
                         <FaPlus className="hidden sm:block" size={14} />
                     </button>
                 </div>

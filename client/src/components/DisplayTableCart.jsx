@@ -26,7 +26,7 @@ const DisplayTableCart = ({ data, column }) => {
                             {headerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
-                                    className={`border px-1 py-2 sm:p-2 border-b-4 border-b-secondary-100 text-center sm:text-base text-xs ${
+                                    className={`border px-1 py-2 sm:p-2 border-b-4 border-b-secondary-100 text-center sm:text-base text-[10px] ${
                                         header.column.columnDef.meta
                                             ?.className || ''
                                     }`}
@@ -48,7 +48,7 @@ const DisplayTableCart = ({ data, column }) => {
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className={`border px-1 py-2 sm:p-2 sm:text-base text-xs ${
+                                    className={`border px-1 py-2 sm:p-2 sm:text-base text-[10px] ${
                                         cell.column.columnDef.meta?.className ||
                                         ''
                                     }`}

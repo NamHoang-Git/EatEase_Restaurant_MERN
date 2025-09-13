@@ -151,6 +151,7 @@ const CartPage = () => {
     };
 
     const goToCheckout = () => {
+        setLoading(true);
         if (selectedItems.length === 0) return;
         navigate('/checkout', { state: { selectedItems } });
     };
@@ -177,7 +178,9 @@ const CartPage = () => {
                     <img
                         onClick={() => {
                             const product = row.original.productId;
-                            const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
+                            const url = `/product/${valideURLConvert(
+                                product.name
+                            )}-${product._id}`;
                             navigate(url);
                             scrollToTop();
                         }}
@@ -220,14 +223,6 @@ const CartPage = () => {
             accessorKey: 'price',
             cell: ({ row }) => (
                 <div className="lg:flex items-end gap-2 justify-center">
-                    <p className="text-[10px] sm:text-base font-bold text-secondary-200">
-                        {DisplayPriceInVND(
-                            pricewithDiscount(
-                                row.original.productId?.price || 0,
-                                row.original.productId?.discount || 0
-                            )
-                        )}
-                    </p>
                     {row.original.productId?.discount > 0 && (
                         <p className="text-[10px] sm:text-base text-gray-500 line-through">
                             {DisplayPriceInVND(
@@ -235,6 +230,14 @@ const CartPage = () => {
                             )}
                         </p>
                     )}
+                    <p className="text-[11px] sm:text-base font-bold text-secondary-200">
+                        {DisplayPriceInVND(
+                            pricewithDiscount(
+                                row.original.productId?.price || 0,
+                                row.original.productId?.discount || 0
+                            )
+                        )}
+                    </p>
                 </div>
             ),
             meta: { className: 'max-w-28' },
@@ -283,7 +286,7 @@ const CartPage = () => {
                     </button>
                 </div>
             ) : (
-                <div className="bg-white shadow rounded-lg p-2 sm:p-4">
+                <div className="bg-white shadow rounded-lg px-2 py-3 sm:p-4">
                     <DisplayTableCart data={cart} column={columns} />
 
                     <div
@@ -301,7 +304,7 @@ const CartPage = () => {
                                 </p>
                             )}
                         </div>
-                        <p className="text-base sm:text-xl font-bold text-secondary-200">
+                        <p className="text-sm sm:text-xl font-bold text-secondary-200">
                             {DisplayPriceInVND(totalPrice)}
                         </p>
                     </div>

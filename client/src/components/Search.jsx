@@ -35,7 +35,7 @@ const Search = () => {
 
     return (
         <div
-            className="w-full h-8 sm:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
+            className="w-full my-2 sm:my-0 h-8 sm:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
         flex items-center text-neutral-500 bg-base-100 group focus-within:border-secondary-100"
         >
             <div>
@@ -43,9 +43,9 @@ const Search = () => {
                     <Link
                         to={'/'}
                         className="flex justify-center items-center h-full p-1 m-2 group-focus-within:text-secondary-200
-                    bg-white shadow-md group-focus-within:shadow-secondary-100 rounded-full"
+                    bg-white shadow-sm shadow-secondary-100 group-focus-within:shadow-secondary-100 rounded-full"
                     >
-                        <GiReturnArrow size={18} />
+                        <GiReturnArrow size={14} />
                     </Link>
                 ) : (
                     <button
@@ -61,7 +61,7 @@ const Search = () => {
                     // Not in Search Page
                     <div
                         onClick={redirectToSearchPage}
-                        className="w-full h-full flex items-center sm:text-base text-xs sm:pt-0 pt-[2px]"
+                        className="w-full h-full flex items-center sm:text-base text-xs sm:pt-0 pt-[4px]"
                     >
                         <TypeAnimation
                             sequence={[
@@ -88,13 +88,15 @@ const Search = () => {
                             type="text"
                             placeholder="Bạn muốn mua gì hôm nay?"
                             autoFocus={true}
-                            className="bg-transparent w-full h-full outline-none"
+                            className="bg-transparent w-full h-full sm:text-base text-xs sm:pt-0 pt-[1px] outline-none
+                            text-secondary-200"
                             defaultValue={searchText}
                             onChange={handleOnChange}
+                            spellCheck={false}
                         />
                         {isTyping && (
                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary-200"></div>
                             </div>
                         )}
                     </div>

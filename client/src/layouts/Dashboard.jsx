@@ -11,7 +11,7 @@ const Dashboard = () => {
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Sidebar */}
-                <div className="hidden lg:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
+                <div className="hidden lg:block w-[305px] bg-white border-r border-gray-200 overflow-y-auto">
                     <div className="p-4">
                         <UserMenu />
                     </div>
