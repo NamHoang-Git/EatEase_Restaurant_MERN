@@ -13,6 +13,10 @@ body {
     font-style: normal;
 }
 
+.vertical-text {
+    writing-mode: vertical-rl;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
 }

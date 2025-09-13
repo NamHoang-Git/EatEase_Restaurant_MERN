@@ -616,7 +616,7 @@ const CheckoutPage = () => {
             >
                 Thanh toán
             </div>
-            <div className="h-full flex flex-col lg:flex-row w-full gap-5 bg-white shadow rounded-lg p-5">
+            <div className="h-full flex flex-col lg:flex-row w-full gap-5 bg-white shadow rounded-lg sm:p-5 p-2">
                 <div className="w-full flex flex-col gap-3">
                     <h3 className="sm:text-lg text-sm font-bold shadow-md px-2 py-3">
                         Chọn địa chỉ giao hàng
@@ -756,7 +756,7 @@ const CheckoutPage = () => {
                     <h3 className="sm:text-lg text-sm font-bold shadow-md px-2 py-3">
                         Đơn hàng
                     </h3>
-                    <div className="bg-white px-4 grid gap-3">
+                    <div className="bg-white sm:px-4 px-1 grid gap-3">
                         <div>
                             <h3 className="font-semibold sm:text-lg text-sm text-red-darker py-2">
                                 Danh sách sản phẩm
@@ -1159,7 +1159,7 @@ const CheckoutPage = () => {
                                     ) : null}
                                 </div>
                                 {showVouchers && (
-                                    <div className="space-y-4 max-h-96 overflow-y-auto p-2">
+                                    <div className="space-y-4 max-h-96 overflow-y-auto sm:p-2">
                                         {loadingVouchers ? (
                                             <div className="flex justify-center py-4">
                                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
@@ -1240,8 +1240,8 @@ const CheckoutPage = () => {
                                                                                             )
                                                                                         }
                                                                                     >
-                                                                                        <div className="flex justify-between items-start sm:text-sm text-[10px]">
-                                                                                            <div>
+                                                                                        <div className="grid grid-flow-col grid-cols-[2fr_1fr] justify-between items-start sm:text-sm text-[10px]">
+                                                                                            <div className="flex-2">
                                                                                                 <div className="font-bold text-blue-700">
                                                                                                     {
                                                                                                         voucher.code
@@ -1253,15 +1253,17 @@ const CheckoutPage = () => {
                                                                                                     }
                                                                                                 </p>
                                                                                                 <div className="text-gray-500">
-                                                                                                    <p className='flex gap-1'>
+                                                                                                    <p className="flex gap-1">
                                                                                                         Đơn
                                                                                                         tối
                                                                                                         thiểu:{' '}
-                                                                                                        <p className='font-bold'>{DisplayPriceInVND(
-                                                                                                            voucher.minOrder ||
-                                                                                                                voucher.minOrderValue ||
-                                                                                                                0
-                                                                                                        )}</p>
+                                                                                                        <p className="font-bold">
+                                                                                                            {DisplayPriceInVND(
+                                                                                                                voucher.minOrder ||
+                                                                                                                    voucher.minOrderValue ||
+                                                                                                                    0
+                                                                                                            )}
+                                                                                                        </p>
                                                                                                     </p>
                                                                                                     <div className="flex items-center gap-1">
                                                                                                         <svg
@@ -1289,14 +1291,20 @@ const CheckoutPage = () => {
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div className="text-right">
-                                                                                                <span className="text-blue-600 font-medium">
+                                                                                            <div className="text-right flex-1">
+                                                                                                <span className="text-blue-600 font-medium sm:block hidden">
                                                                                                     Miễn
                                                                                                     phí
                                                                                                     vận
                                                                                                     chuyển
                                                                                                 </span>
-                                                                                                <p className="text-gray-400">
+                                                                                                <span className="text-blue-600 font-medium sm:hidden bg-blue-50">
+                                                                                                    Miễn
+                                                                                                    phí
+                                                                                                    vận
+                                                                                                    chuyển
+                                                                                                </span>
+                                                                                                <p className="text-gray-400 sm:block hidden">
                                                                                                     Áp
                                                                                                     dụng
                                                                                                     cho
