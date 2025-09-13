@@ -75,7 +75,7 @@ const SearchPage = () => {
             const response = await Axios({
                 ...SummaryApi.get_initial_products,
                 data: requestData,
-            })
+            });
 
             if (response.data.success) {
                 setInitialProducts((prev) =>
@@ -135,9 +135,9 @@ const SearchPage = () => {
                 });
 
                 if (response.data.success) {
-                    setData(prevData =>
-                        isLoadMore 
-                            ? [...prevData, ...(response.data.data || [])] 
+                    setData((prevData) =>
+                        isLoadMore
+                            ? [...prevData, ...(response.data.data || [])]
                             : response.data.data || []
                     );
                     setTotalPage(response.data.totalNoPage || 1);
@@ -232,27 +232,27 @@ const SearchPage = () => {
     const renderFilterControls = () => (
         <div className="mb-6 bg-white sm:p-4 p-3 rounded-lg shadow-lg mt-3">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base sm:text-lg font-bold text-secondary-200">
+                <h2 className="text-sm sm:text-lg font-bold text-secondary-200">
                     Bộ lọc
                 </h2>
                 <button
                     onClick={resetFilters}
-                    className="px-3 py-1 text-sm text-white bg-secondary-200 rounded-md hover:opacity-80
+                    className="px-3 py-1 sm:text-sm text-xs text-white bg-secondary-200 rounded-md hover:opacity-80
                 transition-colors"
                 >
                     Đặt lại bộ lọc
                 </button>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-6 text-secondary-200">
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold">Giá từ</label>
+                <div className="flex items-center gap-2 sm:text-sm text-xs">
+                    <label className="font-semibold">Giá từ</label>
                     <input
                         type="text"
                         name="minPrice"
                         value={filters.minPrice}
                         onChange={handleFilterChange}
                         placeholder="Thấp nhất"
-                        className="w-24 p-2 border rounded text-[14px]"
+                        className="w-24 sm:p-2 p-[6px] border rounded"
                     />
                     <span>-</span>
                     <input
@@ -261,18 +261,18 @@ const SearchPage = () => {
                         value={filters.maxPrice}
                         onChange={handleFilterChange}
                         placeholder="Cao nhất"
-                        className="w-24 p-2 border rounded text-[14px]"
+                        className="w-24 sm:p-2 p-[6px] border rounded"
                     />
-                    <span className="text-[14px]">VNĐ</span>
+                    <span className="">VNĐ</span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold">Sắp xếp</label>
+                <div className="flex items-center gap-2 sm:text-sm text-xs">
+                    <label className="font-semibold">Sắp xếp</label>
                     <select
                         name="sortBy"
                         value={filters.sortBy}
                         onChange={handleFilterChange}
-                        className="p-2 border rounded text-[14px]"
+                        className="sm:p-2 p-[6px] border rounded text-[11px]"
                     >
                         <option value="newest">Mới nhất</option>
                         <option value="price_asc">Giá tăng dần</option>
@@ -281,13 +281,13 @@ const SearchPage = () => {
                     </select>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold">Danh mục</label>
+                <div className="flex items-center gap-2 sm:text-sm text-xs">
+                    <label className="font-semibold">Danh mục</label>
                     <select
                         name="category"
                         value={filters.category}
                         onChange={handleFilterChange}
-                        className="p-2 border rounded text-[14px]"
+                        className="sm:p-2 p-[6px] border rounded text-[11px]"
                     >
                         <option value="all">Tất cả</option>
                         {categories.map((category) => (
@@ -333,8 +333,8 @@ const SearchPage = () => {
             <div className="mb-4">
                 <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="h-10 flex items-center gap-1 px-4 py-2 bg-primary-5 text-secondary-200 rounded-md
-                hover:bg-gray-100 transition-colors text-sm sm:text-base font-medium shadow-md shadow-secondary-100"
+                    className="flex items-center gap-1 px-4 sm:py-2 py-[6px] bg-primary-5 text-secondary-200 rounded-md
+                hover:bg-gray-100 transition-colors text-xs sm:text-base font-medium shadow-md shadow-secondary-100"
                 >
                     <IoFilter className="mb-[3px]" />
                     <span className="font-bold">Lọc</span>
@@ -350,7 +350,7 @@ const SearchPage = () => {
                 }`}
             >
                 {!loading && searchQuery && data.length > 0 && (
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 sm:text-sm text-xs text-gray-600">
                         Tìm thấy{' '}
                         <span className="font-semibold text-secondary-200">
                             {totalCount}
@@ -363,7 +363,7 @@ const SearchPage = () => {
             {/* Search Results */}
             {searchQuery ? (
                 loading && page === 1 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px]">
                         {Array(6)
                             .fill(null)
                             .map((_, index) => (
@@ -372,7 +372,7 @@ const SearchPage = () => {
                     </div>
                 ) : data.length > 0 ? (
                     <>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px]">
                             {data.map((product) => (
                                 <CardProduct key={product._id} data={product} />
                             ))}
@@ -385,10 +385,10 @@ const SearchPage = () => {
                     </>
                 ) : (
                     <div className="text-center py-4 grid gap-2">
-                        <h3 className="text-xl font-semibold text-gray-700">
+                        <h3 className="text-sm sm:text-xl font-semibold text-gray-600">
                             Không tìm thấy sản phẩm
                         </h3>
-                        <p className="text-gray-500">
+                        <p className="text-xs sm:text-base text-gray-500">
                             Không có sản phẩm nào phù hợp với từ khóa "
                             {searchQuery}"
                         </p>
@@ -408,16 +408,16 @@ const SearchPage = () => {
                         >
                             Sản phẩm nổi bật
                         </h2>
-                        <div className="text-center pt-6 pb-4 grid gap-2">
-                            <h3 className="text-lg sm:text-xl font-semibold text-gray-500">
+                        <div className="text-center pt-6 pb-4 grid sm:gap-2 gap-1">
+                            <h3 className="text-sm sm:text-xl font-semibold text-gray-600">
                                 Nhập từ khóa để tìm kiếm
                             </h3>
-                            <p className="text-sm sm:text-base text-gray-500">
+                            <p className="text-xs sm:text-base text-gray-500">
                                 Tìm kiếm sản phẩm theo tên
                             </p>
                         </div>
                         {loadingInitial ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-2 px-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 px-4">
                                 {Array(6)
                                     .fill(null)
                                     .map((_, index) => (
@@ -425,7 +425,7 @@ const SearchPage = () => {
                                     ))}
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-2 px-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 px-4">
                                 {initialProducts.map((product) => (
                                     <CardProduct
                                         key={product._id}

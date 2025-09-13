@@ -126,7 +126,7 @@ const Header = () => {
                                         src={user.avatar || defaultAvatar}
                                         alt={user.name}
                                         onClick={handleMobileUser}
-                                        className="w-8 h-8 rounded-full border-[2px] border-inset border-secondary-200 cursor-pointer lg:hidden"
+                                        className="w-8 h-8 rounded-full border-[3px] border-inset border-white cursor-pointer lg:hidden"
                                     />
                                 ) : (
                                     <div

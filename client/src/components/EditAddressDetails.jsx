@@ -208,12 +208,10 @@ const EditAddressDetails = ({ close, data }) => {
 
     return (
         <section
-            onClick={close}
             className="bg-neutral-800 z-50 bg-opacity-60 fixed top-0 left-0 right-0 bottom-0 overflow-auto
-        flex items-center justify-center px-2"
+        flex items-center justify-center px-3"
         >
             <div
-                onClick={(e) => e.stopPropagation()}
                 className="bg-white px-4 py-6 w-full max-w-xl mx-auto rounded-md shadow-md
             flex flex-col gap-4"
             >
@@ -230,7 +228,7 @@ const EditAddressDetails = ({ close, data }) => {
                 </div>
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="grid gap-4 text-base font-medium"
+                    className="grid gap-4 sm:text-base text-sm font-medium"
                 >
                     <div className="grid gap-1">
                         <label htmlFor="addressline">Địa chỉ chi tiết:</label>
@@ -342,7 +340,7 @@ const EditAddressDetails = ({ close, data }) => {
                                 : 'Đặt làm địa chỉ mặc định'}
                         </label>
                         {data.isDefault && (
-                            <span className="text-base text-primary-200 ml-2">
+                            <span className="text-primary-200 ml-2">
                                 (Đang là mặc định)
                             </span>
                         )}

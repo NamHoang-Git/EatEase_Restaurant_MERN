@@ -2039,17 +2039,17 @@ const CheckoutPage = () => {
             {showConfirmModal.show && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                        <h3 className="text-lg font-semibold mb-4">
+                        <h3 className="sm:text-lg text-base font-semibold mb-4">
                             Xác nhận đặt hàng
                         </h3>
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-gray-600 mb-6 sm:text-base text-sm">
                             Bạn có chắc chắn muốn đặt hàng với phương thức{' '}
                             {showConfirmModal.type === 'cash'
                                 ? 'thanh toán khi nhận hàng'
                                 : 'thanh toán online'}{' '}
                             không?
                         </p>
-                        <div className="flex justify-end gap-4">
+                        <div className="flex justify-end gap-4 sm:text-base text-sm">
                             <button
                                 className="py-2 px-6 bg-white text-secondary-200 border-[3px] hover:bg-secondary-200
                             hover:text-white border-secondary-200 rounded-md font-bold cursor-pointer"

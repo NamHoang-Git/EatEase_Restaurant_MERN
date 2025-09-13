@@ -16,6 +16,7 @@ import { valideURLConvert } from '../utils/valideURLConvert';
 import CardProduct from '../components/CardProduct';
 import toast from 'react-hot-toast';
 import { handleAddItemCart } from '../store/cartProduct';
+import Loading from '../components/Loading';
 
 const ProductDisplayPage = () => {
     const params = useParams();
@@ -171,11 +172,11 @@ const ProductDisplayPage = () => {
 
     return (
         <section className="container mx-auto px-4 py-8 lg:p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 sm:gap-10 gap-6 lg:mt-4">
                 <div>
                     <div
                         className="bg-primary-100 rounded-lg shadow-md p-2 flex justify-center items-center
-                    h-[300px] sm:h-[400px]"
+                    h-72 sm:h-[400px]"
                     >
                         <img
                             src={data.image[image]}
@@ -199,8 +200,8 @@ const ProductDisplayPage = () => {
                         <div className="relative mt-4 flex items-center">
                             <div
                                 ref={imageContainer}
-                                className="grid grid-flow-col auto-cols-[minmax(80px,80px)]
-                            gap-4 overflow-x-auto scroll-smooth scrollbar-hide"
+                                className="grid grid-flow-col auto-cols-[minmax(70px,70px)]
+                            sm:gap-4 gap-2 overflow-x-auto scroll-smooth scrollbar-hide"
                             >
                                 {data.image.map((img, index) => (
                                     <div
@@ -214,7 +215,7 @@ const ProductDisplayPage = () => {
                                     >
                                         <img
                                             src={img}
-                                            className="object-cover h-20 w-20"
+                                            className="object-cover sm:h-20 sm:w-20 w-[70px] h-[70px]"
                                         />
                                     </div>
                                 ))}
@@ -377,34 +378,34 @@ const ProductDisplayPage = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                    <div className="bg-green-200 text-green-700 lg:p-2 p-3 rounded-full w-fit">
-                        <p className="text-md font-medium leading-[14px]">
+                <div className="flex flex-col sm:gap-4 gap-2">
+                    <div className="bg-green-200 text-green-700 lg:p-2 px-2 py-1 rounded-full w-fit">
+                        <p className="sm:text-sm text-xs font-medium leading-[14px]">
                             10 min
                         </p>
                     </div>
-                    <h1 className="text-2xl lg:text-3xl font-bold">
+                    <h1 className="text-lg lg:text-3xl font-bold">
                         {data.name}
                     </h1>
-                    <p className="text-secondary-100 font-bold text-xl">
+                    <p className="text-secondary-100 font-bold sm:text-xl text-base">
                         {data.unit}
                     </p>
                     <Divider />
 
                     <div className="flex items-center gap-6 sm:gap-8">
-                        <p className="text-2xl sm:text-3xl font-bold text-secondary-200">
+                        <p className="text-lg sm:text-3xl font-bold text-secondary-200">
                             {DisplayPriceInVND(
                                 pricewithDiscount(data.price, data.discount)
                             )}
                         </p>
                         {data.discount > 0 && (
-                            <div className="flex items-center gap-3 text-base">
+                            <div className="flex items-center gap-3 sm:text-base text-sm">
                                 <p className="line-through text-gray-400">
                                     {DisplayPriceInVND(data.price)}
                                 </p>
                                 <span
                                     className="bg-primary border-2 border-secondary-200 text-secondary-200 font-semibold
-                                px-3 rounded-full shadow"
+                                px-3 rounded-full shadow sm:text-base text-xs"
                                 >
                                     -{data.discount}%
                                 </span>
@@ -412,41 +413,41 @@ const ProductDisplayPage = () => {
                         )}
                     </div>
 
-                    <div className="max-w-72 sm:w-full">
+                    <div className="sm:max-w-72 w-full">
                         {data.stock === 0 ? (
                             <p className="md:text-2xl text-lg font-bold text-rose-600 my-2">
                                 Hết hàng
                             </p>
                         ) : (
-                            <div className="flex items-center gap-10 sm:gap-14 mt-2">
+                            <div className="flex items-center justify-between gap-10 sm:gap-14 mt-2">
                                 <AddToCartButton data={data} />
                                 <button
                                     onClick={redirectToCartPage}
-                                    className="bg-primary-3 hover:opacity-80 text-secondary-200 px-5 sm:px-6 py-3
-                                rounded-lg font-bold shadow-md shadow-secondary-100 text-nowrap"
+                                    className="bg-primary-3 hover:opacity-80 text-secondary-200 px-4 sm:px-6 sm:py-3 py-2
+                                rounded-lg font-bold shadow-md shadow-secondary-100 text-nowrap sm:text-base text-xs"
                                 >
-                                    Mua ngay
+                                    {loading ? <Loading /> : 'Mua ngay'}
                                 </button>
                             </div>
                         )}
                     </div>
 
                     <div className="mt-4 bg-primary-100 p-4 rounded-lg shadow-md">
-                        <h2 className="font-semibold text-lg">
+                        <h2 className="font-semibold sm:text-lg text-sm">
                             Tại sao nên mua sắm tại Ecommerce SHOP?{' '}
                         </h2>
-                        <div>
+                        <div className="sm:text-base text-sm">
                             <div className="flex items-center gap-4 my-4">
                                 <img
                                     src={image1}
                                     alt="superfast delivery"
-                                    className="w-20 h-20 object-cover shadow-md shadow-secondary-100 rounded-xl"
+                                    className="sm:w-20 sm:h-20 w-16 h-16 object-cover shadow-md shadow-secondary-100 rounded-xl"
                                 />
-                                <div className="text-base flex flex-col gap-1">
+                                <div className="flex flex-col gap-1">
                                     <div className="font-semibold">
                                         Giao hàng siêu tốc
                                     </div>
-                                    <p className="text-[15px]">
+                                    <p className="sm:text-sm text-xs">
                                         Nhận hàng ngay tại cửa trong thời gian
                                         ngắn nhất, từ các kho gần bạn.
                                     </p>
@@ -456,13 +457,13 @@ const ProductDisplayPage = () => {
                                 <img
                                     src={image2}
                                     alt="Best prices offers"
-                                    className="w-20 h-20 object-cover shadow-md shadow-secondary-100 rounded-xl"
+                                    className="sm:w-20 sm:h-20 w-16 h-16 object-cover shadow-md shadow-secondary-100 rounded-xl"
                                 />
-                                <div className="text-base flex flex-col gap-1">
+                                <div className="flex flex-col gap-1">
                                     <div className="font-semibold">
                                         Giá tốt & ưu đãi hấp dẫn
                                     </div>
-                                    <p className="text-[15px]">
+                                    <p className="sm:text-sm text-xs">
                                         Mua sắm với mức giá cạnh tranh cùng
                                         nhiều khuyến mãi trực tiếp từ nhà sản
                                         xuất.
@@ -473,13 +474,13 @@ const ProductDisplayPage = () => {
                                 <img
                                     src={image3}
                                     alt="Wide Assortment"
-                                    className="w-20 h-20 object-cover shadow-md shadow-secondary-100 rounded-xl"
+                                    className="sm:w-20 sm:h-20 w-16 h-16 object-cover shadow-md shadow-secondary-100 rounded-xl"
                                 />
-                                <div className="text-base flex flex-col gap-1">
+                                <div className="flex flex-col gap-1">
                                     <div className="font-semibold">
                                         Thanh toán an toàn
                                     </div>
-                                    <p className="text-[15px]">
+                                    <p className="sm:text-sm text-xs">
                                         Hỗ trợ nhiều phương thức thanh toán bảo
                                         mật.
                                     </p>
@@ -493,10 +494,10 @@ const ProductDisplayPage = () => {
             {/* Mobile */}
             <div className="flex flex-col gap-6 lg:hidden">
                 <section className="mt-8 bg-white p-4 rounded-lg">
-                    <div className="flex items-center gap-6 border-b border-gray-300">
+                    <div className="text-sm flex items-center gap-6 border-b border-gray-300">
                         <button
                             onClick={() => setTab('detail')}
-                            className={`pb-2 font-bold text-lg px-2 ${
+                            className={`pb-2 font-bold px-2 ${
                                 tab === 'detail'
                                     ? 'border-b-[3px] border-secondary-200 text-secondary-200'
                                     : 'text-gray-600'
@@ -506,7 +507,7 @@ const ProductDisplayPage = () => {
                         </button>
                         <button
                             onClick={() => setTab('description')}
-                            className={`pb-2 font-bold text-lg px-2 ${
+                            className={`pb-2 font-bold px-2 ${
                                 tab === 'description'
                                     ? 'border-b-[3px] border-secondary-200 text-secondary-200'
                                     : 'text-gray-600'
@@ -516,7 +517,7 @@ const ProductDisplayPage = () => {
                         </button>
                         <button
                             onClick={() => setTab('reviews')}
-                            className={`pb-2 font-bold text-lg px-2 ${
+                            className={`pb-2 font-bold px-2 ${
                                 tab === 'reviews'
                                     ? 'border-b-[3px] border-secondary-200 text-secondary-200'
                                     : 'text-gray-600'
@@ -528,7 +529,7 @@ const ProductDisplayPage = () => {
 
                     <div className="mt-6 px-4">
                         {tab === 'detail' && (
-                            <div className="text-gray-700 leading-relaxed break-words flex flex-col gap-3">
+                            <div className="text-xs text-gray-700 leading-relaxed break-words flex flex-col gap-3">
                                 <div className="flex gap-4">
                                     <span className="font-semibold text-nowrap">
                                         Danh mục:{' '}
@@ -573,7 +574,7 @@ const ProductDisplayPage = () => {
                             </div>
                         )}
                         {tab === 'description' && (
-                            <p className="text-gray-700 leading-relaxed break-words">
+                            <p className="text-gray-700 text-xs leading-relaxed break-words">
                                 {data?.description &&
                                 data.description.trim() !== '' ? (
                                     data.description
@@ -585,7 +586,7 @@ const ProductDisplayPage = () => {
                             </p>
                         )}
                         {tab === 'reviews' && (
-                            <p className="italic text-gray-500 break-words">
+                            <p className="italic text-gray-500 text-xs break-words">
                                 Chưa có đánh giá nào.
                             </p>
                         )}
@@ -603,10 +604,10 @@ const ProductDisplayPage = () => {
                     {data?.more_details &&
                         Object.keys(data.more_details).map((element, index) => (
                             <div key={element || index}>
-                                <p className="pb-2 font-semibold text-lg">
+                                <p className="pb-2 font-semibold text-sm">
                                     {element}
                                 </p>
-                                <p className="text-base break-words">
+                                <p className="text-xs break-words">
                                     {data.more_details[element]}
                                 </p>
                             </div>
@@ -615,10 +616,10 @@ const ProductDisplayPage = () => {
             </div>
 
             <div
-                className="mt-10 lg:mb-4 bg-primary-100 p-4 py-6 shadow-md rounded-lg
+                className="sm:mt-10 mt-6 lg:mb-4 bg-primary-100 p-4 py-6 shadow-md rounded-lg
             flex flex-col gap-4"
             >
-                <h2 className="text-xl font-bold text-secondary-200">
+                <h2 className="sm:text-xl text-base font-bold text-secondary-200">
                     Sản phẩm tương tự
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

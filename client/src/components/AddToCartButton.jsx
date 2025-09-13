@@ -143,7 +143,7 @@ const AddToCartButton = ({ data }) => {
                         <FaMinus className="hidden sm:block" size={14} />
                     </button>
 
-                    <p className="flex-1 text-xs sm:text-base text-secondary-200 font-bold w-9 flex items-center justify-center">
+                    <p className="flex-1 text-[10px] sm:text-base text-secondary-200 font-bold w-9 flex items-center justify-center">
                         {qty}
                     </p>
 
@@ -166,8 +166,8 @@ const AddToCartButton = ({ data }) => {
                     {loading ? (
                         <Loading />
                     ) : (
-                        <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold">
-                            <FaPlus size={12} />
+                        <span className="flex items-center gap-1 text-[10px] sm:text-sm font-semibold">
+                            <FaPlus size={10} />
                             <p className="leading-[14px] mt-[2px]">
                                 {data?.stock <= 0 ? 'Hết hàng' : 'Cart'}
                             </p>

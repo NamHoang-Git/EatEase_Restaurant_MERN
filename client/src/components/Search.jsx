@@ -50,9 +50,9 @@ const Search = () => {
                 ) : (
                     <button
                         className="flex justify-center items-center h-full p-4
-                    group-focus-within:text-secondary-200 font-bold"
+                    group-focus-within:text-secondary-200 font-bold text-secondary-200"
                     >
-                        <IoSearch size={20} />
+                        <IoSearch size={18} />
                     </button>
                 )}
             </div>
@@ -61,7 +61,8 @@ const Search = () => {
                     // Not in Search Page
                     <div
                         onClick={redirectToSearchPage}
-                        className="w-full h-full flex items-center sm:text-base text-xs sm:pt-0 pt-[4px]"
+                        className="w-full h-full flex items-center sm:text-base text-xs sm:pt-0 pt-[4px]
+                    text-secondary-200 font-medium"
                     >
                         <TypeAnimation
                             sequence={[
