@@ -35,7 +35,7 @@ const Search = () => {
 
     return (
         <div
-            className="w-full h-11 lg:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
+            className="w-full h-8 sm:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
         flex items-center text-neutral-500 bg-base-100 group focus-within:border-secondary-100"
         >
             <div>
@@ -61,7 +61,7 @@ const Search = () => {
                     // Not in Search Page
                     <div
                         onClick={redirectToSearchPage}
-                        className="w-full h-full flex items-center"
+                        className="w-full h-full flex items-center sm:text-base text-xs sm:pt-0 pt-[2px]"
                     >
                         <TypeAnimation
                             sequence={[

@@ -82,7 +82,7 @@ const Header = () => {
             }`}
         >
             <div className="w-full max-w-[100vw]">
-                <div className="lg:h-28 p-4 flex flex-col justify-center gap-2 shadow-lg">
+                <div className="lg:h-28 sm:p-4 p-2 flex flex-col justify-center gap-2 shadow-lg">
                     {!(isSearchPage && isMobile) && (
                         <div className="container mx-auto flex items-center gap-4 px-2 justify-between">
                             {/* Search */}
@@ -105,13 +105,13 @@ const Header = () => {
                                     />
                                     <img
                                         src={logo}
-                                        width={120}
+                                        width={100}
                                         alt="logo"
                                         className="hidden lg:hidden sm:block"
                                     />
                                     <img
                                         src={logo}
-                                        width={80}
+                                        width={60}
                                         alt="logo"
                                         className="lg:hidden sm:hidden"
                                     />
@@ -124,18 +124,18 @@ const Header = () => {
                                 {user?._id ? (
                                     <button
                                         className="text-secondary-200 flex items-center justify-end lg:hidden
-                                border-2 border-secondary-100 bg-primary-2 rounded-xl p-2"
+                                border-2 border-secondary-100 bg-primary-2 rounded-xl p-[6px]"
                                         onClick={handleMobileUser}
                                     >
-                                        <FaUserCheck size={26} />
+                                        <FaUserCheck size={18} />
                                     </button>
                                 ) : (
                                     <button
                                         className="text-secondary-200 flex items-center justify-end lg:hidden
-                                border-2 border-primary-200 bg-primary-4 rounded-xl p-2"
+                                border-2 border-primary-200 bg-primary-4 rounded-xl p-[6px]"
                                         onClick={handleMobileUser}
                                     >
-                                        <FaUserTimes size={26} />
+                                        <FaUserTimes size={18} />
                                     </button>
                                 )}
 
