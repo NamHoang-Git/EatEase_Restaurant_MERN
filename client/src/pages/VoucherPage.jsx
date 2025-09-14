@@ -23,8 +23,9 @@ const VoucherPage = () => {
     const [openEditVoucher, setOpenEditVoucher] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
+    // Remove these lines as we're using pagination state instead
+    // const [currentPage, setCurrentPage] = useState(1);
+    // const [itemsPerPage] = useState(10);
     const [sortConfig, setSortConfig] = useState({
         key: 'startDate',
         direction: 'desc',
@@ -59,6 +60,11 @@ const VoucherPage = () => {
         _id: '',
     });
 
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        pageSize: 10,
+    });
+
     // Apply sorting to data
     const sortedData = useMemo(() => {
         const sortableItems = [...(filteredData || [])];
@@ -86,20 +92,221 @@ const VoucherPage = () => {
     }, [filteredData, sortConfig]);
 
     // Pagination logic
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const paginatedData = sortedData.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1; // Ensure at least 1 page
+    const indexOfLastItem = pagination.currentPage * pagination.pageSize;
+    const indexOfFirstItem = indexOfLastItem - pagination.pageSize;
+    const currentVouchers = sortedData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(sortedData.length / pagination.pageSize) || 1;
 
     // Reset to first page if current page exceeds total pages after filtering/sorting
     useEffect(() => {
-        if (currentPage > 1 && currentPage > totalPages) {
-            setCurrentPage(1);
+        if (pagination.currentPage > 1 && pagination.currentPage > totalPages) {
+            setPagination((prev) => ({
+                ...prev,
+                currentPage: 1,
+            }));
         }
-    }, [currentPage, totalPages]);
+    }, [pagination.currentPage, totalPages, sortedData.length]);
 
     // Change page
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const paginate = (pageNumber) =>
+        setPagination((prev) => ({ ...prev, currentPage: pageNumber }));
+
+    const handlePageSizeChange = (e) => {
+        setPagination({
+            currentPage: 1,
+            pageSize: Number(e.target.value),
+        });
+    };
+
+    const PaginationControls = () => {
+        const pageButtons = [];
+
+        // Always show first page button
+        pageButtons.push(
+            <button
+                key="first"
+                onClick={() => paginate(1)}
+                disabled={pagination.currentPage === 1}
+                className="px-2 py-1 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                &laquo;
+            </button>
+        );
+
+        // Previous page button
+        pageButtons.push(
+            <button
+                key="prev"
+                onClick={() =>
+                    paginate(Math.max(1, pagination.currentPage - 1))
+                }
+                disabled={pagination.currentPage === 1}
+                className="px-2 py-1 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                &lsaquo;
+            </button>
+        );
+
+        if (totalPages <= 5) {
+            // Show all pages if 5 or fewer pages
+            for (let i = 1; i <= totalPages; i++) {
+                pageButtons.push(
+                    <button
+                        key={i}
+                        onClick={() => paginate(i)}
+                        className={`px-3 py-1 border ${
+                            pagination.currentPage === i
+                                ? 'bg-secondary-200 text-white border-secondary-200'
+                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                    >
+                        {i}
+                    </button>
+                );
+            }
+        } else {
+            // Always show first page
+            pageButtons.push(
+                <button
+                    key={1}
+                    onClick={() => paginate(1)}
+                    className={`px-3 py-1 border ${
+                        pagination.currentPage === 1
+                            ? 'bg-secondary-200 text-white border-secondary-200'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                    1
+                </button>
+            );
+
+            // Show ellipsis after first page if current page > 3
+            if (pagination.currentPage > 3) {
+                pageButtons.push(
+                    <span
+                        key="start-ellipsis"
+                        className="px-2 py-1 text-gray-500"
+                    >
+                        ...
+                    </span>
+                );
+            }
+
+            // Show pages around current page
+            let startPage = Math.max(2, pagination.currentPage - 1);
+            let endPage = Math.min(totalPages - 1, pagination.currentPage + 1);
+
+            // Adjust if we're near the start or end
+            if (pagination.currentPage <= 3) {
+                startPage = 2;
+                endPage = 4;
+            } else if (pagination.currentPage >= totalPages - 2) {
+                startPage = totalPages - 3;
+                endPage = totalPages - 1;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                pageButtons.push(
+                    <button
+                        key={i}
+                        onClick={() => paginate(i)}
+                        className={`px-3 py-1 border ${
+                            pagination.currentPage === i
+                                ? 'bg-secondary-200 text-white border-secondary-200'
+                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                    >
+                        {i}
+                    </button>
+                );
+            }
+
+            // Show ellipsis before last page if current page < totalPages - 2
+            if (pagination.currentPage < totalPages - 2) {
+                pageButtons.push(
+                    <span
+                        key="end-ellipsis"
+                        className="px-2 py-1 text-gray-500"
+                    >
+                        ...
+                    </span>
+                );
+            }
+
+            // Always show last page
+            pageButtons.push(
+                <button
+                    key={totalPages}
+                    onClick={() => paginate(totalPages)}
+                    className={`px-3 py-1 border ${
+                        pagination.currentPage === totalPages
+                            ? 'bg-secondary-200 text-white border-secondary-200'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                    {totalPages}
+                </button>
+            );
+        }
+
+        // Next page button
+        pageButtons.push(
+            <button
+                key="next"
+                onClick={() =>
+                    paginate(Math.min(totalPages, pagination.currentPage + 1))
+                }
+                disabled={pagination.currentPage === totalPages}
+                className="px-2 py-1 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                &rsaquo;
+            </button>
+        );
+
+        // Last page button
+        pageButtons.push(
+            <button
+                key="last"
+                onClick={() => paginate(totalPages)}
+                disabled={pagination.currentPage === totalPages}
+                className="px-2 py-1 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                &raquo;
+            </button>
+        );
+
+        return (
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4">
+                <div className="text-sm text-gray-700">
+                    Hiển thị{' '}
+                    <span className="font-medium">{indexOfFirstItem + 1}</span>{' '}
+                    đến{' '}
+                    <span className="font-medium">
+                        {Math.min(indexOfLastItem, sortedData.length)}
+                    </span>{' '}
+                    trong tổng số{' '}
+                    <span className="font-medium">{sortedData.length}</span> kết
+                    quả
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <select
+                        value={pagination.pageSize}
+                        onChange={handlePageSizeChange}
+                        className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-secondary-200 px-2"
+                    >
+                        {[5, 10, 25, 50].map((size) => (
+                            <option key={size} value={size}>
+                                {size}/trang
+                            </option>
+                        ))}
+                    </select>
+
+                    <div className="flex space-x-0">{pageButtons}</div>
+                </div>
+            </div>
+        );
+    };
 
     // Sort function
     const requestSort = (key) => {
@@ -109,11 +316,17 @@ const VoucherPage = () => {
         } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
             // If clicking the same column for the third time, remove sorting
             setSortConfig({ key: null, direction: 'asc' });
-            setCurrentPage(1);
+            setPagination((prev) => ({
+                ...prev,
+                currentPage: 1,
+            }));
             return;
         }
         setSortConfig({ key, direction });
-        setCurrentPage(1); // Reset to first page when sorting changes
+        setPagination((prev) => ({
+            ...prev,
+            currentPage: 1,
+        })); // Reset to first page when sorting changes
     };
 
     // Handle select/deselect all
@@ -425,7 +638,7 @@ const VoucherPage = () => {
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="sm:h-10 h-8 w-full appearance-none bg-white border border-gray-300 px-4 rounded-md focus:outline-none focus:ring-1
-                    focus:ring-secondary-200 focus:border-sering-secondary-200 text-sm"
+                    focus:ring-secondary-200 focus:border-sering-secondary-200 text-sm cursor-pointer"
                     >
                         <option value="all">Chọn trạng thái</option>
                         <option value="active">Đang hoạt động</option>
@@ -448,7 +661,7 @@ const VoucherPage = () => {
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="sm:h-10 h-8 w-full appearance-none bg-white border border-gray-300 px-4 rounded-md focus:outline-none focus:ring-1
-                    focus:ring-secondary-200 focus:border-sering-secondary-200 text-sm"
+                    focus:ring-secondary-200 focus:border-sering-secondary-200 text-sm cursor-pointer"
                     >
                         <option value="all">Chọn loại giảm giá</option>
                         <option value="percentage">Phần trăm</option>
@@ -471,8 +684,8 @@ const VoucherPage = () => {
                         setStatusFilter('all');
                         setSearchTerm('');
                     }}
-                    className="sm:h-10 h-8 text-sm w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium
-                rounded-md transition-colors whitespace-nowrap sm:block hidden"
+                    className="sm:h-10 h-8 text-sm w-full sm:w-auto bg-primary-100 hover:bg-opacity-80 text-secondary-200
+                font-medium border-[3px] border-secondary-200 rounded-md transition-colors whitespace-nowrap sm:block hidden"
                 >
                     Đặt lại bộ lọc
                 </button>
@@ -490,8 +703,8 @@ const VoucherPage = () => {
                             setStatusFilter('all');
                             setSearchTerm('');
                         }}
-                        className="sm:h-10 h-8 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium
-                rounded-md transition-colors whitespace-nowrap"
+                        className="sm:h-10 h-8 w-full sm:w-auto bg-primary-100 hover:bg-opacity-80 text-secondary-200
+                font-medium border-[3px] border-secondary-200 rounded-md transition-colors whitespace-nowrap"
                     >
                         Đặt lại bộ lọc
                     </button>
@@ -667,7 +880,7 @@ const VoucherPage = () => {
                                     <Loading />
                                 </td>
                             </tr>
-                        ) : paginatedData.length === 0 ? (
+                        ) : sortedData.length === 0 ? (
                             <tr>
                                 <td
                                     colSpan="9"
@@ -677,7 +890,7 @@ const VoucherPage = () => {
                                 </td>
                             </tr>
                         ) : (
-                            paginatedData.map((voucher) => (
+                            currentVouchers.map((voucher) => (
                                 <tr
                                     key={voucher._id}
                                     className={`hover:bg-gray-50 ${
@@ -784,11 +997,10 @@ const VoucherPage = () => {
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
-                                            <div className="relative inline-flex items-center cursor-pointer">
+                                            <label className="relative inline-flex items-center cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     className="sr-only peer"
-                                                    name="isActive"
                                                     checked={voucher.isActive}
                                                     onChange={() =>
                                                         handleToggleStatus(
@@ -797,13 +1009,21 @@ const VoucherPage = () => {
                                                     }
                                                 />
                                                 <div
-                                                    className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+                                                    className={`w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-focus:ring-4 peer-focus:ring-green-200 dark:peer-focus:ring-green-800 ${
                                                         voucher.isActive
-                                                            ? 'bg-green-300'
-                                                            : 'bg-gray-300'
+                                                            ? 'bg-green-500'
+                                                            : 'bg-gray-200'
                                                     }`}
-                                                ></div>
-                                            </div>
+                                                >
+                                                    <div
+                                                        className={`absolute left-1 top-1 bg-white rounded-full h-4 w-4 transition-transform duration-200 ease-in-out ${
+                                                            voucher.isActive
+                                                                ? 'translate-x-5'
+                                                                : 'translate-x-0'
+                                                        }`}
+                                                    ></div>
+                                                </div>
+                                            </label>
                                             <button
                                                 onClick={() => {
                                                     setEditFormData({
@@ -847,35 +1067,56 @@ const VoucherPage = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                    <div className="text-sm text-gray-700">
-                        Hiển thị{' '}
-                        <span className="font-medium">
-                            {indexOfFirstItem + 1}
-                        </span>{' '}
-                        đến{' '}
-                        <span className="font-medium">
-                            {Math.min(indexOfLastItem, sortedData.length)}
-                        </span>{' '}
-                        trong tổng số{' '}
-                        <span className="font-medium">{sortedData.length}</span>{' '}
-                        kết quả
+                <div className="flex items-center sm:flex-row flex-col justify-between mt-4 gap-3">
+                    <div className="flex items-center sm:flex-row flex-col space-x-2 gap-2">
+                        <span className="text-sm text-gray-700 text-center">
+                            Hiển thị{' '}
+                            <span className="font-semibold text-secondary-200">
+                                {indexOfFirstItem + 1}
+                            </span>{' '}
+                            đến{' '}
+                            <span className="font-semibold text-secondary-200">
+                                {Math.min(indexOfLastItem, sortedData.length)}
+                            </span>{' '}
+                            trong tổng số{' '}
+                            <span className="font-semibold text-secondary-200">
+                                {sortedData.length}
+                            </span>{' '}
+                            kết quả
+                        </span>
+                        <select
+                            value={pagination.pageSize}
+                            onChange={handlePageSizeChange}
+                            className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1
+                        focus:ring-secondary-200 px-2 cursor-pointer"
+                        >
+                            {[5, 10, 25, 50].map((size) => (
+                                <option key={size} value={size}>
+                                    {size} dòng/trang
+                                </option>
+                            ))}
+                        </select>
                     </div>
-                    <div className="flex space-x-2">
+
+                    <div className="flex space-x-1">
                         <button
                             onClick={() => paginate(1)}
-                            disabled={currentPage === 1}
-                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            disabled={pagination.currentPage === 1}
+                            className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50
+                        disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span className="sr-only">First</span>
                             &laquo;
                         </button>
                         <button
-                            onClick={() => paginate(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            onClick={() =>
+                                paginate(
+                                    Math.max(1, pagination.currentPage - 1)
+                                )
+                            }
+                            disabled={pagination.currentPage === 1}
+                            className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50
+                        disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span className="sr-only">Previous</span>
                             &lsaquo;
                         </button>
 
@@ -885,22 +1126,25 @@ const VoucherPage = () => {
                                 let pageNum;
                                 if (totalPages <= 5) {
                                     pageNum = i + 1;
-                                } else if (currentPage <= 3) {
+                                } else if (pagination.currentPage <= 3) {
                                     pageNum = i + 1;
-                                } else if (currentPage >= totalPages - 2) {
+                                } else if (
+                                    pagination.currentPage >=
+                                    totalPages - 2
+                                ) {
                                     pageNum = totalPages - 4 + i;
                                 } else {
-                                    pageNum = currentPage - 2 + i;
+                                    pageNum = pagination.currentPage - 2 + i;
                                 }
 
                                 return (
                                     <button
                                         key={pageNum}
                                         onClick={() => paginate(pageNum)}
-                                        className={`relative inline-flex items-center px-4 py-2 border ${
-                                            currentPage === pageNum
-                                                ? 'bg-blue-50 border-blue-500 text-blue-600'
-                                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        className={`px-3 py-1 rounded-md border text-sm font-medium ${
+                                            pagination.currentPage === pageNum
+                                                ? 'bg-secondary-200 text-white border-secondary-200'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                         }`}
                                     >
                                         {pageNum}
@@ -910,19 +1154,26 @@ const VoucherPage = () => {
                         )}
 
                         <button
-                            onClick={() => paginate(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            onClick={() =>
+                                paginate(
+                                    Math.min(
+                                        totalPages,
+                                        pagination.currentPage + 1
+                                    )
+                                )
+                            }
+                            disabled={pagination.currentPage === totalPages}
+                            className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50
+                        disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span className="sr-only">Next</span>
                             &rsaquo;
                         </button>
                         <button
                             onClick={() => paginate(totalPages)}
-                            disabled={currentPage === totalPages}
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            disabled={pagination.currentPage === totalPages}
+                            className="px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50
+                        disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span className="sr-only">Last</span>
                             &raquo;
                         </button>
                     </div>
