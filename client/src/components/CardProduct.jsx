@@ -22,7 +22,7 @@ const CardProduct = ({ data }) => {
         hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
             {/* Image */}
-            <div className="relative w-full h-32 sm:h-48 overflow-hidden">
+            <div className="relative w-full h-40 sm:h-48 lg:h-52 xl:h-56 overflow-hidden">
                 <img
                     src={data.image[0]}
                     alt={data.name}

@@ -385,7 +385,7 @@ const ProductListPage = () => {
                         </div>
 
                         {loading ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-4 gap-[10px] sm:p-4 py-4 px-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4 gap-[10px] sm:p-4 py-4 px-2">
                                 {Array(9)
                                     .fill(null)
                                     .map((_, index) => (
@@ -424,7 +424,7 @@ const ProductListPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-4 gap-[10px] sm:p-4 py-4 px-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4 gap-[10px] sm:px-4 sm:py-6 py-4 px-2">
                                 {data.map((product, index) => (
                                     <div
                                         key={product._id}

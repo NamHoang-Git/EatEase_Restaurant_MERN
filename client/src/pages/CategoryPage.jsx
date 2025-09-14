@@ -73,7 +73,7 @@ const CategoryPage = () => {
     };
 
     return (
-        <section className="container mx-auto lg:p-4 py-2 px-1 flex flex-col">
+        <section className="container mx-auto lg:py-4 py-2 px-1 flex flex-col">
             {/* Header */}
             <div
                 className="px-3 py-4 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
@@ -100,14 +100,14 @@ const CategoryPage = () => {
             {/* Category Grid */}
             {!data[0] && !loading && <NoData message="Chưa có danh mục nào" />}
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 py-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-[10px] sm:gap-6 py-2">
                 {data.map((category, index) => (
                     <div
                         key={category._id || index}
-                        className="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300
+                        className="group bg-white rounded-xl shadow-sm shadow-secondary-100 hover:shadow-lg transition-all duration-300
                         border border-gray-100 overflow-hidden cursor-pointer"
                     >
-                        <div className="w-full h-40 sm:h-52 overflow-hidden bg-gray-50">
+                        <div className="w-full h-32 sm:h-52 overflow-hidden bg-gray-50">
                             <img
                                 src={category.image}
                                 alt={category.name}
@@ -188,7 +188,7 @@ const CategoryPage = () => {
                                         setEditData(category);
                                     }}
                                     className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm
-                                    bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors"
+                                    bg-orange-100 hover:bg-orange-200 text-orange-600 rounded-lg transition-colors"
                                 >
                                     <svg
                                         className="w-4 h-4"

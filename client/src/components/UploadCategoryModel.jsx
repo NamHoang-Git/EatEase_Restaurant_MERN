@@ -71,14 +71,10 @@ const UploadCategoryModel = ({ close, fetchData }) => {
 
     return (
         <section
-            onClick={close}
             className="bg-neutral-800 z-50 bg-opacity-60 fixed top-0 left-0 right-0 bottom-0 overflow-auto
         flex items-center justify-center px-2"
         >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
-            >
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
                 {/* Header */}
                 <div className="border-b border-gray-200 px-6 py-4">
                     <div className="flex items-center justify-between">
@@ -87,19 +83,22 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                         </h3>
                         <button
                             onClick={close}
-                            className="text-gray-400 hover:text-secondary-200 transition-colors"
+                            className="text-secondary-200 hover:text-secondary-100 transition-colors"
                         >
-                            <IoClose size={24} />
+                            <IoClose size={22} />
                         </button>
                     </div>
                 </div>
 
-                <form className="px-6 py-4 space-y-5" onSubmit={handleSubmit}>
+                <form
+                    className="px-6 py-4 space-y-5 text-secondary-200 sm:text-sm text-xs"
+                    onSubmit={handleSubmit}
+                >
                     {/* Category Name */}
                     <div className="space-y-2">
                         <label
                             htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Tên danh mục <span className="text-red-500">*</span>
                         </label>
@@ -110,8 +109,8 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                             autoFocus
                             value={data.name}
                             onChange={handleOnChange}
-                            className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 
-                            focus:ring-secondary-100 focus:border-secondary-100 outline-none transition-all"
+                            className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1
+                            focus:ring-secondary-100 focus:border-secondary-100 outline-none transition-all sm:text-sm text-[10px]"
                             placeholder="Nhập tên danh mục"
                             required
                         />
@@ -119,16 +118,16 @@ const UploadCategoryModel = ({ close, fetchData }) => {
 
                     {/* Image Upload */}
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block font-semibold text-gray-700">
                             Hình ảnh <span className="text-red-500">*</span>
                         </label>
                         <label
                             htmlFor="image"
                             className={`block border-2 border-dashed rounded-xl sm:p-6 p-4 text-center cursor-pointer
-                            transition-all duration-200 ${
+                            transition-all duration-200 group ${
                                 data.image
                                     ? 'border-green-200 bg-green-50'
-                                    : 'border-gray-300 hover:border-primary-200'
+                                    : 'border-gray-300 hover:border-rose-400'
                             }`}
                         >
                             {data.image ? (
@@ -146,17 +145,17 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                                 </div>
                             ) : (
                                 <div className="space-y-2">
-                                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                                        <IoAddSharp
-                                            className="text-gray-400"
-                                            size={24}
-                                        />
+                                    <div
+                                        className="mx-auto w-12 h-12 bg-gray-100 text-gray-400 group-hover:text-rose-400 group-hover:bg-rose-50 rounded-full
+                                    flex items-center justify-center"
+                                    >
+                                        <IoAddSharp size={24} />
                                     </div>
-                                    <div className="text-sm text-gray-600">
+                                    <div className="sm:text-sm text-xs text-rose-500">
                                         <p className="font-medium">
                                             Tải ảnh lên
                                         </p>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="sm:text-xs text-[10px] text-rose-300">
                                             PNG, JPG (tối đa 5MB)
                                         </p>
                                     </div>
@@ -173,7 +172,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <div className="sm:text-sm text-xs flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                         <button
                             type="button"
                             onClick={close}

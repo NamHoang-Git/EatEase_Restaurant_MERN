@@ -363,7 +363,7 @@ const SearchPage = () => {
             {/* Search Results */}
             {searchQuery ? (
                 loading && page === 1 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px]">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4 gap-[10px]">
                         {Array(6)
                             .fill(null)
                             .map((_, index) => (
@@ -372,7 +372,7 @@ const SearchPage = () => {
                     </div>
                 ) : data.length > 0 ? (
                     <>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px]">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4 gap-[10px]">
                             {data.map((product) => (
                                 <CardProduct key={product._id} data={product} />
                             ))}
@@ -408,7 +408,7 @@ const SearchPage = () => {
                         >
                             Sản phẩm nổi bật
                         </h2>
-                        <div className="text-center pt-6 pb-4 grid sm:gap-2 gap-1">
+                        <div className="text-center sm:pt-8 sm:pb-6 pt-6 pb-4 grid sm:gap-2 gap-1">
                             <h3 className="text-sm sm:text-xl font-semibold text-gray-600">
                                 Nhập từ khóa để tìm kiếm
                             </h3>
@@ -417,7 +417,7 @@ const SearchPage = () => {
                             </p>
                         </div>
                         {loadingInitial ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
                                 {Array(6)
                                     .fill(null)
                                     .map((_, index) => (
@@ -425,7 +425,7 @@ const SearchPage = () => {
                                     ))}
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
                                 {initialProducts.map((product) => (
                                     <CardProduct
                                         key={product._id}

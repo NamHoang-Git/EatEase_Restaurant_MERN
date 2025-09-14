@@ -72,14 +72,10 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
 
     return (
         <section
-            onClick={close}
             className="bg-neutral-800 z-50 bg-opacity-60 fixed top-0 left-0 right-0 bottom-0 overflow-auto
         flex items-center justify-center px-2"
         >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
-            >
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
                 {/* Header */}
                 <div className="border-b border-gray-200 px-6 py-4">
                     <div className="flex items-center justify-between">
@@ -88,19 +84,22 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                         </h3>
                         <button
                             onClick={close}
-                            className="text-gray-400 hover:text-secondary-200 transition-colors"
+                            className="text-secondary-200 hover:text-secondary-100 transition-colors"
                         >
-                            <IoClose size={24} />
+                            <IoClose size={22} />
                         </button>
                     </div>
                 </div>
 
-                <form className="px-6 py-4 space-y-5" onSubmit={handleSubmit}>
+                <form
+                    className="px-6 py-4 space-y-5 text-secondary-200 sm:text-sm text-xs"
+                    onSubmit={handleSubmit}
+                >
                     {/* Category Name */}
                     <div className="space-y-2">
                         <label
                             htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Tên danh mục <span className="text-red-500">*</span>
                         </label>
@@ -110,14 +109,15 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                             name="name"
                             value={data.name}
                             onChange={handleOnChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-200 focus:outline-none transition-all"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
+                            focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all sm:text-sm text-[10px]"
                             placeholder="Nhập tên danh mục"
                         />
                     </div>
 
                     {/* Image Upload */}
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block font-semibold text-gray-700">
                             Hình ảnh <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -135,7 +135,9 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                                 data.image
                                     ? 'border-green-200 bg-green-50'
                                     : 'border-gray-300 hover:border-primary-200'
-                            } ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            } ${
+                                loading ? 'opacity-70 cursor-not-allowed' : ''
+                            }`}
                         >
                             {data.image ? (
                                 <div className="relative">
@@ -176,7 +178,7 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex justify-end space-x-3 pt-2">
+                    <div className="sm:text-sm text-xs flex justify-end space-x-3 pt-2">
                         <button
                             type="button"
                             onClick={close}
