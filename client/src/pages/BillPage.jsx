@@ -215,7 +215,7 @@ const BillPage = () => {
                 <select
                     value={pagination.pageSize}
                     onChange={handlePageSizeChange}
-                    className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2
+                    className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1
                 focus:ring-secondary-200 px-2"
                 >
                     {[5, 10, 25, 50].map((size) => (
@@ -423,7 +423,7 @@ const BillPage = () => {
                         6: { cellWidth: 30 },
                     },
                     margin: { top: 30 },
-                    didDrawPage: function (data) {
+                    didDrawPage: function ({ doc }) {
                         // Footer
                         const pageSize = doc.internal.pageSize;
                         const pageHeight =
@@ -606,7 +606,7 @@ const BillPage = () => {
     }, 300);
 
     return (
-        <div className="container mx-auto lg:p-4 py-2 px-1 flex flex-col gap-4">
+        <div className="container mx-auto lg:py-4 py-2 px-1 flex flex-col gap-4">
             <div className="p-4 mb-2 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
                 <h2 className="text-ellipsis line-clamp-1">Quản lý Hóa đơn</h2>
             </div>
@@ -624,7 +624,7 @@ const BillPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng số hóa đơn
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {orderCount}
                         </p>
                     </div>
@@ -641,7 +641,7 @@ const BillPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng doanh thu
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {DisplayPriceInVND(totalRevenue)}
                         </p>
                     </div>
@@ -658,7 +658,7 @@ const BillPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Đang hiển thị
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {Math.min(
                                 indexOfFirstOrder + 1,
                                 filteredAndSortedOrders.length
@@ -676,9 +676,9 @@ const BillPage = () => {
 
             {/* Filter Section */}
             <div className="bg-white rounded-lg border-2 border-secondary-200 px-4 py-6 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:text-base text-sm text-secondary-200">
                     <div>
-                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
+                        <label className="block font-medium text-secondary-200 mb-1">
                             Tìm kiếm
                         </label>
                         <div className="relative">
@@ -686,7 +686,7 @@ const BillPage = () => {
                                 type="text"
                                 name="search"
                                 placeholder="Tìm kiếm..."
-                                className="w-full pl-10 h-11 text-sm font-medium pr-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2
+                                className="w-full pl-10 h-11 font-medium pr-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-1
                                 focus:ring-secondary-200"
                                 value={filters.search}
                                 onChange={(e) =>
@@ -698,12 +698,12 @@ const BillPage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
+                        <label className="block font-medium text-secondary-200 mb-1">
                             Trạng thái
                         </label>
                         <select
                             name="status"
-                            className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200"
+                            className="w-full p-2 h-11 font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary-200"
                             value={filters.status}
                             onChange={handleFilterChange}
                         >
@@ -716,26 +716,26 @@ const BillPage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
+                        <label className="block font-medium text-secondary-200 mb-1">
                             Từ ngày
                         </label>
                         <input
                             type="date"
                             name="startDate"
-                            className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                            className="w-full p-2 h-11 font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary-200 cursor-pointer"
                             value={filters.startDate}
                             onChange={handleFilterChange}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-[15px] font-medium text-secondary-200 mb-1">
+                        <label className="block font-medium text-secondary-200 mb-1">
                             Đến ngày
                         </label>
                         <input
                             type="date"
                             name="endDate"
-                            className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                            className="w-full p-2 h-11 font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary-200 cursor-pointer"
                             value={filters.endDate}
                             onChange={handleFilterChange}
                         />
@@ -752,16 +752,30 @@ const BillPage = () => {
                                 endDate: '',
                             })
                         }
-                        className="px-4 h-9 text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
-                        hover:bg-secondary-100 hover:text-white border-inset"
+                        className="px-4 h-9 font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
+                        hover:bg-secondary-100 hover:text-white border-inset text-sm sm:hidden block"
                     >
                         Đặt lại
                     </button>
 
-                    <div className="flex items-center gap-2 h-9 sm:w-auto w-full">
+                    <div className="flex items-center gap-2 h-9 sm:w-auto w-full mt-2 sm:text-sm text-xs">
+                        <button
+                            onClick={() =>
+                                setFilters({
+                                    search: '',
+                                    status: '',
+                                    startDate: '',
+                                    endDate: '',
+                                })
+                            }
+                            className="px-4 h-9 font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
+                        hover:bg-secondary-100 hover:text-white border-inset text-sm hidden sm:block"
+                        >
+                            Đặt lại
+                        </button>
                         <button
                             onClick={exportToExcel}
-                            className="flex sm:w-auto w-full items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white
+                            className="flex sm:w-auto w-full items-center justify-center px-4 h-full font-medium text-white
                         bg-green-600 rounded-lg hover:bg-green-700"
                         >
                             <FaFileExcel className="mr-2 mb-[2px]" />
@@ -770,7 +784,7 @@ const BillPage = () => {
 
                         <button
                             onClick={exportToPDF}
-                            className="flex sm:w-auto w-full items-center justify-center px-4 h-full sm:text-sm text-xs font-medium text-white
+                            className="flex sm:w-auto w-full items-center justify-center px-4 h-full font-medium text-white
                         bg-red-600 rounded-lg hover:bg-red-700"
                         >
                             <FaFilePdf className="mr-2 mb-[2px]" />
@@ -867,15 +881,15 @@ const BillPage = () => {
                                     currentOrders.map((order) => (
                                         <tr
                                             key={order._id}
-                                            className="hover:bg-gray-50"
+                                            className="hover:bg-gray-50 sm:text-sm text-xs"
                                         >
                                             <td
-                                                className="px-4 py-4 text-sm font-medium text-gray-900"
+                                                className="px-4 py-4 font-medium text-gray-900"
                                                 title={order.orderId}
                                             >
                                                 {order.orderId}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                                                 <div>
                                                     <div className="font-medium text-gray-900">
                                                         {order.userId?.name ||
@@ -898,7 +912,7 @@ const BillPage = () => {
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-gray-500 flex items-center sm:grid  gap-3 max-w-[250px]">
+                                            <td className="px-4 py-4 text-gray-500 flex items-center sm:grid gap-3 max-w-[250px]">
                                                 <img
                                                     src={
                                                         order.product_details
@@ -925,7 +939,7 @@ const BillPage = () => {
                                                 />
                                                 <div>
                                                     <p
-                                                        className="line-clamp-2 text-sm"
+                                                        className="line-clamp-2"
                                                         title={
                                                             order
                                                                 .product_details
@@ -935,12 +949,12 @@ const BillPage = () => {
                                                         {order.product_details
                                                             ?.name || 'N/A'}
                                                     </p>
-                                                    <p className="text-secondary-200 font-bold text-sm">
+                                                    <p className="text-secondary-200 font-bold">
                                                         x{order.quantity}
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
+                                            <td className="px-4 py-4 whitespace-nowrap font-medium text-secondary-200">
                                                 {DisplayPriceInVND(
                                                     order.totalAmt || 0
                                                 )}
@@ -952,7 +966,7 @@ const BillPage = () => {
                                                     }
                                                 />
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
+                                            <td className="px-4 py-4 whitespace-nowrap font-medium text-secondary-200">
                                                 {format(
                                                     new Date(order.createdAt),
                                                     'dd/MM/yyyy HH:mm',
@@ -961,7 +975,7 @@ const BillPage = () => {
                                                     }
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            <td className="px-4 py-4 whitespace-nowrap text-center font-medium">
                                                 <button
                                                     onClick={() =>
                                                         printBill(order)

@@ -297,7 +297,7 @@ const ReportPage = () => {
                 <select
                     value={pagination.pageSize}
                     onChange={handlePageSizeChange}
-                    className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2
+                    className="text-sm h-8 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1
                 focus:ring-secondary-200 px-2"
                 >
                     {[5, 10, 25, 50].map((size) => (
@@ -387,14 +387,14 @@ const ReportPage = () => {
         </div>
     );
 
-    const { totalRevenue, orderCount, averageOrderValue } =
+    const { totalRevenue, orderCount } =
         React.useMemo(() => {
             return filteredAndSortedOrders.reduce(
                 (acc, order) => ({
                     totalRevenue: acc.totalRevenue + (order.totalAmt || 0),
                     orderCount: acc.orderCount + 1,
                 }),
-                { totalRevenue: 0, orderCount: 0, averageOrderValue: 0 }
+                { totalRevenue: 0, orderCount: 0 }
             );
         }, [filteredAndSortedOrders]);
 
@@ -660,7 +660,7 @@ const ReportPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng doanh thu
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {DisplayPriceInVND(totalRevenue)}
                         </p>
                     </div>
@@ -676,7 +676,7 @@ const ReportPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Giá trị đơn hàng trung bình
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {orderCount > 0
                                 ? DisplayPriceInVND(totalRevenue / orderCount)
                                 : '0'}
@@ -694,7 +694,7 @@ const ReportPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Tổng số đơn hàng
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {orderCount}
                         </p>
                     </div>
@@ -710,7 +710,7 @@ const ReportPage = () => {
                         <p className="lg:text-[15px] text-xs text-secondary-200 font-bold">
                             Đang hiển thị
                         </p>
-                        <p className="lg:text-xl text-lg font-bold text-secondary-200">
+                        <p className="lg:text-xl text-base font-bold text-secondary-200">
                             {Math.min(
                                 indexOfFirstOrder + 1,
                                 filteredAndSortedOrders.length
@@ -823,12 +823,12 @@ const ReportPage = () => {
             {/* Filters */}
             <div
                 className="bg-white p-4 rounded-lg border-2 border-secondary-200 shadow mb-3
-            flex flex-col gap-3 items-end"
+            flex flex-col gap-3 items-end text-sm text-secondary-200"
             >
                 <div className="flex gap-2">
                     <button
                         onClick={handleResetFilters}
-                        className="px-4 py-[6px] text-sm font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
+                        className="px-4 py-[6px] font-medium text-secondary-200 bg-white border-2 border-secondary-200 rounded-lg
                         hover:bg-secondary-200 hover:text-white flex gap-2 items-center"
                     >
                         <FaUndo size={12} className="mb-[2px]" />
@@ -841,7 +841,7 @@ const ReportPage = () => {
                             type="text"
                             name="search"
                             placeholder="Tìm kiếm..."
-                            className="w-full pl-10 h-11 text-sm font-medium py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2
+                            className="w-full pl-10 h-11 font-medium py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-1
                         focus:ring-secondary-200"
                             value={filters.search}
                             onChange={handleFilterChange}
@@ -850,7 +850,7 @@ const ReportPage = () => {
                     </div>
                     <select
                         name="status"
-                        className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                        className="w-full p-2 h-11 font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary-200 cursor-pointer"
                         value={filters.status}
                         onChange={handleFilterChange}
                     >
@@ -863,7 +863,7 @@ const ReportPage = () => {
 
                     <select
                         name="dateRange"
-                        className="w-full p-2 h-11 text-sm font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-200 cursor-pointer"
+                        className="w-full p-2 h-11 font-medium border border-gray-400 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary-200 cursor-pointer"
                         value={dateRange}
                         onChange={handleFilterChange}
                     >
@@ -878,7 +878,7 @@ const ReportPage = () => {
                     <button
                         onClick={exportToExcel}
                         className="flex items-center justify-center h-11 px-4 py-2 border border-transparent rounded-md shadow-sm sm:text-sm text-xs font-medium
-                    text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-green-500"
                     >
                         <FaFileExcel className="mr-2 mb-[3px]" />
                         <p>Xuất Excel</p>
@@ -920,9 +920,9 @@ const ReportPage = () => {
                 <div className="overflow-x-auto scrollbarCustom">
                     <div className="min-w-full" style={{ minWidth: '1024px' }}>
                         <table className="w-full divide-y-4 divide-secondary-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-50 text-xs">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left font-bold text-secondary-200 uppercase tracking-wider">
                                         <div className="flex items-center justify-center">
                                             Mã Đơn Hàng
                                             <button
@@ -935,7 +935,7 @@ const ReportPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left font-bold text-secondary-200 uppercase tracking-wider">
                                         <div className="flex items-center justify-center">
                                             <p className="text-nowrap">
                                                 Ngày tạo
@@ -950,16 +950,16 @@ const ReportPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left font-bold text-secondary-200 uppercase tracking-wider">
                                         Khách hàng
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
+                                    <th className="px-4 py-3 text-left font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
                                         Sản phẩm
                                     </th>
-                                    <th className="px-4 py-3 text-nowrap text-left text-xs font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
+                                    <th className="px-4 py-3 text-nowrap text-left font-bold text-secondary-200 uppercase tracking-wider max-w-[180px]">
                                         Số lượng
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left font-bold text-secondary-200 uppercase tracking-wider">
                                         <div className="flex items-center justify-center">
                                             <p className="text-nowrap">
                                                 Tổng tiền
@@ -974,7 +974,7 @@ const ReportPage = () => {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-secondary-200 uppercase tracking-wider">
+                                    <th className="px-4 py-3 text-left font-bold text-secondary-200 uppercase tracking-wider">
                                         <div className="flex items-center justify-center">
                                             <p className="text-nowrap">
                                                 Trạng thái
@@ -1016,15 +1016,15 @@ const ReportPage = () => {
                                     currentOrders.map((order) => (
                                         <tr
                                             key={order._id}
-                                            className="hover:bg-gray-50"
+                                            className="hover:bg-gray-50 sm:text-sm text-xs"
                                         >
                                             <td
-                                                className="px-4 py-4 text-sm font-medium text-gray-900"
+                                                className="px-4 py-4 font-medium text-gray-900"
                                                 title={order.orderId}
                                             >
                                                 {order.orderId}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-secondary-200">
+                                            <td className="px-4 py-4 whitespace-nowrap font-medium text-secondary-200">
                                                 {format(
                                                     new Date(order.createdAt),
                                                     'dd/MM/yyyy HH:mm',
@@ -1033,7 +1033,7 @@ const ReportPage = () => {
                                                     }
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                                                 <div>
                                                     <div className="font-medium text-gray-900">
                                                         {order.userId?.name ||
@@ -1056,7 +1056,7 @@ const ReportPage = () => {
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-gray-500 flex items-center sm:grid  gap-3 max-w-[250px]">
+                                            <td className="px-4 py-4 text-gray-500 flex items-center sm:grid gap-3 max-w-[250px]">
                                                 <img
                                                     src={
                                                         order.product_details
@@ -1095,15 +1095,15 @@ const ReportPage = () => {
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-secondary-200">
+                                            <td className="px-6 py-4 whitespace-nowrap text-center font-bold text-secondary-200">
                                                 {order.quantity}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-secondary-200">
+                                            <td className="px-6 py-4 whitespace-nowrap text-center font-bold text-secondary-200">
                                                 {DisplayPriceInVND(
                                                     order.totalAmt
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap flex items-center justify-center">
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                                 <StatusBadge
                                                     status={
                                                         order.payment_status
