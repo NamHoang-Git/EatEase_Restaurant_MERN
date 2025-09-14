@@ -363,7 +363,7 @@ const ProductListPage = () => {
                                                 value={priceRange.min}
                                                 onChange={handlePriceChange}
                                                 placeholder="Từ"
-                                                className="w-full p-2 sm:text-sm text-[10px] border no-spinner border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                                                className="w-full p-2 border no-spinner border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
                                             />
                                         </div>
                                         <div>
@@ -376,7 +376,7 @@ const ProductListPage = () => {
                                                 value={priceRange.max}
                                                 onChange={handlePriceChange}
                                                 placeholder="Đến"
-                                                className="w-full p-2 sm:text-sm text-[10px] border no-spinner border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                                                className="w-full p-2 border no-spinner border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
                                             />
                                         </div>
                                     </div>

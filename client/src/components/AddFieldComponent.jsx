@@ -27,18 +27,19 @@ const AddFieldComponent = ({ close, value, onChange, onSubmit }) => {
                     </div>
                 </div>
 
-                <div className="px-6 py-6 space-y-6">
+                <div className="px-6 py-6 space-y-6 text-sm">
                     <div className="space-y-2">
                         <label
                             htmlFor="fieldName"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Tên trường <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
                             id="fieldName"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-200 focus:outline-none transition-all"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
+                            focus:border-secondary-100 focus:outline-none transition-all"
                             placeholder="Nhập tên trường"
                             value={value}
                             onChange={onChange}
@@ -46,7 +47,7 @@ const AddFieldComponent = ({ close, value, onChange, onSubmit }) => {
                         />
                     </div>
 
-                    <div className="flex justify-end space-x-3 pt-2">
+                    <div className="flex sm:text-sm text-xs justify-end space-x-3 pt-2">
                         <button
                             type="button"
                             onClick={close}
@@ -59,7 +60,7 @@ const AddFieldComponent = ({ close, value, onChange, onSubmit }) => {
                             type="button"
                             onClick={onSubmit}
                             disabled={!value}
-                            className="px-6 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-90
+                            className="px-6 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-80
                             focus:outline-none disabled:opacity-50 font-semibold"
                         >
                             Thêm

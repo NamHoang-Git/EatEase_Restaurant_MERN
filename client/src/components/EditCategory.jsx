@@ -92,7 +92,7 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                 </div>
 
                 <form
-                    className="px-6 py-4 space-y-5 text-secondary-200 sm:text-sm text-xs"
+                    className="px-6 py-4 space-y-5 text-secondary-200 text-sm"
                     onSubmit={handleSubmit}
                 >
                     {/* Category Name */}
@@ -110,7 +110,7 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                             value={data.name}
                             onChange={handleOnChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
-                            focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all sm:text-sm text-[10px]"
+                            focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
                             placeholder="Nhập tên danh mục"
                         />
                     </div>

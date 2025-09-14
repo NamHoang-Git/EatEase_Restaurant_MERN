@@ -172,14 +172,10 @@ const UploadProductModel = ({ close, fetchData }) => {
     };
 
     return (
-        <section
-            onClick={close}
-            className="fixed top-0 bottom-0 left-0 right-0 bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center"
-        >
+        <section className="fixed top-0 bottom-0 left-0 right-0 bg-neutral-800 z-50 bg-opacity-60 p-4 flex items-center justify-center">
             <div
-                onClick={(e) => e.stopPropagation()}
                 className="bg-white max-w-4xl w-full rounded-xl shadow-sm border border-gray-200 overflow-y-auto
-            max-h-[calc(100vh-200px)] scrollbarCustom scrollbar-hide"
+            max-h-[calc(100vh-150px)] scrollbarCustom scrollbar-hide"
             >
                 <div className="border-b border-gray-200 px-6 py-4">
                     <div className="flex items-center justify-between">
@@ -188,21 +184,21 @@ const UploadProductModel = ({ close, fetchData }) => {
                         </h2>
                         <button
                             onClick={close}
-                            className="text-gray-400 hover:text-secondary-200 transition-colors"
+                            className="text-secondary-200 hover:text-secondary-100 transition-colors"
                         >
-                            <IoClose size={24} />
+                            <IoClose size={22} />
                         </button>
                     </div>
                 </div>
                 <form
-                    className="px-4 py-6 sm:p-6 space-y-6"
+                    className="px-4 py-6 space-y-5 text-secondary-200 text-sm"
                     onSubmit={handleSubmit}
                 >
                     {/* Product Name */}
                     <div className="space-y-2">
                         <label
                             htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Tên sản phẩm <span className="text-red-500">*</span>
                         </label>
@@ -213,15 +209,16 @@ const UploadProductModel = ({ close, fetchData }) => {
                             autoFocus
                             value={data.name}
                             onChange={handleOnChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
                             focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
                             placeholder="Nhập tên sản phẩm"
+                            spellCheck={false}
                             required
                         />
                     </div>
                     {/* Image Upload */}
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block font-semibold text-gray-700">
                             Hình ảnh sản phẩm{' '}
                             <span className="text-red-500">*</span>
                         </label>
@@ -240,15 +237,15 @@ const UploadProductModel = ({ close, fetchData }) => {
                             />
                             <label
                                 htmlFor="uploadProductImage"
-                                className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
-                                transition-all duration-200 ${
+                                className={`block border-2 border-dashed rounded-xl p-6 text-center
+                                transition-all duration-200 group ${
                                     data.image.length
                                         ? 'border-blue-200 bg-blue-50'
-                                        : 'border-gray-300 hover:border-primary-200'
+                                        : 'border-gray-300 hover:border-rose-400'
                                 } ${
                                     !data.name || loading
                                         ? 'opacity-70 cursor-not-allowed'
-                                        : ''
+                                        : 'cursor-pointer'
                                 }`}
                                 title={
                                     !data.name
@@ -257,21 +254,21 @@ const UploadProductModel = ({ close, fetchData }) => {
                                 }
                             >
                                 <div className="space-y-2">
-                                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <div className="mx-auto w-12 h-12 bg-gray-100 text-gray-400 group-hover:text-rose-400 group-hover:bg-rose-50 rounded-full flex items-center justify-center">
                                         {loading ? (
                                             <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                                         ) : (
                                             <FaCloudUploadAlt
-                                                className="text-gray-400"
+                                                className=""
                                                 size={24}
                                             />
                                         )}
                                     </div>
-                                    <div className="text-sm text-gray-600">
+                                    <div className="sm text-xs text-rose-500">
                                         <p className="font-medium">
                                             Nhấn để chọn ảnh
                                         </p>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="sm:text-xs text-[10px] text-rose-300">
                                             PNG, JPG (tối đa 10 ảnh, mỗi ảnh tối
                                             đa 5MB)
                                         </p>
@@ -283,14 +280,14 @@ const UploadProductModel = ({ close, fetchData }) => {
                         {/* Image Preview */}
                         {data.image.length > 0 && (
                             <div className="mt-3">
-                                <p className="text-sm text-gray-500 mb-2">
+                                <p className="sm:text-sm text-xs font-semibold text-secondary-200 mb-2">
                                     Đã chọn {data.image.length} ảnh
                                 </p>
                                 <div className="flex flex-wrap gap-3">
                                     {data.image.map((img, index) => (
                                         <div
                                             key={img + index}
-                                            className="relative group sm:h-24 sm:w-24 h-16 w-16 rounded-lg overflow-hidden border border-gray-200"
+                                            className="relative group sm:h-24 sm:w-24 h-16 w-16 rounded-lg overflow-hidden border border-secondary-100"
                                         >
                                             <img
                                                 src={img}
@@ -318,7 +315,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                     </div>
                     {/* Category Selection */}
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block font-semibold text-gray-700">
                             Danh mục <span className="text-red-500">*</span>
                         </label>
 
@@ -328,7 +325,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                                 {data.category.map((cate) => (
                                     <span
                                         key={cate._id}
-                                        className="inline-flex items-center bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full"
+                                        className="inline-flex items-center gap-2 bg-rose-600/90 text-white sm:text-sm text-xs px-3 py-1 rounded-full"
                                     >
                                         {cate.name}
                                         <button
@@ -338,7 +335,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                                                     cate._id
                                                 )
                                             }
-                                            className="ml-2 text-gray-500 hover:text-red-500"
+                                            className="hover:opacity-80 mb-[1.5px]"
                                         >
                                             <IoClose size={16} />
                                         </button>
@@ -350,8 +347,8 @@ const UploadProductModel = ({ close, fetchData }) => {
                         {/* Category Selector */}
                         <div className="relative">
                             <select
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
-                                focus:border-secondary-100 focus:outline-none appearance-none bg-white"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
+                                focus:border-secondary-100 focus:outline-none appearance-none bg-white cursor-pointer"
                                 value={selectCategoryValue}
                                 onChange={(e) => {
                                     const value = e.target.value;
@@ -411,7 +408,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                     <div className="space-y-2">
                         <label
                             htmlFor="unit"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Đơn vị tính <span className="text-red-500">*</span>
                         </label>
@@ -421,9 +418,10 @@ const UploadProductModel = ({ close, fetchData }) => {
                             name="unit"
                             value={data.unit}
                             onChange={handleOnChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
                             focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
                             placeholder="Ví dụ: cái, thiết bị, bộ..."
+                            spellCheck={false}
                             required
                             onKeyDown={handleKeyDown}
                         />
@@ -432,7 +430,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                     <div className="space-y-2">
                         <label
                             htmlFor="stock"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Số lượng tồn kho{' '}
                             <span className="text-red-500">*</span>
@@ -444,7 +442,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                             min="0"
                             value={data.stock || ''}
                             onChange={handleOnChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
+                            className="w-full no-spinner px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
                             focus:border-secondary-100 focus:outline-none"
                             placeholder="Nhập số lượng tồn kho"
                             required
@@ -455,13 +453,13 @@ const UploadProductModel = ({ close, fetchData }) => {
                     <div className="space-y-2">
                         <label
                             htmlFor="price"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Giá bán <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                                đ
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-200 font-sem">
+                                VND
                             </span>
                             <input
                                 type="number"
@@ -470,7 +468,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                                 min="0"
                                 value={data.price || ''}
                                 onChange={handleOnChange}
-                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
+                                className="w-full no-spinner pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
                                 focus:border-secondary-100 focus:outline-none"
                                 placeholder="Nhập giá bán"
                                 required
@@ -482,16 +480,16 @@ const UploadProductModel = ({ close, fetchData }) => {
                         <label
                             id="discount"
                             htmlFor="discount"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Giảm giá
                         </label>
                         <input
                             type="number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
+                            className="w-full no-spinner px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
                             focus:border-secondary-100 focus:outline-none"
                             id="discount"
-                            placeholder="Enter product discount!"
+                            placeholder="Nhập % giảm giá (nếu có)"
                             value={data.discount}
                             name="discount"
                             onChange={handleOnChange}
@@ -502,7 +500,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                     <div className="space-y-2">
                         <label
                             htmlFor="description"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block font-semibold text-gray-700"
                         >
                             Mô tả sản phẩm
                         </label>
@@ -512,9 +510,10 @@ const UploadProductModel = ({ close, fetchData }) => {
                             value={data.description}
                             onChange={handleOnChange}
                             rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
                             focus:border-secondary-100 focus:outline-none resize-none"
                             placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                            spellCheck={false}
                             onKeyDown={handleKeyDown}
                         />
                     </div>
@@ -522,14 +521,14 @@ const UploadProductModel = ({ close, fetchData }) => {
                     {/* Additional Fields */}
                     {Object.keys(data.more_details).length > 0 && (
                         <div className="space-y-4 pt-2 border-t border-gray-200">
-                            <h4 className="text-sm font-medium text-gray-700">
+                            <h4 className="font-semibold text-secondary-200">
                                 Thông tin bổ sung
                             </h4>
                             {Object.keys(data.more_details).map((field) => (
                                 <div key={field} className="space-y-2">
                                     <label
                                         htmlFor={`field-${field}`}
-                                        className="block text-sm font-medium text-gray-700 capitalize"
+                                        className="block font-semibold text-gray-700 capitalize"
                                     >
                                         {field.replace(/_/g, ' ')}
                                     </label>
@@ -550,7 +549,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                                                     },
                                                 }));
                                             }}
-                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100
+                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
                                             focus:border-secondary-100 focus:outline-none"
                                         />
                                         <button
@@ -580,7 +579,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                     <button
                         type="button"
                         onClick={() => setOpenAddField(true)}
-                        className="flex items-center gap-2 text-sm font-medium text-primary-600
+                        className="flex items-center gap-2 font-semibold text-primary-600
                         hover:text-primary-700 transition-colors bg-white w-full
                         px-3 py-2 rounded-lg border shadow-md"
                     >

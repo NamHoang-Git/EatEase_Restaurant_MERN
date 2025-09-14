@@ -21,7 +21,7 @@ const Address = () => {
         type: '', // 'delete' or 'restore'
         addressId: null,
         message: '',
-        onConfirm: null
+        onConfirm: null,
     });
 
     // Sắp xếp địa chỉ hiện hoạt (status: true) với isDefault: true lên đầu
@@ -94,7 +94,9 @@ const Address = () => {
             </div>
 
             {/* Danh sách địa chỉ hiện hoạt */}
-            <div className="bg-white p-2 grid gap-4">
+            <div
+                className="bg-white p-2 grid gap-4 overflow-auto max-h-[calc(100vh/1.5)]"
+            >
                 {activeAddresses.length === 0 ? (
                     <p className="text-gray-500">
                         Chưa có địa chỉ. Hãy thêm địa chỉ mới
@@ -142,8 +144,10 @@ const Address = () => {
                                                         isOpen: true,
                                                         type: 'delete',
                                                         addressId: address._id,
-                                                        message: 'Bạn có chắc chắn muốn xóa địa chỉ này?',
-                                                        onConfirm: handleDisableAddress
+                                                        message:
+                                                            'Bạn có chắc chắn muốn xóa địa chỉ này?',
+                                                        onConfirm:
+                                                            handleDisableAddress,
                                                     });
                                                 }}
                                                 className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[3px] text-secondary-200"
@@ -172,8 +176,9 @@ const Address = () => {
                                                 isOpen: true,
                                                 type: 'delete',
                                                 addressId: address._id,
-                                                message: 'Bạn có chắc chắn muốn xóa địa chỉ này?',
-                                                onConfirm: handleDisableAddress
+                                                message:
+                                                    'Bạn có chắc chắn muốn xóa địa chỉ này?',
+                                                onConfirm: handleDisableAddress,
                                             });
                                         }}
                                         className="shadow-md shadow-secondary-100 rounded hover:opacity-80 p-[1px] text-secondary-200"
@@ -221,8 +226,9 @@ const Address = () => {
                                             isOpen: true,
                                             type: 'restore',
                                             addressId: address._id,
-                                            message: 'Bạn có chắc chắn muốn khôi phục địa chỉ này?',
-                                            onConfirm: handleRestoreAddress
+                                            message:
+                                                'Bạn có chắc chắn muốn khôi phục địa chỉ này?',
+                                            onConfirm: handleRestoreAddress,
                                         });
                                     }}
                                     className="bg-blue-200 p-2 text-blue-900 font-bold rounded hover:text-white hover:bg-blue-400"
@@ -246,19 +252,30 @@ const Address = () => {
 
             {confirmAction.isOpen && (
                 <ConfirmBox
-                    cancel={() => setConfirmAction(prev => ({ ...prev, isOpen: false }))}
+                    cancel={() =>
+                        setConfirmAction((prev) => ({ ...prev, isOpen: false }))
+                    }
                     confirm={async () => {
                         try {
-                            await confirmAction.onConfirm(confirmAction.addressId);
-                            setConfirmAction(prev => ({ ...prev, isOpen: false }));
+                            await confirmAction.onConfirm(
+                                confirmAction.addressId
+                            );
+                            setConfirmAction((prev) => ({
+                                ...prev,
+                                isOpen: false,
+                            }));
                         } catch (error) {
                             console.error('Error:', error);
                         }
                     }}
-                    close={() => setConfirmAction(prev => ({ ...prev, isOpen: false }))}
+                    close={() =>
+                        setConfirmAction((prev) => ({ ...prev, isOpen: false }))
+                    }
                     title="Xác nhận"
                     message={confirmAction.message}
-                    confirmText={confirmAction.type === 'delete' ? 'Xóa' : 'Khôi phục'}
+                    confirmText={
+                        confirmAction.type === 'delete' ? 'Xóa' : 'Khôi phục'
+                    }
                     cancelText="Hủy"
                 />
             )}

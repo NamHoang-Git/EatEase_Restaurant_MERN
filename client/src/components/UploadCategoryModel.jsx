@@ -91,7 +91,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                 </div>
 
                 <form
-                    className="px-6 py-4 space-y-5 text-secondary-200 sm:text-sm text-xs"
+                    className="px-6 py-4 space-y-5 text-secondary-200 text-sm"
                     onSubmit={handleSubmit}
                 >
                     {/* Category Name */}
@@ -109,8 +109,8 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                             autoFocus
                             value={data.name}
                             onChange={handleOnChange}
-                            className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1
-                            focus:ring-secondary-100 focus:border-secondary-100 outline-none transition-all sm:text-sm text-[10px]"
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
+                            focus:ring-secondary-100 focus:border-secondary-100 outline-none transition-all"
                             placeholder="Nhập tên danh mục"
                             required
                         />

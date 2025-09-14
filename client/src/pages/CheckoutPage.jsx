@@ -622,8 +622,7 @@ const CheckoutPage = () => {
                         Chọn địa chỉ giao hàng
                     </h3>
                     <div
-                        className="bg-white grid gap-4 overflow-auto max-h-[55vh] sm:max-h-[55vh]
-                    md:max-h-[60vh] lg:max-h-[65vh]"
+                        className="bg-white grid gap-4 overflow-auto max-h-[calc(100vh/2)]"
                     >
                         {sortedAddressList.map((address, index) => (
                             <label
