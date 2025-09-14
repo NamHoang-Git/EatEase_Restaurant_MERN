@@ -606,7 +606,7 @@ const BillPage = () => {
     }, 300);
 
     return (
-        <div className="container mx-auto lg:py-4 py-2 px-1 flex flex-col gap-4">
+        <section className="container mx-auto lg:py-4 py-2 px-1 flex flex-col gap-4">
             <div className="p-4 mb-2 bg-primary-4 rounded-md shadow-md shadow-secondary-100 font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between items-center gap-2">
                 <h2 className="text-ellipsis line-clamp-1">Quản lý Hóa đơn</h2>
             </div>
@@ -1005,7 +1005,7 @@ const BillPage = () => {
             {imageURL && (
                 <ViewImage url={imageURL} close={() => setImageURL('')} />
             )}
-        </div>
+        </section>
     );
 };
 
