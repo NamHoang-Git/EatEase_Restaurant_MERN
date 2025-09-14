@@ -133,7 +133,7 @@ const AddToCartButton = ({ data }) => {
     return (
         <div className="w-full md:max-w-[150px]">
             {isAvailableCart && cartItemDetails ? (
-                <div className="flex items-center justify-center w-full h-full bg-primary-100">
+                <div className="flex items-center justify-center w-full sm:h-full h-6 bg-primary-100">
                     <button
                         onClick={decreaseQty}
                         className="bg-primary hover:opacity-80 text-white flex-1 w-full p-1 sm:p-[6px] rounded flex items-center justify-center"
@@ -160,7 +160,7 @@ const AddToCartButton = ({ data }) => {
                 <button
                     onClick={handleADDTocart}
                     className="bg-primary hover:opacity-80 text-secondary-200 shadow-md p-1 px-2 sm:px-2 sm:p-[6px]
-                rounded-md sm:rounded-full"
+                rounded-md sm:rounded-full sm:h-full h-6"
                     disabled={loading || !data?._id || data?.stock <= 0}
                 >
                     {loading ? (

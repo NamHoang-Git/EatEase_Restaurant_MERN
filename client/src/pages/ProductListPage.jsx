@@ -212,13 +212,13 @@ const ProductListPage = () => {
 
     return (
         <section className="min-h-screen py-4">
-            <div className="container w-full mx-auto px-2 sm:px-4">
-                <div className="flex flex-col lg:flex-row gap-6">
+            <div className="container w-full mx-auto px-2 pt-2 sm:px-4">
+                <div className="flex flex-col lg:flex-row gap-[18px]">
                     {/* Mobile Toggle Button */}
                     <button
                         onClick={() => setShowSidebar(!showSidebar)}
                         className="lg:hidden flex items-center justify-between w-full p-3 bg-white rounded-lg shadow-lg
-                        text-secondary-200 font-bold sm:text-lg text-base"
+                        text-secondary-200 font-bold text-sm"
                     >
                         <span className="font-medium">Danh mục sản phẩm</span>
                         <FaChevronDown
@@ -234,7 +234,7 @@ const ProductListPage = () => {
                             showSidebar ? 'block' : 'hidden'
                         } lg:block w-full lg:w-72 flex-shrink-0`}
                     >
-                        <div className="bg-white rounded-lg shadow-lg lg:sticky lg:top-24">
+                        <div className="bg-white rounded-lg shadow-lg lg:sticky lg:top-24 p-2">
                             <h3 className="font-bold text-lg text-secondary-200 hidden lg:block shadow-lg p-3 rounded-lg">
                                 Danh mục
                             </h3>
@@ -265,7 +265,7 @@ const ProductListPage = () => {
                                                 onError={handleImageError}
                                                 className="w-8 h-8 lg:w-10 lg:h-10 object-cover rounded-md border border-inset border-secondary-200"
                                             />
-                                            <span className="text-sm font-medium">
+                                            <span className="sm:text-sm text-xs font-medium">
                                                 {s.name}
                                             </span>
                                         </Link>
@@ -284,13 +284,13 @@ const ProductListPage = () => {
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <h1 className="text-ellipsis uppercase flex gap-2 items-baseline">
                                     {categoryName || 'Tất cả sản phẩm'}
-                                    <span className="text-[12px] sm:text-base text-secondary-100">
+                                    <span className="text-xs sm:text-base text-secondary-100">
                                         ({totalCount} sản phẩm)
                                     </span>
                                 </h1>
 
                                 {/* Filter */}
-                                <div className="flex flex-row sm:gap-2 gap-3 w-full sm:w-auto text-sm">
+                                <div className="flex flex-row sm:gap-2 gap-3 w-full sm:w-auto sm:text-sm text-xs">
                                     <button
                                         onClick={() =>
                                             setShowFilters(!showFilters)
@@ -331,9 +331,9 @@ const ProductListPage = () => {
                             </div>
 
                             {showFilters && (
-                                <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md shadow-secondary-100">
-                                    <div className="flex justify-between text-base items-center mb-3 text-secondary-200">
-                                        <h4 className="font-semibold">
+                                <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md shadow-secondary-100 sm:text-base text-sm">
+                                    <div className="flex justify-between items-center mb-3 text-secondary-200">
+                                        <h4 className="font-bold">
                                             {isFiltering
                                                 ? 'Đang lọc...'
                                                 : 'Lọc theo giá'}
@@ -346,15 +346,15 @@ const ProductListPage = () => {
                                                 });
                                                 setSortBy('newest');
                                             }}
-                                            className="hover:opacity-80 text-sm text-white bg-secondary-200 px-4 py-[6px]
+                                            className="hover:opacity-80 sm:text-sm text-xs text-white bg-secondary-200 px-4 sm:py-[6px] py-1
                                         rounded-md font-medium"
                                         >
                                             Đặt lại bộ lọc
                                         </button>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-secondary-200 font-medium">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-secondary-200 font-medium sm:text-sm text-xs">
                                         <div>
-                                            <label className="block text-[15px] font-medium mb-1">
+                                            <label className="block font-medium mb-1">
                                                 Giá thấp nhất
                                             </label>
                                             <input
@@ -363,11 +363,11 @@ const ProductListPage = () => {
                                                 value={priceRange.min}
                                                 onChange={handlePriceChange}
                                                 placeholder="Từ"
-                                                className="w-full p-2 border text-sm border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                                                className="w-full p-2 sm:text-sm text-[10px] border no-spinner border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[15px] font-medium mb-1">
+                                            <label className="block font-medium mb-1">
                                                 Giá cao nhất
                                             </label>
                                             <input
@@ -376,7 +376,7 @@ const ProductListPage = () => {
                                                 value={priceRange.max}
                                                 onChange={handlePriceChange}
                                                 placeholder="Đến"
-                                                className="w-full p-2 border text-sm border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
+                                                className="w-full p-2 sm:text-sm text-[10px] border no-spinner border-gray-300 rounded-md focus:ring-rose-500 focus:border-rose-500"
                                             />
                                         </div>
                                     </div>
@@ -385,7 +385,7 @@ const ProductListPage = () => {
                         </div>
 
                         {loading ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-4 gap-[10px] sm:p-4 py-4 px-2">
                                 {Array(9)
                                     .fill(null)
                                     .map((_, index) => (
@@ -399,10 +399,10 @@ const ProductListPage = () => {
                                     ))}
                             </div>
                         ) : data.length === 0 ? (
-                            <div className="bg-white rounded-lg shadow-lg p-8 text-center font-semibold">
+                            <div className="bg-white rounded-lg shadow-lg p-8 mt-2 text-center font-semibold">
                                 <div className="text-gray-400 mb-4">
                                     <svg
-                                        className="w-16 h-16 mx-auto"
+                                        className="sm:w-16 sm:h-16 h-14 w-14 mx-auto"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -415,16 +415,16 @@ const ProductListPage = () => {
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-1">
+                                <h3 className="text-sm sm:text-xl font-semibold text-gray-700 mb-1">
                                     Không tìm thấy sản phẩm
                                 </h3>
-                                <p className="text-gray-500">
+                                <p className="text-xs sm:text-base text-gray-500">
                                     Không có sản phẩm nào phù hợp với bộ lọc
                                     hiện tại.
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-5 p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-4 gap-[10px] sm:p-4 py-4 px-2">
                                 {data.map((product, index) => (
                                     <div
                                         key={product._id}
