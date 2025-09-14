@@ -88,7 +88,7 @@ const Profile = () => {
                     {/* Left Column - Avatar */}
                     <div className="md:w-1/3 flex flex-col items-center mb-6 md:mb-0">
                         <div className="relative group">
-                            <div className="w-24 h-24 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-inset border-primary-200 shadow-lg">
+                            <div className="w-24 h-24 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-inset border-cyan-500 shadow-lg">
                                 <img
                                     src={user.avatar || defaultAvatar}
                                     alt={user.name}

@@ -9,10 +9,10 @@ const Dashboard = () => {
         >
             {/* Header sẽ render ở layout cha */}
 
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden gap-4">
                 {/* Sidebar */}
-                <div className="hidden lg:block w-[305px] bg-white border-r border-gray-200 overflow-y-auto">
-                    <div className="p-4">
+                <div className="hidden lg:block w-[300px] bg-white border-r border-gray-200 overflow-y-auto">
+                    <div className="py-5">
                         <UserMenu />
                     </div>
                 </div>

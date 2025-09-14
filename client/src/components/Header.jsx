@@ -126,12 +126,12 @@ const Header = () => {
                                         src={user.avatar || defaultAvatar}
                                         alt={user.name}
                                         onClick={handleMobileUser}
-                                        className="w-10 h-10 rounded-full border-[3px] border-inset border-white cursor-pointer lg:hidden"
+                                        className="w-11 h-11 rounded-full border-[3px] border-inset border-cyan-500 cursor-pointer lg:hidden"
                                     />
                                 ) : (
                                     <div
                                         onClick={handleMobileUser}
-                                        className="flex flex-col items-center gap-1 cursor-pointer lg:hidden"
+                                        className="flex items-center gap-1 cursor-pointer lg:hidden"
                                     >
                                         <button
                                             className="text-secondary-200 flex items-center justify-end
@@ -139,7 +139,7 @@ const Header = () => {
                                         >
                                             <FaUserTimes size={18} />
                                         </button>
-                                        <p className="text-[10px] text-white font-semibold underline">
+                                        <p className="text-[11px] text-primary-100 font-semibold">
                                             Đăng nhập
                                         </p>
                                     </div>

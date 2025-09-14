@@ -77,7 +77,7 @@ const Address = () => {
     };
 
     return (
-        <section className="container mx-auto lg:p-4 py-2 px-1 flex flex-col">
+        <section className="container mx-auto lg:py-4 py-2 px-1 flex flex-col">
             <div
                 className="p-3 mb-3 bg-primary-4 rounded-md shadow-md shadow-secondary-100
             font-bold text-secondary-200 sm:text-lg text-sm uppercase flex justify-between
@@ -190,7 +190,7 @@ const Address = () => {
             {/* Danh sách địa chỉ đã xóa */}
             {deletedAddresses.length > 0 && (
                 <div className="bg-white p-2 grid gap-4 mt-4">
-                    <h3 className="text-lg font-bold shadow-md px-2 py-3">
+                    <h3 className="text-lg font-bold shadow-md px-2 py-3 text-secondary-200">
                         Địa chỉ đã xóa
                     </h3>
                     {deletedAddresses.map((address, index) => (

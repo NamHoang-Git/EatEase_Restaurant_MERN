@@ -115,7 +115,7 @@ const UserMenu = ({ close }) => {
             <div className="text-base font-bold text-secondary-200">Tài khoản</div>
             <div className="lg:text-sm text-xs flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
                 <div className="w-full">
-                    <div className="font-bold text-ellipsis line-clamp-1 flex lg:gap-2 gap-1 items-center">
+                    <div className="font-bold text-ellipsis line-clamp-1 flex gap-1 items-center">
                         {user.name || user.mobile}
                         <span className="text-secondary-200 font-bold">
                             {user.role === 'ADMIN' ? '(Quản trị viên)' : ''}
@@ -124,8 +124,9 @@ const UserMenu = ({ close }) => {
                             onClick={handleClose}
                             to={'/dashboard/profile'}
                             className="hover:text-secondary-100 text-secondary-200 lg:mb-[2px] mb-[1px]"
+                            title='Quản lý tài khoản'
                         >
-                            <BiLinkExternal size={15} />
+                            <BiLinkExternal size={18} />
                         </Link>
                     </div>
                     <div className="text-gray-600 mt-1 flex items-center gap-2">

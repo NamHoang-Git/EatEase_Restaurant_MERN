@@ -35,8 +35,10 @@ const Search = () => {
 
     return (
         <div
-            className="w-full my-2 sm:my-0 h-8 sm:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
-        flex items-center text-neutral-500 bg-base-100 group focus-within:border-secondary-100"
+            className={`${
+                !isSearchPage ? 'my-0' : 'my-2'
+            } w-full sm:my-0 h-8 sm:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
+        flex items-center text-neutral-500 bg-base-100 group focus-within:border-secondary-100`}
         >
             <div>
                 {isMobile && isSearchPage ? (

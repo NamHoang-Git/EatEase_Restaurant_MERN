@@ -99,7 +99,7 @@ const Home = () => {
                                             place-items-center shadow-md shadow-secondary-100 rounded-2xl sm:rounded-3xl bg-primary-5
                                             cursor-pointer group"
                                           >
-                                              <p className="text-xs sm:text-sm md:text-base lg:text-base text-center p-2 text-secondary-200 font-bold">
+                                              <p className="text-[10px] sm:text-sm md:text-base lg:text-base text-center p-2 text-secondary-200 font-bold">
                                                   {cat.name}
                                               </p>
                                               <img

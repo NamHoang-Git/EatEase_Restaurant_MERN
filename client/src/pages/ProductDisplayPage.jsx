@@ -616,13 +616,13 @@ const ProductDisplayPage = () => {
             </div>
 
             <div
-                className="sm:mt-10 mt-6 lg:mb-4 bg-primary-100 p-4 py-6 shadow-md rounded-lg
+                className="sm:mt-10 mt-6 lg:mb-4 bg-primary-100 sm:p-4 p-2 py-6 shadow-md rounded-lg
             flex flex-col gap-4"
             >
-                <h2 className="sm:text-xl text-base font-bold text-secondary-200">
+                <h2 className="sm:text-xl text-base font-bold sm:p-0 px-2 text-secondary-200">
                     Sản phẩm tương tự
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px]">
                     {relatedProducts.length > 0 ? (
                         relatedProducts.map((item) => (
                             <CardProduct key={item._id} data={item} />

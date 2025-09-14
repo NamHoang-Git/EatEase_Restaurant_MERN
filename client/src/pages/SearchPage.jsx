@@ -328,7 +328,7 @@ const SearchPage = () => {
     }, []);
 
     return (
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto sm:px-4 px-2 py-6">
             {/* Filter Controls */}
             <div className="mb-4">
                 <button
@@ -417,7 +417,7 @@ const SearchPage = () => {
                             </p>
                         </div>
                         {loadingInitial ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 px-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
                                 {Array(6)
                                     .fill(null)
                                     .map((_, index) => (
@@ -425,7 +425,7 @@ const SearchPage = () => {
                                     ))}
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 px-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
                                 {initialProducts.map((product) => (
                                     <CardProduct
                                         key={product._id}
