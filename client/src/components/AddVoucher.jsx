@@ -135,65 +135,81 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
     };
 
     return (
-        <section
-            onClick={onClose}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-        >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
+        <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Voucher Code{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="code"
-                                    value={formData.code}
-                                    onChange={handleOnChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
+                    <div className="border-b border-gray-200 py-3 mb-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-semibold text-secondary-200">
+                                Thêm voucher
+                            </h2>
+                            <button
+                                onClick={onClose}
+                                className="text-secondary-200 hover:text-secondary-100 transition-colors"
+                            >
+                                <IoClose size={22} />
+                            </button>
+                        </div>
+                    </div>
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-4 font-semibold text-sm"
+                    >
+                        <div className="col-span-2">
+                            <label className="block font-medium text-gray-700 mb-1">
+                                Mã voucher{' '}
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="code"
+                                value={formData.code}
+                                onChange={handleOnChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                    font-semibold"
+                                required
+                                spellCheck={false}
+                            />
+                        </div>
 
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Voucher Name{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleOnChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
+                        <div className="col-span-2">
+                            <label className="block font-medium text-gray-700 mb-1">
+                                Tên voucher{' '}
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleOnChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                    font-semibold"
+                                required
+                                spellCheck={false}
+                            />
+                        </div>
 
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Description
-                                </label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleOnChange}
-                                    rows="2"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
+                        <div className="col-span-2">
+                            <label className="block font-medium text-gray-700 mb-1">
+                                Mô tả
+                            </label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleOnChange}
+                                rows="2"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                    font-semibold"
+                                spellCheck={false}
+                            />
+                        </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Status
+                                <label className="block font-medium text-gray-700 mb-1">
+                                    Trạng thái
                                 </label>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         className="sr-only peer"
@@ -213,31 +229,38 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                                 : 'bg-gray-300'
                                         }`}
                                     ></div>
-                                    <span className="ml-2 text-sm font-medium text-gray-900">
+                                    <span
+                                        className={`px-2 mt-[1.5px] inline-flex leading-5 font-semibold rounded-full ${
+                                            formData.isActive
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
+                                        }`}
+                                    >
                                         {formData.isActive
-                                            ? 'Active'
-                                            : 'Inactive'}
+                                            ? 'Đang hoạt động'
+                                            : 'Đã tắt'}
                                     </span>
                                 </label>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Discount Type{' '}
+                                <label className="block font-medium text-gray-700 mb-1">
+                                    Loại giảm giá{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
                                 <select
                                     name="discountType"
                                     value={formData.discountType}
                                     onChange={handleOnChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                    font-semibold"
                                     required
                                 >
                                     <option value="percentage">
-                                        Percentage (%)
+                                        Phần trăm (%)
                                     </option>
                                     <option value="fixed">
-                                        Fixed Amount (VND)
+                                        Số tiền cố định (VND)
                                     </option>
                                     <option value="free_shipping">
                                         Miễn phí vận chuyển
@@ -247,10 +270,10 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
 
                             {formData.discountType !== 'free_shipping' && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block font-medium text-gray-700 mb-1">
                                         {formData.discountType === 'percentage'
-                                            ? 'Discount Percentage'
-                                            : 'Fixed Amount'}{' '}
+                                            ? 'Phần trăm giảm giá'
+                                            : 'Số tiền giảm giá'}{' '}
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
@@ -277,7 +300,8 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                                     ? '0.01'
                                                     : '1'
                                             }
-                                            className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="no-spinner w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                            font-semibold"
                                             required
                                             placeholder={
                                                 formData.discountType ===
@@ -287,14 +311,20 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                             }
                                         />
                                         <span className="absolute right-3 top-2 text-gray-500">
-                                            {formData.discountType === 'percentage'
+                                            {formData.discountType ===
+                                            'percentage'
                                                 ? '%'
                                                 : '₫'}
                                         </span>
                                     </div>
                                     {formData.discountType === 'percentage' && (
                                         <p className="mt-1 text-xs text-gray-500">
-                                            Enter a value between 0.01% and 100%
+                                            Nhập giá trị từ 0,01% đến 100%
+                                        </p>
+                                    )}
+                                    {formData.discountType === 'fixed' && (
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            Nhập giá trị lớn hơn 0
                                         </p>
                                     )}
                                 </div>
@@ -303,7 +333,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                             {formData.discountType === 'percentage' && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Maximum Discount (VND)
+                                        Giảm giá tối đa (VND)
                                     </label>
                                     <div className="relative">
                                         <input
@@ -314,7 +344,8 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                             placeholder="VND "
                                             min="0"
                                             step="1"
-                                            className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="no-spinner w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                            font-semibold"
                                         />
                                         <span className="absolute right-3 top-2 text-gray-500">
                                             ₫
@@ -325,7 +356,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Minimum Order Value
+                                    Giá trị đơn hàng tối thiểu
                                 </label>
                                 <div className="relative">
                                     <input
@@ -336,21 +367,22 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                         min="0"
                                         step="0.01"
                                         placeholder="VND"
-                                        className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="no-spinner w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                        font-semibold"
                                     />
                                     <span className="absolute right-3 top-2 text-gray-500">
                                         ₫
                                     </span>
                                 </div>
                                 <p className="mt-1 text-xs text-gray-500">
-                                    Minimum order amount to apply this voucher
-                                    (0 for no minimum)
+                                    Giá trị đơn hàng tối thiểu để áp dụng mã
+                                    giảm giá (0 cho không có giá trị tối thiểu)
                                 </p>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Usage Limit
+                                    Số lượng sử dụng
                                 </label>
                                 <input
                                     type="number"
@@ -359,18 +391,19 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                     onChange={handleOnChange}
                                     min="1"
                                     step="1"
-                                    placeholder="Unlimited if empty"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Không giới hạn nếu để trống"
+                                    className="no-spinner w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                    font-semibold"
                                 />
                                 <p className="mt-1 text-xs text-gray-500">
-                                    Number of times this voucher can be used (0
-                                    for unlimited)
+                                    Số lần mã giảm giá có thể được sử dụng (0
+                                    cho không giới hạn)
                                 </p>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Start Date{' '}
+                                    Ngày bắt đầu{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
@@ -379,16 +412,16 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                         name="startDate"
                                         value={formData.startDate}
                                         onChange={handleOnChange}
-                                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                        font-semibold"
                                         required
                                     />
-                                    <IoCalendar className="absolute right-3 top-2.5 text-gray-400" />
                                 </div>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    End Date{' '}
+                                    Ngày kết thúc{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
@@ -398,44 +431,45 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                         value={formData.endDate}
                                         onChange={handleOnChange}
                                         min={formData.startDate}
-                                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-200 text-secondary-200
+                                        font-semibold"
                                         required
                                     />
-                                    <IoCalendar className="absolute right-3 top-2.5 text-gray-400" />
                                 </div>
                             </div>
-
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id="applyForAllProducts"
-                                    name="applyForAllProducts"
-                                    checked={formData.applyForAllProducts}
-                                    onChange={handleOnChange}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label
-                                    htmlFor="applyForAllProducts"
-                                    className="ml-2 block text-sm text-gray-700"
-                                >
-                                    Apply to all products
-                                </label>
-                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="applyForAllProducts"
+                                name="applyForAllProducts"
+                                checked={formData.applyForAllProducts}
+                                onChange={handleOnChange}
+                                className="h-4 w-4 focus:ring-secondary-200 text-secondary-200
+                                    font-semibold border-gray-300 rounded mb-[3px]"
+                            />
+                            <label
+                                htmlFor="applyForAllProducts"
+                                className="ml-2 block text-sm text-gray-700"
+                            >
+                                Áp dụng cho tất cả sản phẩm
+                            </label>
                         </div>
 
-                        <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
+                        <div className="flex justify-end space-x-3 pt-4 border-t mt-6 font-semibold sm:text-sm text-xs">
                             <button
                                 type="button"
                                 onClick={() => onClose()}
-                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                             >
-                                Cancel
+                                Hủy
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                className="px-4 py-2 border-[2px] border-secondary-200 rounded-md shadow-sm text-secondary-200 bg-primary-100 hover:opacity-80
+                            focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-secondary-200"
                             >
-                                {loading ? <Loading /> : 'Create Voucher'}
+                                {loading ? <Loading /> : 'Tạo voucher'}
                             </button>
                         </div>
                     </form>

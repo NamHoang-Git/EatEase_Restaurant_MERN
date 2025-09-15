@@ -429,7 +429,7 @@ const CheckoutPage = () => {
                 data: { _id: id },
             });
             if (response.data.success) {
-                toast.success('Address Removed');
+                toast.success('Địa chỉ đã được xóa');
                 if (fetchAddress) {
                     fetchAddress();
                 }

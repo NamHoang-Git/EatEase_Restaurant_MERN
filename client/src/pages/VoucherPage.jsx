@@ -979,8 +979,7 @@ const VoucherPage = () => {
                                         )}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                        {voucher.usageCount}/
-                                        {voucher.usageLimit}
+                                        {voucher.usageLimit === null ? 'Không giới hạn' : `${voucher.usageCount}/${voucher.usageLimit}`}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
                                         <span
