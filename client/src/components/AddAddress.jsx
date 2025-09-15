@@ -276,6 +276,7 @@ const AddAddress = ({ close }) => {
                             type="checkbox"
                             id="isDefault"
                             className="h-4 w-4 mb-[3px]"
+                            checked={true}
                             {...register('isDefault')}
                         />
                         <label

@@ -979,7 +979,9 @@ const VoucherPage = () => {
                                         )}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                        {voucher.usageLimit === null ? 'Không giới hạn' : `${voucher.usageCount}/${voucher.usageLimit}`}
+                                        {voucher.usageLimit === null
+                                            ? 'Không giới hạn'
+                                            : `${voucher.usageCount}/${voucher.usageLimit}`}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
                                         <span
@@ -1008,11 +1010,12 @@ const VoucherPage = () => {
                                                     }
                                                 />
                                                 <div
-                                                    className={`w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-focus:ring-4 peer-focus:ring-green-200 dark:peer-focus:ring-green-800 ${
-                                                        voucher.isActive
-                                                            ? 'bg-green-500'
-                                                            : 'bg-gray-200'
-                                                    }`}
+                                                    className={`w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-focus:ring-4
+                                                        peer-focus:ring-green-200 dark:peer-focus:ring-green-800 ${
+                                                            voucher.isActive
+                                                                ? 'bg-green-400'
+                                                                : 'bg-red-400'
+                                                        }`}
                                                 >
                                                     <div
                                                         className={`absolute left-1 top-1 bg-white rounded-full h-4 w-4 transition-transform duration-200 ease-in-out ${

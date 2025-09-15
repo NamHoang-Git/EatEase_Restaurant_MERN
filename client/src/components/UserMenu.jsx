@@ -114,7 +114,7 @@ const UserMenu = ({ close }) => {
         <div ref={menuRef}>
             <div className="text-base font-bold text-secondary-200">Tài khoản</div>
             <div className="lg:text-sm text-xs flex items-start gap-2 px-4 lg:px-2 py-2 font-semibold">
-                <div className="w-full">
+                <div className="w-full grid gap-1">
                     <div className="font-bold text-ellipsis line-clamp-1 flex gap-1 items-center">
                         {user.name || user.mobile}
                         <span className="text-secondary-200 font-bold">

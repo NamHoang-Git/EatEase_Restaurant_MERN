@@ -614,7 +614,7 @@ const BillPage = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div
                     className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
                 flex items-center gap-4"
@@ -982,7 +982,7 @@ const BillPage = () => {
                                                     onClick={() =>
                                                         printBill(order)
                                                     }
-                                                    className="text-blue-600 hover:opacity-80"
+                                                    className="text-secondary-200 hover:opacity-80"
                                                     title="In hóa đơn"
                                                 >
                                                     <FaPrint />
