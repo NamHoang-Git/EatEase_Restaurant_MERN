@@ -80,14 +80,11 @@ const Register = () => {
             if (response.data.success) {
                 toast.success(response.data.message);
 
-                // Reset form
-                setData({
-                    name: '',
-                    email: '',
-                    password: '',
-                    confirmPassword: '',
+                // Redirect to success page with email for display
+                navigate('/registration-success', {
+                    state: { email: data.email },
+                    replace: true,
                 });
-                navigate('/login');
             }
         } catch (error) {
             AxiosToastError(error);

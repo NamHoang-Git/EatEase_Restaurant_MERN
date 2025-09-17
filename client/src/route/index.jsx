@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import SearchPage from '../pages/SearchPage';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import RegistrationSuccess from '../pages/RegistrationSuccess';
 import ForgotPassword from '../pages/ForgotPassword';
 import OtpVerification from '../pages/OtpVerification';
 import ResetPassword from '../pages/ResetPassword';
@@ -53,6 +54,14 @@ const router = createBrowserRouter([
                 element: (
                     <PublicRoute>
                         <Register />
+                    </PublicRoute>
+                ),
+            },
+            {
+                path: 'registration-success',
+                element: (
+                    <PublicRoute>
+                        <RegistrationSuccess />
                     </PublicRoute>
                 ),
             },
