@@ -25,7 +25,6 @@ function App() {
             const res = await fetchUserDetails();
             dispatch(setUserDetails(res?.success ? res.data : null));
 
-            // 2) Category (chỉ còn category thôi)
             try {
                 dispatch(setLoadingCategory(true));
                 const catRes = await Axios({ ...SummaryApi.get_category });
