@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
-    verity_email: {
+    verify_email: {
         type: Boolean,
         default: false,
     },

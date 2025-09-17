@@ -5,6 +5,7 @@ import SearchPage from '../pages/SearchPage';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import RegistrationSuccess from '../pages/RegistrationSuccess';
+import VerifyEmail from '../pages/VerifyEmail';
 import ForgotPassword from '../pages/ForgotPassword';
 import OtpVerification from '../pages/OtpVerification';
 import ResetPassword from '../pages/ResetPassword';
@@ -62,6 +63,14 @@ const router = createBrowserRouter([
                 element: (
                     <PublicRoute>
                         <RegistrationSuccess />
+                    </PublicRoute>
+                ),
+            },
+            {
+                path: 'verify-email',
+                element: (
+                    <PublicRoute>
+                        <VerifyEmail />
                     </PublicRoute>
                 ),
             },

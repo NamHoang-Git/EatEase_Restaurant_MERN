@@ -1,5 +1,4 @@
 const verifyEmailTemplate = ({ name, url }) => {
-    const loginUrl = `${process.env.FRONTEND_URL}/login`;
     return `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
             <div style="background-color: #f8f9fa; padding: 30px; border-radius: 8px; border: 1px solid #e9ecef;">
@@ -10,7 +9,7 @@ const verifyEmailTemplate = ({ name, url }) => {
                 <p>Cảm ơn bạn đã đăng ký tài khoản tại EcomSpace. Để hoàn tất đăng ký, vui lòng xác nhận địa chỉ email của bạn bằng cách nhấn vào nút bên dưới:</p>
 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="${loginUrl}"
+                    <a href="${url}"
                        style="background-color: #2c3e50; color: #ffffff; text-decoration: none;
                               padding: 12px 30px; border-radius: 4px; font-weight: bold;
                               display: inline-block; font-size: 16px;">
@@ -21,7 +20,7 @@ const verifyEmailTemplate = ({ name, url }) => {
                 <p>Nếu nút trên không hoạt động, bạn có thể sao chép và dán đường dẫn sau vào trình duyệt:</p>
                 <p style="word-break: break-all; color: #6c757d; font-size: 14px;
                           background-color: #f1f3f5; padding: 10px; border-radius: 4px;">
-                    ${loginUrl}
+                    ${url}
                 </p>
 
                 <p style="color: #6c757d; font-size: 14px; margin-top: 20px;">

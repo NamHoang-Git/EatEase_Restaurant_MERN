@@ -87,7 +87,7 @@ export async function verifyEmailController(req, res) {
         }
 
         const updateUser = await UserModel.updateOne({ _id: code }, {
-            verity_email: true
+            verify_email: true
         })
 
         return res.json({

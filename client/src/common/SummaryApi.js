@@ -5,6 +5,10 @@ const SummaryApi = {
         url: '/api/user/register',
         method: 'post'
     },
+    verifyEmail: {
+        url: '/api/user/verify-email',
+        method: 'post'
+    },
     login: {
         url: '/api/user/login',
         method: 'post'
