@@ -10,6 +10,7 @@ import { FaFilter } from 'react-icons/fa';
 import { FaArrowUp } from 'react-icons/fa6';
 import { IoFilter } from 'react-icons/io5';
 import AxiosToastError from '../utils/AxiosToastError';
+import NoData from '../components/NoData';
 
 const SearchPage = () => {
     const [data, setData] = useState([]);
@@ -424,7 +425,7 @@ const SearchPage = () => {
                                         <CardLoading key={index} />
                                     ))}
                             </div>
-                        ) : (
+                        ) : initialProducts.length > 0 ? (
                             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4 gap-[10px] pb-2 sm:px-4 px-2">
                                 {initialProducts.map((product) => (
                                     <CardProduct
@@ -433,6 +434,8 @@ const SearchPage = () => {
                                     />
                                 ))}
                             </div>
+                        ) : (
+                            <NoData />
                         )}
                     </div>
                 </InfiniteScroll>

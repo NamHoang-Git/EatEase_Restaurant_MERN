@@ -96,7 +96,7 @@ const Register = () => {
     return (
         <section className="container mx-auto my-12 max-w-4xl">
             <div
-                className="grid grid-flow-col lg:grid-cols-[2fr_1.5fr] mx-5 rounded-md shadow-md
+                className="grid grid-flow-col sm:grid-cols-[1.25fr_1fr] lg:grid-cols-[2fr_1.5fr] mx-5 rounded-md shadow-md
             shadow-secondary-100"
             >
                 {/* Register Form */}
@@ -259,7 +259,7 @@ const Register = () => {
 
                 {/* Banner */}
                 <div
-                    className="hidden rounded-e-md opacity-80 lg:flex flex-col justify-center gap-3"
+                    className="hidden rounded-e-md opacity-80 sm:flex flex-col justify-center gap-3"
                     style={{
                         backgroundImage: `url(${banner})`,
                         backgroundSize: 'cover',
