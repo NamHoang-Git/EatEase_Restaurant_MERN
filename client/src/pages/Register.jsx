@@ -62,7 +62,7 @@ const Register = () => {
         e.preventDefault();
 
         if (data.password !== data.confirmPassword) {
-            toast.error('Password and confirm password must be same');
+            toast.error('Mật khẩu và mật khẩu xác nhận phải giống nhau');
             return;
         }
 
