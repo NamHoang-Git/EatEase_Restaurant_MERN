@@ -6,7 +6,8 @@ import {
     getOrderDetailsController,
     paymentController,
     webhookStripe,
-    getAllOrdersController
+    getAllOrdersController,
+    updateOrderStatusController
 } from '../controllers/order.controller.js';
 
 const orderRouter = Router();
@@ -20,5 +21,16 @@ orderRouter.get('/webhook-test', (req, res) => {
 });
 orderRouter.get('/order-list', auth, getOrderDetailsController);
 orderRouter.get('/all-orders', auth, getAllOrdersController);
+// Update order status
+orderRouter.put('/update-status/:orderId', auth, (req, res, next) => {
+    console.log('Update status route hit:', {
+        method: req.method,
+        url: req.originalUrl,
+        params: req.params,
+        body: req.body,
+        user: req.userId
+    });
+    next();
+}, updateOrderStatusController);
 
 export default orderRouter;

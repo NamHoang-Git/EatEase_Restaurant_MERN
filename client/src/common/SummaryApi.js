@@ -187,6 +187,10 @@ const SummaryApi = {
         url: '/api/order/all-orders',
         method: 'get'
     },
+    update_order_status: {
+        url: '/api/order/update-status',
+        method: 'put'
+    },
 
     // Voucher
     add_voucher: {

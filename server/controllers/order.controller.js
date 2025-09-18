@@ -919,6 +919,85 @@ export async function getOrderDetailsController(request, response) {
     }
 }
 
+export async function updateOrderStatusController(request, response) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const orderId = request.params.orderId;
+        const { status } = request.body;
+
+        console.log('Updating order status:', { orderId, status }); // Debug log
+        const userId = request.userId;
+
+        if (!orderId || !status) {
+            return response.status(400).json({
+                success: false,
+                message: 'Thiếu thông tin bắt buộc (orderId, status)'
+            });
+        }
+
+        // Find the order
+        const order = await OrderModel.findOneAndUpdate(
+            { _id: orderId },
+            {
+                $set: {
+                    payment_status: status,
+                    status: status === 'Đã thanh toán' ? 'processing' : 'pending'
+                }
+            },
+            { new: true, session }
+        );
+
+        if (!order) {
+            await session.abortTransaction();
+            return response.status(404).json({
+                success: false,
+                message: 'Không tìm thấy đơn hàng'
+            });
+        }
+
+        // If status is updated to 'Đã thanh toán', add points to user
+        if (status === 'Đã thanh toán') {
+            const pointsEarned = Math.floor(order.totalAmt / 100); // 1 point per 100 VND
+
+            await UserModel.findByIdAndUpdate(
+                order.userId,
+                {
+                    $inc: { points: pointsEarned },
+                    $push: {
+                        pointHistory: {
+                            points: pointsEarned,
+                            type: 'earn',
+                            orderId: order._id,
+                            expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+                        }
+                    }
+                },
+                { session }
+            );
+        }
+
+        await session.commitTransaction();
+
+        response.status(200).json({
+            success: true,
+            message: 'Cập nhật trạng thái đơn hàng thành công',
+            data: order
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error('Error updating order status:', error);
+        response.status(500).json({
+            success: false,
+            message: error.message || 'Lỗi khi cập nhật trạng thái đơn hàng'
+        });
+    } finally {
+        session.endSession();
+    }
+}
+
 export async function getAllOrdersController(request, response) {
     try {
         const userId = request.userId;

@@ -18,8 +18,9 @@ import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import StatusBadge from '../components/StatusBadge';
-import { fetchAllOrders } from '../store/orderSlice';
+import { fetchAllOrders, updateOrderStatus } from '../store/orderSlice';
 import ViewImage from '../components/ViewImage';
+import ConfirmBox from '../components/ConfirmBox';
 
 const debounce = (func, delay) => {
     let timeoutId;
@@ -40,6 +41,7 @@ const BillPage = () => {
     const user = useSelector((state) => state.user);
     const isAdmin = user?.role === 'ADMIN';
     const [imageURL, setImageURL] = useState('');
+    const [openUpdateStatus, setOpenUpdateStatus] = useState(false);
 
     const [filters, setFilters] = useState({
         search: '',
@@ -466,6 +468,27 @@ const BillPage = () => {
         } catch (error) {
             toast.error(
                 `Có lỗi xảy ra: ${error.message || 'Không thể xuất file PDF'}`
+            );
+        }
+    };
+
+    const handleUpdateStatus = async (orderId) => {
+        try {
+            await dispatch(
+                updateOrderStatus({
+                    orderId,
+                    status: 'Đã thanh toán',
+                })
+            ).unwrap();
+
+            // Refresh the orders list
+            await dispatch(fetchAllOrders(filters)).unwrap();
+            toast.success('Cập nhật trạng thái đơn hàng thành công!');
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            toast.error(
+                error?.message ||
+                    'Có lỗi xảy ra khi cập nhật trạng thái đơn hàng'
             );
         }
     };
@@ -977,11 +1000,41 @@ const BillPage = () => {
                                                     }
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 whitespace-nowrap text-center font-medium">
+                                            <td className="px-4 py-4 whitespace-nowrap text-center font-medium space-x-2">
+                                                {order.payment_status ===
+                                                    'Đang chờ thanh toán' && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setOpenUpdateStatus(
+                                                                true
+                                                            );
+                                                            handleUpdateStatus(
+                                                                order._id
+                                                            );
+                                                        }}
+                                                        className="text-green-600 hover:opacity-80"
+                                                        title="Đánh dấu đã thanh toán"
+                                                    >
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            className="h-5 w-5"
+                                                            viewBox="0 0 20 20"
+                                                            fill="currentColor"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                clipRule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                )}
                                                 <button
-                                                    onClick={() =>
-                                                        printBill(order)
-                                                    }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        printBill(order);
+                                                    }}
                                                     className="text-secondary-200 hover:opacity-80"
                                                     title="In hóa đơn"
                                                 >
@@ -1006,6 +1059,20 @@ const BillPage = () => {
 
             {imageURL && (
                 <ViewImage url={imageURL} close={() => setImageURL('')} />
+            )}
+
+            {/* Delete Confirmation */}
+            {openUpdateStatus && (
+                <ConfirmBox
+                    open={openUpdateStatus}
+                    close={() => setOpenUpdateStatus(false)}
+                    confirm={handleUpdateStatus}
+                    cancel={() => setOpenUpdateStatus(false)}
+                    title="Xác nhận cập nhật"
+                    message="Bạn có chắc chắn muốn cập nhật trạng thái cho đơn hàng này?"
+                    confirmText="Xác nhận"
+                    cancelText="Hủy"
+                />
             )}
         </section>
     );
