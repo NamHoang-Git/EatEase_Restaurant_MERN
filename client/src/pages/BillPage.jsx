@@ -911,7 +911,7 @@ const BillPage = () => {
                                             colSpan="7"
                                             className="px-6 py-4 text-center text-gray-500"
                                         >
-                                            Không tìm thấy hóa đơn nào
+                                            Không tìm thấy hóa đơn
                                         </td>
                                     </tr>
                                 ) : (
@@ -1022,20 +1022,9 @@ const BillPage = () => {
                                                                     handleOpenConfirmBox(order._id);
                                                                 }}
                                                                 className="text-green-600 hover:opacity-80"
-                                                                title="Đánh dấu đã thanh toán"
+                                                                title="Xác nhận đã thanh toán"
                                                             >
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    className="h-5 w-5"
-                                                                    viewBox="0 0 20 20"
-                                                                    fill="currentColor"
-                                                                >
-                                                                    <path
-                                                                        fillRule="evenodd"
-                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                        clipRule="evenodd"
-                                                                    />
-                                                                </svg>
+                                                                Cập nhật
                                                             </button>
                                                             <button
                                                                 onClick={(e) => {
