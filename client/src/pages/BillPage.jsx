@@ -42,6 +42,7 @@ const BillPage = () => {
     const isAdmin = user?.role === 'ADMIN';
     const [imageURL, setImageURL] = useState('');
     const [openUpdateStatus, setOpenUpdateStatus] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
     const [filters, setFilters] = useState({
         search: '',
@@ -103,7 +104,6 @@ const BillPage = () => {
             const searchLower = filters.search.trim().toLowerCase();
 
             result = result.filter((order) => {
-                // Get all searchable fields
                 const searchFields = [
                     order.orderId,
                     order.userId?.name,
@@ -119,7 +119,6 @@ const BillPage = () => {
                     .filter(Boolean)
                     .map((field) => field?.toLowerCase() || '');
 
-                // Check if any field includes the search term
                 return searchFields.some(
                     (field) => field && field.includes(searchLower)
                 );
@@ -344,14 +343,12 @@ const BillPage = () => {
 
     const exportToPDF = async () => {
         try {
-            // Check if jsPDF is available
             if (!window.jsPDF) {
                 throw new Error(
                     'Thư viện tạo PDF chưa được tải. Vui lòng thử lại sau.'
                 );
             }
 
-            // Create a new PDF document
             const doc = new window.jsPDF({
                 orientation: 'landscape',
                 unit: 'mm',
@@ -359,12 +356,10 @@ const BillPage = () => {
                 compress: true,
             });
 
-            // Add title
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(18);
             doc.text('DANH SÁCH HÓA ĐƠN', 105, 15, { align: 'center' });
 
-            // Add export date
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
             doc.text(
@@ -375,7 +370,6 @@ const BillPage = () => {
                 25
             );
 
-            // Define table headers
             const headers = [
                 'Mã HĐ',
                 'Ngày tạo',
@@ -386,7 +380,6 @@ const BillPage = () => {
                 'Trạng thái thanh toán',
             ];
 
-            // Prepare data
             const data = filteredAndSortedOrders.map((order) => [
                 order.orderId,
                 format(new Date(order.createdAt), 'dd/MM/yyyy', { locale: vi }),
@@ -398,7 +391,6 @@ const BillPage = () => {
                 order.payment_status || 'Chưa xác định',
             ]);
 
-            // Add table with error handling
             try {
                 doc.autoTable({
                     head: [headers],
@@ -428,7 +420,6 @@ const BillPage = () => {
                     },
                     margin: { top: 30 },
                     didDrawPage: function ({ doc }) {
-                        // Footer
                         const pageSize = doc.internal.pageSize;
                         const pageHeight =
                             pageSize.height || pageSize.getHeight();
@@ -446,7 +437,6 @@ const BillPage = () => {
                 throw new Error('Không thể tạo bảng dữ liệu trong file PDF');
             }
 
-            // Add summary
             const finalY = doc.lastAutoTable?.finalY || 30;
             doc.setFontSize(10);
             doc.text(`Tổng số hóa đơn: ${orderCount}`, 14, finalY + 10);
@@ -456,7 +446,6 @@ const BillPage = () => {
                 finalY + 20
             );
 
-            // Save the PDF
             doc.save(
                 `danh-sach-hoa-don-${format(
                     new Date(),
@@ -472,6 +461,11 @@ const BillPage = () => {
         }
     };
 
+    const handleOpenConfirmBox = (orderId) => {
+        setSelectedOrderId(orderId);
+        setOpenUpdateStatus(true);
+    };
+
     const handleUpdateStatus = async (orderId) => {
         try {
             await dispatch(
@@ -481,9 +475,10 @@ const BillPage = () => {
                 })
             ).unwrap();
 
-            // Refresh the orders list
             await dispatch(fetchAllOrders(filters)).unwrap();
             toast.success('Cập nhật trạng thái đơn hàng thành công!');
+            setOpenUpdateStatus(false);
+            setSelectedOrderId(null);
         } catch (error) {
             console.error('Error updating order status:', error);
             toast.error(
@@ -620,6 +615,7 @@ const BillPage = () => {
             label: 'Thanh toán khi giao hàng',
         },
         { value: 'Đang chờ thanh toán', label: 'Đang chờ thanh toán' },
+        { value: 'Chờ thanh toán', label: 'Chờ thanh toán' },
         { value: 'Đã thanh toán', label: 'Đã thanh toán' },
     ];
 
@@ -636,7 +632,6 @@ const BillPage = () => {
                 <h2 className="text-ellipsis line-clamp-1">Quản lý Hóa đơn</h2>
             </div>
 
-            {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div
                     className="bg-primary-5 rounded-lg shadow-md shadow-secondary-100 p-3
@@ -699,7 +694,6 @@ const BillPage = () => {
                 </div>
             </div>
 
-            {/* Filter Section */}
             <div className="bg-white rounded-lg border-2 border-secondary-200 px-4 py-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:text-base text-sm text-secondary-200">
                     <div>
@@ -819,7 +813,6 @@ const BillPage = () => {
                 </div>
             </div>
 
-            {/* Table Container */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto scrollbarCustom">
                     <div className="min-w-full" style={{ minWidth: '1024px' }}>
@@ -1001,17 +994,11 @@ const BillPage = () => {
                                                 )}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-center font-medium space-x-2">
-                                                {order.payment_status ===
-                                                    'Đang chờ thanh toán' && (
+                                                {['Đang chờ thanh toán', 'Chờ thanh toán'].includes(order.payment_status) && (
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setOpenUpdateStatus(
-                                                                true
-                                                            );
-                                                            handleUpdateStatus(
-                                                                order._id
-                                                            );
+                                                            handleOpenConfirmBox(order._id);
                                                         }}
                                                         className="text-green-600 hover:opacity-80"
                                                         title="Đánh dấu đã thanh toán"
@@ -1050,7 +1037,6 @@ const BillPage = () => {
                 </div>
             </div>
 
-            {/* Pagination Controls */}
             {filteredAndSortedOrders.length > 0 && (
                 <div className="px-6 py-4 border-t-4 border-secondary-200">
                     <PaginationControls />
@@ -1061,13 +1047,18 @@ const BillPage = () => {
                 <ViewImage url={imageURL} close={() => setImageURL('')} />
             )}
 
-            {/* Delete Confirmation */}
             {openUpdateStatus && (
                 <ConfirmBox
                     open={openUpdateStatus}
-                    close={() => setOpenUpdateStatus(false)}
-                    confirm={handleUpdateStatus}
-                    cancel={() => setOpenUpdateStatus(false)}
+                    close={() => {
+                        setOpenUpdateStatus(false);
+                        setSelectedOrderId(null);
+                    }}
+                    confirm={() => handleUpdateStatus(selectedOrderId)}
+                    cancel={() => {
+                        setOpenUpdateStatus(false);
+                        setSelectedOrderId(null);
+                    }}
                     title="Xác nhận cập nhật"
                     message="Bạn có chắc chắn muốn cập nhật trạng thái cho đơn hàng này?"
                     confirmText="Xác nhận"
