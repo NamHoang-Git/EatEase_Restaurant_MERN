@@ -13,6 +13,7 @@ import {
     FaSort,
     FaSortUp,
     FaSortDown,
+    FaTimesCircle,
 } from 'react-icons/fa';
 import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
 import { toast } from 'react-hot-toast';
@@ -42,7 +43,9 @@ const BillPage = () => {
     const isAdmin = user?.role === 'ADMIN';
     const [imageURL, setImageURL] = useState('');
     const [openUpdateStatus, setOpenUpdateStatus] = useState(false);
+    const [openCancelDialog, setOpenCancelDialog] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [cancelReason, setCancelReason] = useState('');
 
     const [filters, setFilters] = useState({
         search: '',
@@ -466,19 +469,30 @@ const BillPage = () => {
         setOpenUpdateStatus(true);
     };
 
-    const handleUpdateStatus = async (orderId) => {
+    const handleUpdateStatus = async (orderId, status = 'Đã thanh toán', cancelReason = '') => {
         try {
-            await dispatch(
-                updateOrderStatus({
-                    orderId,
-                    status: 'Đã thanh toán',
-                })
-            ).unwrap();
+            const updateData = {
+                orderId,
+                status,
+            };
+            
+            if (status === 'Đã hủy' && cancelReason) {
+                updateData.cancelReason = cancelReason;
+            }
 
+            await dispatch(updateOrderStatus(updateData)).unwrap();
             await dispatch(fetchAllOrders(filters)).unwrap();
-            toast.success('Cập nhật trạng thái đơn hàng thành công!');
+            
+            const successMessage = status === 'Đã hủy' 
+                ? 'Đã hủy đơn hàng thành công!' 
+                : 'Cập nhật trạng thái đơn hàng thành công!';
+                
+            toast.success(successMessage);
+            
             setOpenUpdateStatus(false);
+            setOpenCancelDialog(false);
             setSelectedOrderId(null);
+            setCancelReason('');
         } catch (error) {
             console.error('Error updating order status:', error);
             toast.error(
@@ -486,6 +500,11 @@ const BillPage = () => {
                     'Có lỗi xảy ra khi cập nhật trạng thái đơn hàng'
             );
         }
+    };
+    
+    const handleOpenCancelDialog = (orderId) => {
+        setSelectedOrderId(orderId);
+        setOpenCancelDialog(true);
     };
 
     const printBill = (order) => {
@@ -994,39 +1013,53 @@ const BillPage = () => {
                                                 )}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-center font-medium space-x-2">
-                                                {['Đang chờ thanh toán', 'Chờ thanh toán'].includes(order.payment_status) && (
+                                                <div className="flex flex-col space-y-2 items-center">
+                                                    {['Đang chờ thanh toán', 'Chờ thanh toán'].includes(order.payment_status) && (
+                                                        <div className="flex space-x-2">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleOpenConfirmBox(order._id);
+                                                                }}
+                                                                className="text-green-600 hover:opacity-80"
+                                                                title="Đánh dấu đã thanh toán"
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    className="h-5 w-5"
+                                                                    viewBox="0 0 20 20"
+                                                                    fill="currentColor"
+                                                                >
+                                                                    <path
+                                                                        fillRule="evenodd"
+                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                        clipRule="evenodd"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleOpenCancelDialog(order._id);
+                                                                }}
+                                                                className="text-red-600 hover:opacity-80"
+                                                                title="Hủy đơn hàng"
+                                                            >
+                                                                <FaTimesCircle className="h-5 w-5" />
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleOpenConfirmBox(order._id);
+                                                            printBill(order);
                                                         }}
-                                                        className="text-green-600 hover:opacity-80"
-                                                        title="Đánh dấu đã thanh toán"
+                                                        className="text-secondary-200 hover:opacity-80"
+                                                        title="In hóa đơn"
                                                     >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-5 w-5"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor"
-                                                        >
-                                                            <path
-                                                                fillRule="evenodd"
-                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                clipRule="evenodd"
-                                                            />
-                                                        </svg>
+                                                        <FaPrint />
                                                     </button>
-                                                )}
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        printBill(order);
-                                                    }}
-                                                    className="text-secondary-200 hover:opacity-80"
-                                                    title="In hóa đơn"
-                                                >
-                                                    <FaPrint />
-                                                </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
@@ -1064,6 +1097,49 @@ const BillPage = () => {
                     confirmText="Xác nhận"
                     cancelText="Hủy"
                 />
+            )}
+
+            {openCancelDialog && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hủy đơn hàng</h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Vui lòng nhập lý do hủy đơn hàng
+                        </p>
+                        <textarea
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                            rows={4}
+                            placeholder="Nhập lý do hủy đơn hàng..."
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                        />
+                        <div className="mt-4 flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                onClick={() => {
+                                    setOpenCancelDialog(false);
+                                    setCancelReason('');
+                                    setSelectedOrderId(null);
+                                }}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="button"
+                                className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
+                                    !cancelReason.trim()
+                                        ? 'bg-red-300 cursor-not-allowed'
+                                        : 'bg-red-600 hover:bg-red-700'
+                                }`}
+                                disabled={!cancelReason.trim()}
+                                onClick={() => handleUpdateStatus(selectedOrderId, 'Đã hủy', cancelReason)}
+                            >
+                                Xác nhận hủy
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </section>
     );

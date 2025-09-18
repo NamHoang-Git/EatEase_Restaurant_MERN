@@ -71,7 +71,7 @@ const orderSchema = new mongoose.Schema({
     },
     points_expiry_date: {
         type: Date,
-        default: function() {
+        default: function () {
             // Points expire after 1 year by default
             const expiryDate = new Date();
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
@@ -118,28 +118,35 @@ const orderSchema = new mongoose.Schema({
     },
     deliveredAt: {
         type: Date
+    },
+    cancelReason: {
+        type: String,
+        default: ""
+    },
+    cancelledAt: {
+        type: Date
     }
 }, {
     timestamps: true
 })
 
 // Add a post-save hook to update user's points when an order is saved/updated
-orderSchema.post('save', async function(doc) {
+orderSchema.post('save', async function (doc) {
     try {
         // Only process if the order has earnedPoints and is a new or updated document
         if (doc.earnedPoints > 0) {
             // Find the user and update their rewards points
             await mongoose.model('user').findByIdAndUpdate(
                 doc.userId,
-                { 
+                {
                     $inc: { rewardsPoint: doc.earnedPoints },
-                    $push: { 
+                    $push: {
                         orderHistory: doc._id
                     }
                 },
                 { new: true, useFindAndModify: false }
             );
-            
+
             console.log(`Added ${doc.earnedPoints} points to user ${doc.userId} for order ${doc._id}`);
         }
     } catch (error) {

@@ -96,21 +96,39 @@ const MyOrders = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-2 items-center">
-                                <p className="font-semibold">Trạng thái:</p>
-                                <span
-                                    className={`px-2 py-1 rounded-md sm:text-sm text-xs font-semibold ${
-                                        order?.payment_status ===
-                                        'Đã thanh toán'
-                                            ? 'bg-green-100 text-green-800'
-                                            : order?.payment_status ===
-                                              'Thanh toán khi giao hàng'
-                                            ? 'bg-blue-100 text-blue-800'
-                                            : 'bg-yellow-100 text-yellow-800'
-                                    }`}
-                                >
-                                    {order?.payment_status || 'Chưa xác định'}
-                                </span>
+                            <div className="flex flex-col gap-2">
+                                <div className="flex gap-2 items-center">
+                                    <p className="font-semibold">Trạng thái:</p>
+                                    <span
+                                        className={`px-2 py-1 rounded-md sm:text-sm text-xs font-semibold ${
+                                            order?.payment_status === 'Đã thanh toán'
+                                                ? 'bg-green-100 text-green-800'
+                                                : order?.payment_status === 'Thanh toán khi giao hàng'
+                                                ? 'bg-blue-100 text-blue-800'
+                                                : order?.payment_status === 'Đã hủy'
+                                                ? 'bg-red-100 text-red-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                        }`}
+                                    >
+                                        {order?.payment_status || 'Chưa xác định'}
+                                    </span>
+                                </div>
+                                {order?.payment_status === 'Đã hủy' && order?.cancelReason && (
+                                    <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-r">
+                                        <div className="flex">
+                                            <div className="flex-shrink-0">
+                                                <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div className="ml-3">
+                                                <p className="text-sm text-red-700">
+                                                    <span className="font-medium">Lý do hủy đơn:</span> {order.cancelReason}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col gap-1">
                                 <div className="flex gap-2 items-center">

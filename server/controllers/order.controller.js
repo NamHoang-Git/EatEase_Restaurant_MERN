@@ -937,15 +937,26 @@ export async function updateOrderStatusController(request, response) {
             });
         }
 
-        // Find the order
+        // Prepare update data
+        const updateData = {
+            payment_status: status,
+            status: status === 'Đã thanh toán' ? 'processing' : 'pending'
+        };
+
+        // If status is being updated to 'Đã hủy', set the cancelledAt timestamp and save cancelReason
+        if (status === 'Đã hủy') {
+            updateData.status = 'cancelled';
+            updateData.cancelledAt = new Date();
+            
+            if (request.body.cancelReason) {
+                updateData.cancelReason = request.body.cancelReason;
+            }
+        }
+
+        // Find and update the order
         const order = await OrderModel.findOneAndUpdate(
             { _id: orderId },
-            {
-                $set: {
-                    payment_status: status,
-                    status: status === 'Đã thanh toán' ? 'processing' : 'pending'
-                }
-            },
+            { $set: updateData },
             { new: true, session }
         );
 
