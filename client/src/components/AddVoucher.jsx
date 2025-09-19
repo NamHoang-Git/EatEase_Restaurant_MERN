@@ -141,7 +141,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                     <div className="border-b border-gray-200 py-3 mb-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-secondary-200">
-                                Thêm voucher
+                                Thêm mã giảm giá
                             </h2>
                             <button
                                 onClick={onClose}
@@ -469,7 +469,7 @@ const AddVoucher = ({ onClose, fetchVoucher }) => {
                                 className="px-4 py-2 border-[2px] border-secondary-200 rounded-md shadow-sm text-secondary-200 bg-primary-100 hover:opacity-80
                             focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-secondary-200"
                             >
-                                {loading ? <Loading /> : 'Tạo voucher'}
+                                {loading ? <Loading /> : 'Thêm mới'}
                             </button>
                         </div>
                     </form>

@@ -22,7 +22,7 @@ export const addVoucerController = async (req, res) => {
 
         if (existVoucher) {
             return res.status(400).json({
-                message: "Mã voucher đã tồn tại",
+                message: "Mã giảm giá đã tồn tại",
                 error: true,
                 success: false
             });
@@ -58,14 +58,14 @@ export const addVoucerController = async (req, res) => {
 
         if (!saveVoucher) {
             return res.status(500).json({
-                message: "Không tạo được voucher",
+                message: "Không tạo được",
                 error: true,
                 success: false
             })
         }
 
         return res.json({
-            message: "Thêm voucher thành công",
+            message: "Thêm thành công",
             data: saveVoucher,
             error: false,
             success: true
@@ -139,7 +139,7 @@ export const updateVoucherController = async (req, res) => {
         )
 
         return res.json({
-            message: 'Cập nhật voucher thành công',
+            message: 'Cập nhật thành công',
             data: update,
             error: false,
             success: true
@@ -161,7 +161,7 @@ export const deleteVoucherController = async (req, res) => {
         const deleteVoucher = await VoucherModel.findByIdAndDelete(_id)
 
         return res.json({
-            message: 'Xóa voucher thành công',
+            message: 'Xóa thành công',
             data: deleteVoucher,
             error: false,
             success: true
@@ -194,23 +194,23 @@ export const bulkDeleteVouchersController = async (req, res) => {
 
         if (result.deletedCount === 0) {
             return res.status(404).json({
-                message: 'Không tìm thấy voucher để xóa',
+                message: 'Không tìm thấy mã giảm giá để xóa',
                 error: true,
                 success: false
             });
         }
 
         return res.status(200).json({
-            message: `Đã xóa thành công ${result.deletedCount} voucher`,
+            message: `Đã xóa thành công ${result.deletedCount} mã giảm giá`,
             data: { deletedCount: result.deletedCount },
             error: false,
             success: true
         });
 
     } catch (error) {
-        console.error('Lỗi khi xóa hàng loạt voucher:', error);
+        console.error('Lỗi khi xóa hàng loạt mã giảm giá:', error);
         return res.status(500).json({
-            message: error.message || 'Đã xảy ra lỗi khi xóa voucher',
+            message: error.message || 'Đã xảy ra lỗi khi xóa mã giảm giá',
             error: true,
             success: false
         });
@@ -479,7 +479,7 @@ export const bulkUpdateVouchersStatusController = async (req, res) => {
 
         if (!voucherIds || !Array.isArray(voucherIds) || voucherIds.length === 0) {
             return res.status(400).json({
-                message: 'Danh sách voucher không hợp lệ',
+                message: 'Danh sách mã giảm giá không hợp lệ',
                 error: true,
                 success: false
             });
@@ -502,14 +502,14 @@ export const bulkUpdateVouchersStatusController = async (req, res) => {
 
         if (result.matchedCount === 0) {
             return res.status(404).json({
-                message: 'Không tìm thấy voucher để cập nhật',
+                message: 'Không tìm thấy mã giảm giá để cập nhật',
                 error: true,
                 success: false
             });
         }
 
         return res.status(200).json({
-            message: `Đã cập nhật trạng thái thành công cho ${result.modifiedCount} voucher`,
+            message: `Đã cập nhật trạng thái thành công cho ${result.modifiedCount} mã giảm giá`,
             data: {
                 matchedCount: result.matchedCount,
                 modifiedCount: result.modifiedCount
@@ -519,9 +519,9 @@ export const bulkUpdateVouchersStatusController = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Lỗi khi cập nhật trạng thái hàng loạt voucher:', error);
+        console.error('Lỗi khi cập nhật trạng thái hàng loạt mã giảm giá:', error);
         return res.status(500).json({
-            message: error.message || 'Đã xảy ra lỗi khi cập nhật trạng thái voucher',
+            message: error.message || 'Đã xảy ra lỗi khi cập nhật trạng thái mã giảm giá',
             error: true,
             success: false
         });

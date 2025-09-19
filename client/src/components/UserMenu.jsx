@@ -192,7 +192,7 @@ const UserMenu = ({ close }) => {
                                 : ''
                         }`}
                     >
-                        Hóa đơn
+                        Đơn hàng
                     </Link>
                 )}
 
@@ -220,7 +220,7 @@ const UserMenu = ({ close }) => {
                                 : ''
                         }`}
                     >
-                        Voucher
+                        Mã giảm giá
                     </Link>
                 )}
 
@@ -245,7 +245,7 @@ const UserMenu = ({ close }) => {
                             : ''
                     }`}
                 >
-                    Đơn hàng
+                    Xem đơn hàng
                 </Link>
 
                 <Divider />
