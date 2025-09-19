@@ -886,7 +886,7 @@ const VoucherPage = () => {
                                     colSpan="9"
                                     className="px-4 py-4 text-center"
                                 >
-                                    <NoData text="Không tìm thấy mã giảm giá nào" />
+                                    <NoData text="Không tìm thấy mã giảm giá" />
                                 </td>
                             </tr>
                         ) : (
