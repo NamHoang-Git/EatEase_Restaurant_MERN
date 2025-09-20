@@ -469,26 +469,31 @@ const BillPage = () => {
         setOpenUpdateStatus(true);
     };
 
-    const handleUpdateStatus = async (orderId, status = 'Đã thanh toán', cancelReason = '') => {
+    const handleUpdateStatus = async (
+        orderId,
+        status = 'Đã thanh toán',
+        cancelReason = ''
+    ) => {
         try {
             const updateData = {
                 orderId,
                 status,
             };
-            
+
             if (status === 'Đã hủy' && cancelReason) {
                 updateData.cancelReason = cancelReason;
             }
 
             await dispatch(updateOrderStatus(updateData)).unwrap();
             await dispatch(fetchAllOrders(filters)).unwrap();
-            
-            const successMessage = status === 'Đã hủy' 
-                ? 'Đã hủy đơn hàng thành công!' 
-                : 'Cập nhật trạng thái đơn hàng thành công!';
-                
+
+            const successMessage =
+                status === 'Đã hủy'
+                    ? 'Đã hủy đơn hàng thành công!'
+                    : 'Cập nhật trạng thái đơn hàng thành công!';
+
             toast.success(successMessage);
-            
+
             setOpenUpdateStatus(false);
             setOpenCancelDialog(false);
             setSelectedOrderId(null);
@@ -501,7 +506,7 @@ const BillPage = () => {
             );
         }
     };
-    
+
     const handleOpenCancelDialog = (orderId) => {
         setSelectedOrderId(orderId);
         setOpenCancelDialog(true);
@@ -1014,12 +1019,21 @@ const BillPage = () => {
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-center font-medium space-x-2">
                                                 <div className="flex flex-col space-y-2 items-center">
-                                                    {['Đang chờ thanh toán', 'Chờ thanh toán'].includes(order.payment_status) && (
+                                                    {[
+                                                        'Đang chờ thanh toán',
+                                                        'Chờ thanh toán',
+                                                    ].includes(
+                                                        order.payment_status
+                                                    ) && (
                                                         <div className="flex space-x-2">
                                                             <button
-                                                                onClick={(e) => {
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
                                                                     e.stopPropagation();
-                                                                    handleOpenConfirmBox(order._id);
+                                                                    handleOpenConfirmBox(
+                                                                        order._id
+                                                                    );
                                                                 }}
                                                                 className="text-green-600 hover:opacity-80"
                                                                 title="Xác nhận đã thanh toán"
@@ -1027,9 +1041,13 @@ const BillPage = () => {
                                                                 Cập nhật
                                                             </button>
                                                             <button
-                                                                onClick={(e) => {
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
                                                                     e.stopPropagation();
-                                                                    handleOpenCancelDialog(order._id);
+                                                                    handleOpenCancelDialog(
+                                                                        order._id
+                                                                    );
                                                                 }}
                                                                 className="text-red-600 hover:opacity-80"
                                                                 title="Hủy đơn hàng"
@@ -1091,7 +1109,9 @@ const BillPage = () => {
             {openCancelDialog && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hủy đơn hàng</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Hủy đơn hàng
+                        </h3>
                         <p className="text-sm text-gray-600 mb-4">
                             Vui lòng nhập lý do hủy đơn hàng
                         </p>
@@ -1122,7 +1142,13 @@ const BillPage = () => {
                                         : 'bg-red-600 hover:bg-red-700'
                                 }`}
                                 disabled={!cancelReason.trim()}
-                                onClick={() => handleUpdateStatus(selectedOrderId, 'Đã hủy', cancelReason)}
+                                onClick={() =>
+                                    handleUpdateStatus(
+                                        selectedOrderId,
+                                        'Đã hủy',
+                                        cancelReason
+                                    )
+                                }
                             >
                                 Xác nhận hủy
                             </button>

@@ -1009,7 +1009,7 @@ const ReportPage = () => {
                                             colSpan="8"
                                             className="px-6 py-4 text-center text-gray-500"
                                         >
-                                            Không có dữ liệu đơn hàng
+                                            Không có dữ liệu hoá đơn
                                         </td>
                                     </tr>
                                 ) : (
