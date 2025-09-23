@@ -507,10 +507,10 @@ const BillPage = () => {
         }
     };
 
-    const handleOpenCancelDialog = (orderId) => {
-        setSelectedOrderId(orderId);
-        setOpenCancelDialog(true);
-    };
+    // const handleOpenCancelDialog = (orderId) => {
+    //     setSelectedOrderId(orderId);
+    //     setOpenCancelDialog(true);
+    // };
 
     const printBill = (order) => {
         const printWindow = window.open('', '_blank');
@@ -1018,29 +1018,26 @@ const BillPage = () => {
                                                 )}
                                             </td>
                                             <td className="px-4 py-4 whitespace-nowrap text-center font-medium space-x-2">
-                                                <div className="flex flex-col space-y-2 items-center">
+                                                <div className="flex items-center justify-center gap-4">
                                                     {[
                                                         'Đang chờ thanh toán',
                                                         'Chờ thanh toán',
                                                     ].includes(
                                                         order.payment_status
                                                     ) && (
-                                                        <div className="flex space-x-2">
-                                                            <button
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    e.stopPropagation();
-                                                                    handleOpenConfirmBox(
-                                                                        order._id
-                                                                    );
-                                                                }}
-                                                                className="text-green-600 hover:opacity-80"
-                                                                title="Xác nhận đã thanh toán"
-                                                            >
-                                                                Cập nhật
-                                                            </button>
-                                                            <button
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleOpenConfirmBox(
+                                                                    order._id
+                                                                );
+                                                            }}
+                                                            className="text-green-600 hover:opacity-80 bg-white border-[3px] border-green-600 px-2 py-1 rounded-md"
+                                                            title="Xác nhận đã thanh toán"
+                                                        >
+                                                            Cập nhật
+                                                        </button>
+                                                        /* <button
                                                                 onClick={(
                                                                     e
                                                                 ) => {
@@ -1053,15 +1050,14 @@ const BillPage = () => {
                                                                 title="Hủy đơn hàng"
                                                             >
                                                                 <FaTimesCircle className="h-5 w-5" />
-                                                            </button>
-                                                        </div>
+                                                            </button> */
                                                     )}
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             printBill(order);
                                                         }}
-                                                        className="text-secondary-200 hover:opacity-80"
+                                                        className="text-secondary-200 hover:opacity-80 mb-[4px]"
                                                         title="In hóa đơn"
                                                     >
                                                         <FaPrint />
