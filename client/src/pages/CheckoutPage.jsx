@@ -621,9 +621,7 @@ const CheckoutPage = () => {
                     <h3 className="sm:text-lg text-sm font-bold shadow-md px-2 py-3">
                         Chọn địa chỉ giao hàng
                     </h3>
-                    <div
-                        className="bg-white grid gap-4 overflow-auto max-h-[calc(100vh/2)]"
-                    >
+                    <div className="bg-white grid gap-4 overflow-auto max-h-[calc(100vh/2)]">
                         {sortedAddressList.map((address, index) => (
                             <label
                                 key={index}
@@ -768,9 +766,71 @@ const CheckoutPage = () => {
                                     const name =
                                         product.name ||
                                         'Sản phẩm không xác định';
-                                    const image =
-                                        product.image ||
-                                        '/placeholder-image.jpg';
+                                    // Get the first available image from the product
+                                    const getProductImage = (product) => {
+                                        try {
+                                            // If product.image is an array, get the first image
+                                            if (
+                                                Array.isArray(product.image) &&
+                                                product.image.length > 0
+                                            ) {
+                                                return product.image[0];
+                                            }
+                                            // If it's a string, use it directly
+                                            if (
+                                                typeof product.image ===
+                                                    'string' &&
+                                                product.image
+                                            ) {
+                                                return product.image;
+                                            }
+                                            // If image is in product.images array
+                                            if (
+                                                Array.isArray(product.images) &&
+                                                product.images.length > 0
+                                            ) {
+                                                return product.images[0];
+                                            }
+                                            // Fallback to placeholder
+                                            return '/placeholder-image.jpg';
+                                        } catch (error) {
+                                            console.error(
+                                                'Error getting product image:',
+                                                error
+                                            );
+                                            return '/placeholder-image.jpg';
+                                        }
+                                    };
+
+                                    // Format the image URL
+                                    const formatImageUrl = (imagePath) => {
+                                        if (!imagePath)
+                                            return '/placeholder-image.jpg';
+
+                                        // If it's already a full URL or data URL, return as is
+                                        if (
+                                            typeof imagePath === 'string' &&
+                                            (imagePath.startsWith('http') ||
+                                                imagePath.startsWith(
+                                                    'data:image'
+                                                ) ||
+                                                imagePath.startsWith('blob:') ||
+                                                imagePath.startsWith('https:'))
+                                        ) {
+                                            return imagePath;
+                                        }
+
+                                        // If it's a relative path, ensure it starts with a slash
+                                        const cleanPath =
+                                            String(imagePath).trim();
+                                        return cleanPath.startsWith('/')
+                                            ? cleanPath
+                                            : `/${cleanPath}`;
+                                    };
+
+                                    const image = formatImageUrl(
+                                        getProductImage(product)
+                                    );
                                     const price = product.price || 0;
                                     const discount = product.discount || 0;
                                     const quantity = item.quantity || 1;
@@ -782,15 +842,23 @@ const CheckoutPage = () => {
                                             key={item._id}
                                             className="flex gap-4 items-center mb-4 shadow-lg p-2"
                                         >
-                                            <img
-                                                src={image}
-                                                alt={name}
-                                                className="sm:w-16 sm:h-16 w-12 h-12 object-cover rounded border border-inset border-primary-200"
-                                                onError={(e) => {
-                                                    e.target.src =
-                                                        '/placeholder-image.jpg';
-                                                }}
-                                            />
+                                            <div className="sm:w-16 sm:h-16 w-12 h-12 flex-shrink-0">
+                                                <img
+                                                    src={image}
+                                                    alt={name}
+                                                    className="w-full h-full object-cover rounded border border-inset border-primary-200"
+                                                    onError={(e) => {
+                                                        if (
+                                                            e.target.src !==
+                                                            '/placeholder-image.jpg'
+                                                        ) {
+                                                            e.target.src =
+                                                                '/placeholder-image.jpg';
+                                                        }
+                                                    }}
+                                                    loading="lazy"
+                                                />
+                                            </div>
                                             <div className="flex-1 flex flex-col sm:gap-0 gap-1">
                                                 <p className="font-medium sm:text-base text-xs">
                                                     {name}
@@ -1772,7 +1840,8 @@ const CheckoutPage = () => {
                                                     </p>
                                                     điểm (
                                                     <p className="font-bold text-green-700">
-                                                        ~ {DisplayPriceInVND(
+                                                        ~{' '}
+                                                        {DisplayPriceInVND(
                                                             userPoints *
                                                                 pointsValue
                                                         )}
