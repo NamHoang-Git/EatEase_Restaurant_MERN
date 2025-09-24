@@ -74,9 +74,9 @@ const Search = () => {
                                 1000,
                                 'Tìm kiếm "laptop"',
                                 1000,
-                                'Tìm kiếm "tai nghe"',
+                                'Tìm kiếm "bàn phím"',
                                 1000,
-                                'Tìm kiếm "tivi"',
+                                'Tìm kiếm "vi xử lý"',
                                 1000,
                             ]}
                             wrapper="span"
