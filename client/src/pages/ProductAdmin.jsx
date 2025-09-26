@@ -56,7 +56,7 @@ const ProductAdmin = () => {
             // Prepare request data with proper parameter names
             const requestData = {
                 page,
-                limit: 10,
+                limit: 15,
                 search: search.trim(),
                 minPrice: filters.minPrice
                     ? Number(filters.minPrice)

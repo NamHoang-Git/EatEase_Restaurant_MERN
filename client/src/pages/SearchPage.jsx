@@ -365,7 +365,7 @@ const SearchPage = () => {
             {searchQuery ? (
                 loading && page === 1 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4 gap-[10px]">
-                        {Array(6)
+                        {Array(12)
                             .fill(null)
                             .map((_, index) => (
                                 <CardLoading key={index} />

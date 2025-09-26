@@ -213,7 +213,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                                     Đang lưu...
                                 </>
                             ) : (
-                                'Lưu danh mục'
+                                'Thêm mới'
                             )}
                         </button>
                     </div>
