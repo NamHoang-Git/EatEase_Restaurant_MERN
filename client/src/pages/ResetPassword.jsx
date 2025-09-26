@@ -53,6 +53,11 @@ const ResetPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!data.newPassword || !data.confirmPassword) {
+            toast.error('Vui lòng nhập đầy đủ thông tin');
+            return;
+        }
+
         if (data.newPassword !== data.confirmPassword) {
             toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
             return;
@@ -60,16 +65,26 @@ const ResetPassword = () => {
 
         try {
             setLoading(true);
+
+            // Prepare request data based on the flow
+            const isChangePasswordFlow = location?.state?.fromProfile;
+            const requestData = isChangePasswordFlow
+                ? {
+                      userId: location.state.userId, // Add user ID for change password flow
+                      newPassword: data.newPassword,
+                      confirmPassword: data.confirmPassword,
+                  }
+                : {
+                      email: data.email || '',
+                      newPassword: data.newPassword,
+                      confirmPassword: data.confirmPassword,
+                  };
+
             const response = await Axios({
-                ...(location?.state?.fromProfile
+                ...(isChangePasswordFlow
                     ? SummaryApi.change_password
                     : SummaryApi.reset_password),
-                data: {
-                    ...data,
-                    ...(location?.state?.fromProfile
-                        ? {}
-                        : { email: data.email }),
-                },
+                data: requestData,
             });
 
             if (response.data.error) {
@@ -82,7 +97,7 @@ const ResetPassword = () => {
 
                 if (location?.state?.fromProfile) {
                     // If coming from profile, go back to profile
-                    navigate('/account');
+                    navigate('/dashboard/profile');
                 } else {
                     // For forgot password flow, go to login
                     navigate('/login');
@@ -124,8 +139,9 @@ const ResetPassword = () => {
                                 className="w-full outline-none bg-transparent"
                                 name="newPassword"
                                 placeholder="Nhập mật khẩu mới"
-                                value={data.newPassword}
+                                value={data.newPassword || ''}
                                 onChange={handleChange}
+                                required
                             />
                             <div
                                 onClick={() => setShowPassword((prev) => !prev)}
@@ -164,8 +180,9 @@ const ResetPassword = () => {
                                 className="w-full outline-none bg-transparent"
                                 name="confirmPassword"
                                 placeholder="Xác nhận mật khẩu"
-                                value={data.confirmPassword}
+                                value={data.confirmPassword || ''}
                                 onChange={handleChange}
+                                required
                             />
                             <div
                                 onClick={() =>

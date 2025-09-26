@@ -52,6 +52,7 @@ const ChangePassword = ({ close }) => {
                 navigate('/reset-password', {
                     state: {
                         email: response.data.email,
+                        userId: response.data.userId, // Add user ID for the change password flow
                         fromProfile: true,
                         fromForgotPassword: false,
                     },

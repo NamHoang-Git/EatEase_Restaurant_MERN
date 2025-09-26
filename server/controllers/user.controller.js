@@ -426,7 +426,8 @@ export async function verifyPassword(req, res) {
             message: "Xác thực mật khẩu thành công",
             error: false,
             success: true,
-            email: user.email
+            email: user.email,
+            userId: user._id // Include user ID in the response
         });
 
     } catch (error) {
@@ -441,8 +442,15 @@ export async function verifyPassword(req, res) {
 // Change Password
 export async function changePassword(req, res) {
     try {
-        const { newPassword, confirmPassword } = req.body;
-        const userId = req.user._id;
+        const { newPassword, confirmPassword, userId } = req.body;
+        
+        if (!userId) {
+            return res.status(400).json({
+                message: "Thiếu thông tin người dùng",
+                error: true,
+                success: false
+            });
+        }
 
         // Get user email for resetPassword function
         const user = await UserModel.findById(userId);
