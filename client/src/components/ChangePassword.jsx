@@ -47,12 +47,14 @@ const ChangePassword = ({ close }) => {
                 toast.success(
                     response.data.message || 'Xác thực mật khẩu thành công'
                 );
+                
                 // If password is correct, navigate to reset password page
                 close();
                 navigate('/reset-password', {
                     state: {
                         email: response.data.email,
-                        userId: response.data.userId, // Add user ID for the change password flow
+                        userId: response.data.userId, // Add user ID for change password flow
+                        currentPassword: formData.currentPassword, // Pass current password for validation
                         fromProfile: true,
                         fromForgotPassword: false,
                     },

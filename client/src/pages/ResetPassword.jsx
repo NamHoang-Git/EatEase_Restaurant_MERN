@@ -58,8 +58,22 @@ const ResetPassword = () => {
             return;
         }
 
+        // if (data.newPassword.length < 6) {
+        //     toast.error('Mật khẩu phải có ít nhất 6 ký tự');
+        //     return;
+        // }
+
         if (data.newPassword !== data.confirmPassword) {
             toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
+            return;
+        }
+
+        // Check if new password is different from current password (for change password flow)
+        if (
+            location?.state?.fromProfile &&
+            data.newPassword === location.state.currentPassword
+        ) {
+            toast.error('Mật khẩu mới phải khác mật khẩu hiện tại');
             return;
         }
 
