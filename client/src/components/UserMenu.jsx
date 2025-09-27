@@ -245,7 +245,7 @@ const UserMenu = ({ close }) => {
                             : ''
                     }`}
                 >
-                    Xem đơn hàng
+                    Lịch sử mua hàng
                 </Link>
 
                 <Divider />
