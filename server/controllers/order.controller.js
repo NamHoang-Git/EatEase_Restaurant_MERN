@@ -147,6 +147,12 @@ export async function CashOnDeliveryOrderController(request, response) {
                         subTotalAmt: itemSubTotal,
                         totalAmt: itemTotal,
                         status: 'pending',
+                        // Voucher information
+                        voucherCode: regularVoucher?.code || null,
+                        voucherDiscount: discountAmount,
+                        voucherType: regularVoucher?.discountType || null,
+                        voucherId: regularVoucher?._id || null,
+                        // For backward compatibility
                         voucherApplied: [
                             regularVoucher ? {
                                 code: regularVoucher.code,
@@ -509,6 +515,12 @@ export async function paymentController(request, response) {
                             subTotalAmt: itemSubTotal,
                             totalAmt: Math.max(0, itemTotal),
                             status: 'pending',
+                            // Voucher information
+                            voucherCode: regularVoucher?.code || null,
+                            voucherDiscount: discountAmount,
+                            voucherType: regularVoucher?.discountType || null,
+                            voucherId: regularVoucher?._id || null,
+                            // For backward compatibility
                             voucherApplied: [
                                 regularVoucher ? {
                                     code: regularVoucher.code,
@@ -902,7 +914,12 @@ export async function getOrderDetailsController(request, response) {
         const orderlist = await OrderModel.find({ userId })
             .sort({ createdAt: -1 })
             .populate('userId', 'name mobile email')
-            .populate('delivery_address');
+            .populate('delivery_address')
+            .populate({
+                path: 'voucherId',
+                select: 'code name description discountType discountValue minOrderValue maxDiscount startDate endDate',
+                model: 'voucher'
+            });
 
         return response.json({
             message: "Danh sách đơn hàng của bạn",

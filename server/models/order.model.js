@@ -125,6 +125,25 @@ const orderSchema = new mongoose.Schema({
     },
     cancelledAt: {
         type: Date
+    },
+    // Voucher information
+    voucherCode: {
+        type: String,
+        default: null
+    },
+    voucherDiscount: {
+        type: Number,
+        default: 0
+    },
+    voucherType: {
+        type: String,
+        enum: [null, 'percentage', 'fixed', 'free_shipping'],
+        default: null
+    },
+    voucherId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'voucher',
+        default: null
     }
 }, {
     timestamps: true
