@@ -2065,8 +2065,14 @@ const CheckoutPage = () => {
                                 </div>
                             )}
                             <button
-                                className="py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
-                        cursor-pointer text-secondary-200 font-semibold"
+                                className={`py-2 px-4 bg-primary-2 hover:opacity-80 rounded shadow-md
+                            text-secondary-200 font-semibold ${
+                                loading ||
+                                filteredItems.length === 0 ||
+                                !hasValidAddress
+                                    ? 'opacity-80 cursor-not-allowed'
+                                    : 'cursor-pointer'
+                            }`}
                                 onClick={() =>
                                     setShowConfirmModal({
                                         show: true,
@@ -2082,8 +2088,14 @@ const CheckoutPage = () => {
                                 {loading ? <Loading /> : 'Thanh toán online'}
                             </button>
                             <button
-                                className="py-2 px-4 border-[3px] border-red-darker font-semibold text-red-darker hover:bg-red-darker
-                        hover:text-white rounded cursor-pointer transition-all"
+                                className={`py-2 px-4 border-[3px] border-red-darker font-semibold text-red-darker hover:bg-red-darker
+                            hover:text-white rounded transition-all ${
+                                loading ||
+                                filteredItems.length === 0 ||
+                                !hasValidAddress
+                                    ? 'opacity-80 cursor-not-allowed'
+                                    : 'cursor-pointer'
+                            }`}
                                 onClick={handleCashOnDelivery}
                                 disabled={
                                     loading ||

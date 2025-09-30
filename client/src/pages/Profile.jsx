@@ -219,7 +219,7 @@ const Profile = () => {
                                                 </div>
                                                 <input
                                                     type="tel"
-                                                    placeholder="Nhập số điện thoại (VD: 0912345678)"
+                                                    placeholder="Nhập số điện thoại"
                                                     className={`w-full pl-10 px-4 py-2 border ${
                                                         mobileError
                                                             ? 'border-red-500'

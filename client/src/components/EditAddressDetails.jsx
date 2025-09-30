@@ -30,6 +30,19 @@ const EditAddressDetails = ({ close, data }) => {
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [mobileError, setMobileError] = useState('');
+    
+    // Check if all required fields are filled
+    const isFormValid = () => {
+        const formValues = watch();
+        return (
+            formValues.address_line &&
+            formValues.city &&
+            formValues.district &&
+            formValues.ward &&
+            formValues.mobile &&
+            !mobileError
+        );
+    };
 
     const validateMobile = (value) => {
         // Vietnamese phone number validation
@@ -396,10 +409,10 @@ const EditAddressDetails = ({ close, data }) => {
                     </div>
                     <button
                         type="submit"
-                        disabled={mobileError}
+                        disabled={!isFormValid()}
                         className={`py-2 px-4 mt-2 rounded shadow-md text-secondary-200 font-semibold ${
-                            mobileError
-                                ? 'bg-gray-300 cursor-not-allowed'
+                            !isFormValid()
+                                ? 'cursor-not-allowed opacity-60 bg-primary-2'
                                 : 'bg-primary-2 hover:opacity-80 cursor-pointer'
                         }`}
                     >
