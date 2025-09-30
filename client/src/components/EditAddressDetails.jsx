@@ -29,6 +29,32 @@ const EditAddressDetails = ({ close, data }) => {
     const [wards, setWards] = useState([]);
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
+    const [mobileError, setMobileError] = useState('');
+
+    const validateMobile = (value) => {
+        // Vietnamese phone number validation
+        // Starts with 0, followed by 9 or 1-9, then 8 more digits (total 10 digits)
+        const mobileRegex = /^(0[1-9]|0[1-9][0-9]{8})$/;
+        if (!value) {
+            setMobileError('Vui lòng nhập số điện thoại');
+            return false;
+        }
+        if (!mobileRegex.test(value)) {
+            setMobileError('Số điện thoại không hợp lệ');
+            return false;
+        }
+        setMobileError('');
+        return true;
+    };
+
+    const handleMobileChange = (e) => {
+        const value = e.target.value;
+        setValue('mobile', value);
+        // Clear error when user starts typing
+        if (mobileError) {
+            validateMobile(value);
+        }
+    };
 
     const removeAccents = (str) => {
         return str
@@ -168,6 +194,11 @@ const EditAddressDetails = ({ close, data }) => {
     }, [wards, data.ward, setValue]);
 
     const onSubmit = async (formData) => {
+        // Validate mobile number before submission
+        if (!validateMobile(formData.mobile)) {
+            return;
+        }
+
         try {
             const provinceName = selectedProvince ? selectedProvince.label : '';
             const districtName = selectedDistrict ? selectedDistrict.label : '';
@@ -303,26 +334,42 @@ const EditAddressDetails = ({ close, data }) => {
                     </div>
                     <div className="grid gap-1">
                         <label htmlFor="mobile">Số điện thoại:</label>
-                        <input
-                            type="text"
-                            id="mobile"
-                            className="border-2 bg-base-100 p-2 rounded outline-none
-                        focus-within:border-secondary-100"
-                            {...register('mobile', {
-                                required: true,
-                                pattern: {
-                                    value: /(84|0[3|5|7|8|9])+([0-9]{8})\b/,
-                                    message: 'Số điện thoại không hợp lệ',
-                                },
-                            })}
-                            spellCheck={false}
-                        />
+                        <div className="relative">
+                            <input
+                                type="tel"
+                                id="mobile"
+                                placeholder="Nhập số điện thoại"
+                                className={`w-full p-2 border-2 rounded outline-none ${
+                                    mobileError
+                                        ? 'border-red-500'
+                                        : 'focus-within:border-secondary-100'
+                                }`}
+                                {...register('mobile', {
+                                    required: 'Vui lòng nhập số điện thoại',
+                                    pattern: {
+                                        value: /^(0[1-9]|0[1-9][0-9]{8})$/,
+                                        message: 'Số điện thoại không hợp lệ',
+                                    },
+                                    onChange: handleMobileChange,
+                                    onBlur: (e) =>
+                                        validateMobile(e.target.value),
+                                })}
+                                spellCheck={false}
+                            />
+                            <div className={mobileError ? 'pb-5' : 'pb-0'}>
+                                {mobileError && (
+                                    <p className="absolute left-0 mt-1 text-sm text-red-600">
+                                        {mobileError}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <input
                             type="checkbox"
                             id="isDefault"
-                            className="h-4 w-4 mb-[3px]"
+                            className="h-4 w-4 mb-[3px] cursor-pointer"
                             disabled={data.isDefault}
                             checked={watch('isDefault')}
                             onChange={(e) =>
@@ -334,7 +381,7 @@ const EditAddressDetails = ({ close, data }) => {
                             className={`font-normal ${
                                 data.isDefault
                                     ? 'text-gray-400'
-                                    : 'text-slate-600'
+                                    : 'text-slate-600 cursor-pointer'
                             }`}
                         >
                             {data.isDefault
@@ -349,8 +396,12 @@ const EditAddressDetails = ({ close, data }) => {
                     </div>
                     <button
                         type="submit"
-                        className="py-2 px-4 mt-2 bg-primary-2 hover:opacity-80 rounded shadow-md
-                    cursor-pointer text-secondary-200 font-semibold"
+                        disabled={mobileError}
+                        className={`py-2 px-4 mt-2 rounded shadow-md text-secondary-200 font-semibold ${
+                            mobileError
+                                ? 'bg-gray-300 cursor-not-allowed'
+                                : 'bg-primary-2 hover:opacity-80 cursor-pointer'
+                        }`}
                     >
                         Cập nhật
                     </button>

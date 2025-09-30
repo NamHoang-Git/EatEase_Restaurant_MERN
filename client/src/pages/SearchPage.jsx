@@ -244,7 +244,7 @@ const SearchPage = () => {
                     Đặt lại bộ lọc
                 </button>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-6 text-secondary-200">
+            <div className="flex flex-wrap items-center justify-between gap-4 text-secondary-200">
                 <div className="flex items-center gap-2 sm:text-sm text-xs">
                     <label className="font-semibold">Giá từ</label>
                     <input
@@ -273,7 +273,7 @@ const SearchPage = () => {
                         name="sortBy"
                         value={filters.sortBy}
                         onChange={handleFilterChange}
-                        className="sm:p-2 p-[6px] border rounded text-[11px]"
+                        className="sm:p-2 p-[6px] border rounded"
                     >
                         <option value="newest">Mới nhất</option>
                         <option value="price_asc">Giá tăng dần</option>
@@ -288,7 +288,7 @@ const SearchPage = () => {
                         name="category"
                         value={filters.category}
                         onChange={handleFilterChange}
-                        className="sm:p-2 p-[6px] border rounded text-[11px]"
+                        className="sm:p-2 p-[6px] border rounded"
                     >
                         <option value="all">Tất cả</option>
                         {categories.map((category) => (

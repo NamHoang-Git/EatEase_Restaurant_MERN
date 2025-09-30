@@ -111,12 +111,12 @@ const Address = () => {
                             <div className="flex justify-between sm:items-start items-end gap-4">
                                 <div className="flex items-baseline gap-2 sm:gap-3">
                                     <div className="flex flex-col gap-1 text-[10px] sm:text-base text-justify">
-                                        <p>Địa chỉ: {address.address_line}</p>
-                                        <p>Thành phố: {address.city}</p>
-                                        <p>Quận / Huyện: {address.district}</p>
-                                        <p>Phường / Xã: {address.ward}</p>
-                                        <p>Quốc gia: {address.country}</p>
-                                        <p>Số điện thoại: {address.mobile}</p>
+                                        <p>Địa chỉ: {address?.address_line}</p>
+                                        <p>Thành phố: {address?.city}</p>
+                                        <p>Quận / Huyện: {address?.district}</p>
+                                        <p>Phường / Xã: {address?.ward}</p>
+                                        <p>Quốc gia: {address?.country}</p>
+                                        <p>Số điện thoại: {address?.mobile}</p>
                                     </div>
                                     {address.isDefault && (
                                         <span className="text-secondary-200 text-[10px] sm:text-lg font-bold">

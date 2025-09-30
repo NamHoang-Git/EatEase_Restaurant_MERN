@@ -22,7 +22,25 @@ const Profile = () => {
 
     const [loading, setLoading] = useState(false);
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [isModified, setIsModified] = useState(false);
+    const [mobileError, setMobileError] = useState('');
     const dispatch = useDispatch();
+
+    const validateMobile = (mobile) => {
+        // Vietnamese phone number validation
+        // Starts with 0, followed by 9 or 1-9, then 8 more digits (total 10 digits)
+        const mobileRegex = /^(0[1-9]|0[1-9][0-9]{8})$/;
+        if (!mobile) {
+            setMobileError('Vui lòng nhập số điện thoại');
+            return false;
+        }
+        if (!mobileRegex.test(mobile)) {
+            setMobileError('Số điện thoại không hợp lệ');
+            return false;
+        }
+        setMobileError('');
+        return true;
+    };
 
     useEffect(() => {
         setUserData({
@@ -30,7 +48,15 @@ const Profile = () => {
             email: user.email,
             mobile: user.mobile,
         });
+        setIsModified(false);
     }, [user]);
+
+    // Check if name or mobile has been modified
+    useEffect(() => {
+        const isNameModified = userData.name !== user.name;
+        const isMobileModified = userData.mobile !== user.mobile;
+        setIsModified(isNameModified || isMobileModified);
+    }, [userData, user.name, user.mobile]);
 
     const handleOnChange = (e) => {
         const { name, value } = e.target;
@@ -45,6 +71,11 @@ const Profile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate mobile number before submission
+        if (!validateMobile(userData.mobile)) {
+            return;
+        }
 
         try {
             setLoading(true);
@@ -159,13 +190,14 @@ const Profile = () => {
                                         <label className="block font-bold mb-1">
                                             Địa chỉ email
                                         </label>
-                                        <div className="relative">
+                                        <div className="relative opacity-80">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <FaEnvelope className="text-secondary-100" />
                                             </div>
                                             <input
                                                 type="email"
-                                                className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100"
+                                                className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2
+                                                focus:ring-secondary-100 focus:border-secondary-100 cursor-not-allowed"
                                                 value={userData.email}
                                                 name="email"
                                                 onChange={handleOnChange}
@@ -181,19 +213,43 @@ const Profile = () => {
                                             Số điện thoại
                                         </label>
                                         <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaPhone className="text-secondary-100" />
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <FaPhone className="text-secondary-100" />
+                                                </div>
+                                                <input
+                                                    type="tel"
+                                                    placeholder="Nhập số điện thoại (VD: 0912345678)"
+                                                    className={`w-full pl-10 px-4 py-2 border ${
+                                                        mobileError
+                                                            ? 'border-red-500'
+                                                            : 'border-gray-300'
+                                                    } rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100`}
+                                                    value={userData.mobile}
+                                                    name="mobile"
+                                                    onChange={(e) => {
+                                                        handleOnChange(e);
+                                                        // Clear error when user starts typing
+                                                        if (mobileError) {
+                                                            validateMobile(
+                                                                e.target.value
+                                                            );
+                                                        }
+                                                    }}
+                                                    onBlur={(e) =>
+                                                        validateMobile(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    required
+                                                    spellCheck={false}
+                                                />
                                             </div>
-                                            <input
-                                                type="text"
-                                                placeholder="Nhập số điện thoại"
-                                                className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-100 focus:border-secondary-100"
-                                                value={userData.mobile}
-                                                name="mobile"
-                                                onChange={handleOnChange}
-                                                required
-                                                spellCheck={false}
-                                            />
+                                            {mobileError && (
+                                                <p className="absolute left-0 mt-1 text-sm text-red-600">
+                                                    {mobileError}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -201,9 +257,17 @@ const Profile = () => {
                                 <div className="mt-6 flex justify-end">
                                     <button
                                         type="submit"
-                                        disabled={loading}
-                                        className="px-6 py-2 bg-primary-3 text-secondary-200 font-bold rounded-lg hover:opacity-80 focus:outline-none
-                                    focus:ring-2 focus:ring-offset-2 focus:ring-secondary-100 disabled:opacity-50 flex items-center"
+                                        disabled={
+                                            !isModified ||
+                                            loading ||
+                                            mobileError
+                                        }
+                                        className={`px-6 py-2 ${
+                                            !mobileError && isModified
+                                                ? 'bg-primary-3 hover:opacity-80'
+                                                : 'bg-gray-300 cursor-not-allowed'
+                                        } text-secondary-200 font-bold rounded-lg focus:outline-none
+                                    focus:ring-2 focus:ring-offset-2 focus:ring-secondary-100 disabled:opacity-50 flex items-center`}
                                     >
                                         {loading ? (
                                             <>
