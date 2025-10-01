@@ -409,6 +409,53 @@ const VoucherPage = () => {
         }
     };
 
+    // Check and update expired vouchers
+    const checkAndUpdateExpiredVouchers = async (vouchers) => {
+        try {
+            const now = new Date();
+            const expiredVouchers = vouchers.filter(
+                (voucher) => new Date(voucher.endDate) < now && voucher.isActive
+            );
+
+            if (expiredVouchers.length === 0) {
+                return vouchers;
+            }
+
+            const expiredVoucherIds = expiredVouchers.map(
+                (voucher) => voucher._id
+            );
+
+            // Update the local state first for better UX
+            setData((prevData) =>
+                prevData.map((voucher) =>
+                    expiredVoucherIds.includes(voucher._id)
+                        ? { ...voucher, isActive: false }
+                        : voucher
+                )
+            );
+
+            // Update the backend
+            await Axios({
+                ...SummaryApi.bulk_update_vouchers_status,
+                data: {
+                    voucherIds: expiredVoucherIds,
+                    isActive: false,
+                },
+            });
+
+            // Return updated vouchers with isActive set to false for expired ones
+            return vouchers.map((voucher) => ({
+                ...voucher,
+                isActive: expiredVoucherIds.includes(voucher._id)
+                    ? false
+                    : voucher.isActive,
+            }));
+        } catch (error) {
+            console.error('Error updating expired vouchers:', error);
+            return vouchers;
+        }
+    };
+
     // Fetch vouchers from API
     const fetchVoucher = async () => {
         const accessToken = localStorage.getItem('accesstoken');
@@ -423,8 +470,11 @@ const VoucherPage = () => {
             const { data: responseData } = response;
 
             if (responseData.success) {
-                setData(responseData.data);
-                setFilteredData(responseData.data);
+                const updatedVouchers = await checkAndUpdateExpiredVouchers(
+                    responseData.data
+                );
+                setData(updatedVouchers);
+                setFilteredData(updatedVouchers);
             }
         } catch (error) {
             console.error('Error fetching vouchers:', error);
@@ -432,6 +482,21 @@ const VoucherPage = () => {
             setLoading(false);
         }
     };
+
+    // Check for expired vouchers when the component mounts
+    useEffect(() => {
+        const checkExpiredVouchers = async () => {
+            if (data.length > 0) {
+                const updatedVouchers = await checkAndUpdateExpiredVouchers(
+                    data
+                );
+                setData(updatedVouchers);
+                setFilteredData(updatedVouchers);
+            }
+        };
+
+        checkExpiredVouchers();
+    }, [data]);
 
     // Reset selection when data changes
     useEffect(() => {
