@@ -200,7 +200,7 @@ const ProductDisplayPage = () => {
                         <div className="relative mt-4 flex items-center">
                             <div
                                 ref={imageContainer}
-                                className="grid grid-flow-col auto-cols-[minmax(70px,70px)]
+                                className="grid grid-flow-col auto-cols-[minmax(70px,70px)] sm:auto-cols-[minmax(85px,85px)]
                             sm:gap-4 gap-2 overflow-x-auto scroll-smooth scrollbar-hide"
                             >
                                 {data.image.map((img, index) => (
@@ -334,16 +334,25 @@ const ProductDisplayPage = () => {
                                     </div>
                                 )}
                                 {tab === 'description' && (
-                                    <p className="text-gray-700 leading-relaxed break-words">
+                                    <div className="text-gray-700 leading-relaxed break-words space-y-2">
                                         {data?.description &&
                                         data.description.trim() !== '' ? (
                                             data.description
+                                                .split('\n')
+                                                .map((line, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="whitespace-pre-line"
+                                                    >
+                                                        {line.trim()}
+                                                    </div>
+                                                ))
                                         ) : (
                                             <span className="italic text-gray-500">
                                                 Sản phẩm này hiện chưa có mô tả.
                                             </span>
                                         )}
-                                    </p>
+                                    </div>
                                 )}
                                 {tab === 'reviews' && (
                                     <p className="italic text-gray-500 break-words">
@@ -529,7 +538,7 @@ const ProductDisplayPage = () => {
 
                     <div className="mt-6 px-4">
                         {tab === 'detail' && (
-                            <div className="text-xs text-gray-700 leading-relaxed break-words flex flex-col gap-3">
+                            <div className="text-sm text-gray-700 leading-relaxed break-words flex flex-col gap-3">
                                 <div className="flex gap-4">
                                     <span className="font-semibold text-nowrap">
                                         Danh mục:{' '}
@@ -574,19 +583,28 @@ const ProductDisplayPage = () => {
                             </div>
                         )}
                         {tab === 'description' && (
-                            <p className="text-gray-700 text-xs leading-relaxed break-words">
+                            <div className="text-gray-700 leading-relaxed break-words space-y-2 text-sm">
                                 {data?.description &&
                                 data.description.trim() !== '' ? (
                                     data.description
+                                        .split('\n')
+                                        .map((line, index) => (
+                                            <div
+                                                key={index}
+                                                className="whitespace-pre-line"
+                                            >
+                                                {line.trim()}
+                                            </div>
+                                        ))
                                 ) : (
                                     <span className="italic text-gray-500">
                                         Sản phẩm này hiện chưa có mô tả.
                                     </span>
                                 )}
-                            </p>
+                            </div>
                         )}
                         {tab === 'reviews' && (
-                            <p className="italic text-gray-500 text-xs break-words">
+                            <p className="italic text-gray-500 text-sm break-words">
                                 Chưa có đánh giá nào.
                             </p>
                         )}

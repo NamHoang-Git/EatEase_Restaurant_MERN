@@ -22,6 +22,33 @@ export async function registerUserController(req, res) {
             })
         }
 
+        // Validate email format more strictly
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+        // List of valid TLDs (you can extend this list as needed)
+        const validTLDs = ['com', 'net', 'org', 'io', 'co', 'ai', 'vn', 'com.vn', 'edu.vn', 'gov.vn'];
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                message: "Định dạng email không hợp lệ",
+                error: true,
+                success: false
+            });
+        }
+
+        // Extract domain and TLD
+        const domain = email.split('@')[1];
+        const tld = domain.split('.').slice(1).join('.');
+
+        // Check if TLD is in the valid list
+        if (!validTLDs.includes(tld)) {
+            return res.status(400).json({
+                message: "Tên miền email không được hỗ trợ",
+                error: true,
+                success: false
+            });
+        }
+
         const user = await UserModel.findOne({ email })
 
         if (user) {
@@ -443,7 +470,7 @@ export async function verifyPassword(req, res) {
 export async function changePassword(req, res) {
     try {
         const { newPassword, confirmPassword, userId } = req.body;
-        
+
         if (!userId) {
             return res.status(400).json({
                 message: "Thiếu thông tin người dùng",

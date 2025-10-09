@@ -29,8 +29,8 @@ const verifyEmailTemplate = ({ name, url }) => {
 
                 <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; font-size: 12px; color: #6c757d;">
                     <p>Trân trọng,<br/>Đội ngũ EcomSpace</p>
-                    <p> support@ecomspace.vn<br/>
-                    www.ecomspace.vn</p>
+                    <p>📧 support@ecomspace.vn<br/>
+                    🌐 https://ecommerce-shop-full-stack-pvey.vercel.app/</p>
                 </div>
             </div>
         </div>

@@ -313,16 +313,12 @@ const ReportPage = () => {
                     onClick={() => paginate(1)}
                     disabled={pagination.currentPage === 1}
                     className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    «
-                </button>
+                ></button>
                 <button
                     onClick={() => paginate(pagination.currentPage - 1)}
                     disabled={pagination.currentPage === 1}
                     className="px-3 py-1 rounded-md border border-gray-300 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    ‹
-                </button>
+                ></button>
 
                 {Array.from({ length: totalPages }).map((_, i) => {
                     const pageNum = i + 1;
@@ -387,16 +383,15 @@ const ReportPage = () => {
         </div>
     );
 
-    const { totalRevenue, orderCount } =
-        React.useMemo(() => {
-            return filteredAndSortedOrders.reduce(
-                (acc, order) => ({
-                    totalRevenue: acc.totalRevenue + (order.totalAmt || 0),
-                    orderCount: acc.orderCount + 1,
-                }),
-                { totalRevenue: 0, orderCount: 0 }
-            );
-        }, [filteredAndSortedOrders]);
+    const { totalRevenue, orderCount } = React.useMemo(() => {
+        return filteredAndSortedOrders.reduce(
+            (acc, order) => ({
+                totalRevenue: acc.totalRevenue + (order.totalAmt || 0),
+                orderCount: acc.orderCount + 1,
+            }),
+            { totalRevenue: 0, orderCount: 0 }
+        );
+    }, [filteredAndSortedOrders]);
 
     const exportToExcel = () => {
         const data = filteredAndSortedOrders.map((order) => ({
@@ -785,7 +780,7 @@ const ReportPage = () => {
                     <h2 className="text-base sm:text-lg font-bold mb-4 text-secondary-200">
                         Top sản phẩm bán chạy
                     </h2>
-                    <div className="max-h-96">
+                    <div className="">
                         <Bar
                             data={chartData.productsData}
                             options={{

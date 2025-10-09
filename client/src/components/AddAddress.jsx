@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useGlobalContext } from '../provider/GlobalProvider';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -10,8 +10,11 @@ import vietnamProvinces from '../data/vietnam-provinces.json';
 import Select from 'react-select';
 
 const AddAddress = ({ close }) => {
-    const { register, handleSubmit, reset, setValue, control } = useForm();
-    const watch = useWatch({ control });
+    const { register, handleSubmit, reset, setValue, watch } = useForm({
+        defaultValues: {
+            isDefault: true, // Set default value to true
+        },
+    });
     const { fetchAddress } = useGlobalContext();
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -542,7 +545,6 @@ const AddAddress = ({ close }) => {
                             type="checkbox"
                             id="isDefault"
                             className="h-4 w-4 mb-[3px] cursor-pointer"
-                            checked={true}
                             {...register('isDefault')}
                         />
                         <label

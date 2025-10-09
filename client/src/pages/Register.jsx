@@ -25,8 +25,6 @@ const Register = () => {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-
-            // lấy tất cả input hợp lệ trong form
             const form = e.target.form;
             const focusable = Array.from(form.elements).filter(
                 (el) =>
@@ -34,11 +32,7 @@ const Register = () => {
                     el.tagName === 'SELECT' ||
                     el.tagName === 'TEXTAREA'
             );
-
-            // tìm vị trí hiện tại
             const index = focusable.indexOf(e.target);
-
-            // focus phần tử tiếp theo nếu có
             if (index > -1 && index < focusable.length - 1) {
                 focusable[index + 1].focus();
             }
@@ -58,8 +52,58 @@ const Register = () => {
 
     const valideValue = Object.values(data).every((el) => el);
 
+    const validateEmail = (email) => {
+        // More strict email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+        // List of valid TLDs (must match server-side)
+        const validTLDs = [
+            'com',
+            'net',
+            'org',
+            'io',
+            'co',
+            'ai',
+            'vn',
+            'com.vn',
+            'edu.vn',
+            'gov.vn',
+        ];
+
+        // Basic format check
+        if (!emailRegex.test(email)) {
+            return false;
+        }
+
+        // Extract domain and TLD
+        const domain = email.split('@')[1];
+        const tld = domain.split('.').slice(1).join('.');
+
+        // Check if TLD is in the valid list
+        if (!validTLDs.includes(tld)) {
+            return false;
+        }
+
+        // Additional checks
+        if (
+            email.includes('..') ||
+            email.startsWith('.') ||
+            email.endsWith('.') ||
+            email.split('@')[0].endsWith('.')
+        ) {
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateEmail(data.email)) {
+            toast.error('Vui lòng nhập địa chỉ email hợp lệ');
+            return;
+        }
 
         if (data.password !== data.confirmPassword) {
             toast.error('Mật khẩu và mật khẩu xác nhận phải giống nhau');
