@@ -8,11 +8,9 @@ import SummaryApi from '../common/SummaryApi';
 import toast from 'react-hot-toast';
 import { loadStripe } from '@stripe/stripe-js';
 import { DisplayPriceInVND } from '../utils/DisplayPriceInVND';
-import AddAddress from '../components/AddAddress';
 import Loading from '../components/Loading';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import AxiosToastError from '../utils/AxiosToastError';
-import EditAddressDetails from '../components/EditAddressDetails';
 import { useGlobalContext } from '../provider/GlobalProvider';
 import Divider from '../components/Divider';
 

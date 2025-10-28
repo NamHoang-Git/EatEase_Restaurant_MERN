@@ -70,7 +70,7 @@ const SummaryApi = {
         method: 'post'
     },
 
-    // Category
+    // Menu Category
     add_category: {
         url: '/api/category/add-category',
         method: 'post'
@@ -79,8 +79,8 @@ const SummaryApi = {
         url: '/api/file/upload',
         method: 'post'
     },
-    get_category: {
-        url: '/api/category/get-category',
+    get_menu_category: {
+        url: '/api/menu-category/get-menu-category',
         method: 'get'
     },
     update_category: {
@@ -146,28 +146,6 @@ const SummaryApi = {
     clear_cart: {
         url: '/api/cart/clear-cart',
         method: 'delete'
-    },
-
-    // Address
-    add_address: {
-        url: '/api/address/add-address',
-        method: 'post'
-    },
-    get_address: {
-        url: '/api/address/get-address',
-        method: 'get'
-    },
-    update_address: {
-        url: '/api/address/update-address',
-        method: 'put'
-    },
-    delete_address: {
-        url: '/api/address/delete-address',
-        method: 'delete'
-    },
-    restore_address: {
-        url: '/api/address/restore-address',
-        method: 'post'
     },
 
     // Order

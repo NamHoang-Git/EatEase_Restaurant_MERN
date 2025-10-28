@@ -20,7 +20,7 @@ const ProductListPage = () => {
     const [sortBy, setSortBy] = useState('newest');
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
     const [showFilters, setShowFilters] = useState(false);
-    const [isFiltering, setIsFiltering] = useState(false);
+    const [isFiltering] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const observer = useRef();

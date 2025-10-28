@@ -2,10 +2,10 @@ import Stripe from "../config/stripe.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
-import CartProductModel from './../models/cartProduct.model.js';
 import { updateProductStock } from "../utils/productStockUpdater.js";
 import { calculatePointsFromOrder, calculateUsablePoints } from "../utils/pointsUtils.js";
 import VoucherModel from "../models/voucher.model.js";
+import CartModel from './../models/cart.model.js';
 
 export async function CashOnDeliveryOrderController(request, response) {
     const maxRetries = 3;
@@ -226,7 +226,7 @@ export async function CashOnDeliveryOrderController(request, response) {
 
                 // Clear cart items
                 const cartItemIds = list_items.map(item => item._id);
-                await CartProductModel.deleteMany({ _id: { $in: cartItemIds } }, { session });
+                await CartModel.deleteMany({ _id: { $in: cartItemIds } }, { session });
 
                 return {
                     success: true,
@@ -581,7 +581,7 @@ export async function paymentController(request, response) {
                     );
 
                     const cartItemIds = list_items.map(item => item._id);
-                    await CartProductModel.deleteMany({ _id: { $in: cartItemIds } }, { session });
+                    await CartModel.deleteMany({ _id: { $in: cartItemIds } }, { session });
 
                     // Commit the transaction
                     await session.commitTransaction();

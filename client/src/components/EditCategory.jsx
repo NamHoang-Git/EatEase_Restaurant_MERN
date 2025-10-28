@@ -10,6 +10,7 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
     const [data, setData] = useState({
         _id: CategoryData._id,
         name: CategoryData.name,
+        description: CategoryData.description || '',
         image: CategoryData.image,
     });
 
@@ -26,24 +27,42 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
         });
     };
 
-    const handleUploadCategoryImage = async (e) => {
+    const handleUploadFile = async (e) => {
         const file = e.target.files[0];
+        if (!file) return;
 
-        if (!file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            console.error('Please select an image file');
             return;
         }
 
         setLoading(true);
-        const response = await uploadImage(file);
-        const { data: ImageResponse } = response;
-        setLoading(false);
+        try {
+            const response = await uploadImage(file);
+            console.log('Upload response:', response);
 
-        setData((prev) => {
-            return {
-                ...prev,
-                image: ImageResponse.data.url,
-            };
-        });
+            if (response?.response?.data) {
+                console.error('Upload error:', response.response.data);
+                return;
+            }
+
+            if (response?.data?.success) {
+                const imageUrl =
+                    response.data.data?.url || response.data.data?.imageUrl;
+                console.log('Image URL:', imageUrl);
+
+                setData((prev) => ({
+                    ...prev,
+                    image: imageUrl,
+                }));
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+        } finally {
+            setLoading(false);
+            e.target.value = '';
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -115,6 +134,26 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                         />
                     </div>
 
+                    {/* Description */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="description"
+                            className="block font-semibold text-gray-700"
+                        >
+                            Mô tả
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            value={data.description}
+                            onChange={handleOnChange}
+                            rows="3"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
+                            focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
+                            placeholder="Nhập mô tả danh mục"
+                        />
+                    </div>
+
                     {/* Image Upload */}
                     <div className="space-y-2">
                         <label className="block font-semibold text-gray-700">
@@ -122,19 +161,19 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                         </label>
                         <input
                             type="file"
-                            id="uploadCategoryImage"
+                            id="image-upload"
                             accept="image/*"
-                            onChange={handleUploadCategoryImage}
+                            onChange={(e) => handleUploadFile(e, 'image')}
                             className="hidden"
                             disabled={loading}
                         />
                         <label
-                            htmlFor="uploadCategoryImage"
+                            htmlFor="image-upload"
                             className={`block border-2 border-dashed rounded-xl sm:p-6 p-4 text-center cursor-pointer
                             transition-all duration-200 ${
                                 data.image
                                     ? 'border-green-200 bg-green-50'
-                                    : 'border-gray-300 hover:border-primary-200'
+                                    : 'border-gray-300 hover:border-rose-400'
                             } ${
                                 loading ? 'opacity-70 cursor-not-allowed' : ''
                             }`}
@@ -148,27 +187,20 @@ const EditCategory = ({ close, fetchData, data: CategoryData }) => {
                                     />
                                     <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 rounded-lg transition-all flex items-center justify-center">
                                         <span className="text-white bg-black/70 text-xs px-2 py-1 rounded">
-                                            Nhấn để thay đổi ảnh
+                                            Thay đổi ảnh
                                         </span>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
-                                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                                        {loading ? (
-                                            <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                        ) : (
-                                            <IoAddSharp
-                                                className="text-gray-400"
-                                                size={24}
-                                            />
-                                        )}
+                                <div className="flex flex-col items-center">
+                                    <div className="mx-auto w-12 h-12 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center">
+                                        <IoAddSharp size={24} />
                                     </div>
-                                    <div className="text-sm text-gray-600">
+                                    <div className="text-sm text-rose-500 text-center mt-2">
                                         <p className="font-medium">
                                             Tải ảnh lên
                                         </p>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-rose-300">
                                             PNG, JPG (tối đa 5MB)
                                         </p>
                                     </div>

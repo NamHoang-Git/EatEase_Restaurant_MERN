@@ -13,9 +13,9 @@ const CartMobileLink = () => {
     return (
         <>
             {cartItem[0] && (
-                <Link to={'/cart'} className="sticky bottom-4 p-2">
+                <Link to={'/cart'} className="sticky bottom-4 p-2 z-10">
                     <div
-                        className="flex items-center justify-between gap-3 lg:hidden text-secondary-200 text-sm
+                        className="flex items-center justify-between gap-3 md:hidden text-secondary-200 text-sm
                     bg-primary px-4 py-3 rounded shadow-lg shadow-secondary-100 font-bold"
                     >
                         <div className="flex items-center gap-3">

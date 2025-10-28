@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "name": "TakSHOP",
+    "name": "EatEase",
     "builds": [
         {
             "src": "./index.js",

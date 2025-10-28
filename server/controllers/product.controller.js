@@ -1,6 +1,6 @@
 import ProductModel from "../models/product.model.js"
-import CartProductModel from './../models/cartProduct.model.js';
 import mongoose from "mongoose";
+import CartModel from './../models/cart.model.js';
 
 export const addProductController = async (req, res) => {
     try {
@@ -324,7 +324,7 @@ export const deleteProductDetails = async (request, response) => {
             const deleteProduct = await ProductModel.deleteOne({ _id: _id }).session(session);
 
             // Xóa các mục trong cartProduct liên quan
-            await CartProductModel.deleteMany({ productId: _id }).session(session);
+            await CartModel.deleteMany({ productId: _id }).session(session);
 
             await session.commitTransaction();
             session.endSession();

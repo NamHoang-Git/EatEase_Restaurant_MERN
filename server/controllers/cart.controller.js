@@ -1,5 +1,5 @@
+import CartModel from "../models/cart.model.js";
 import UserModel from "../models/user.model.js";
-import CartProductModel from './../models/cartProduct.model.js';
 
 export const addToCartItemController = async (request, response) => {
     try {
@@ -14,7 +14,7 @@ export const addToCartItemController = async (request, response) => {
             })
         }
 
-        const checkItemCart = await CartProductModel.findOne({
+        const checkItemCart = await CartModel.findOne({
             userId: userId,
             productId: productId
         })
@@ -27,7 +27,7 @@ export const addToCartItemController = async (request, response) => {
             })
         }
 
-        const cartItem = new CartProductModel({
+        const cartItem = new CartModel({
             quantity: 1,
             userId: userId,
             productId: productId
@@ -61,7 +61,7 @@ export const getCartItemController = async (request, response) => {
     try {
         const userId = request.userId
 
-        const cartItem = await CartProductModel.find({
+        const cartItem = await CartModel.find({
             userId: userId
         }).populate('productId')
 
@@ -93,7 +93,7 @@ export const updateCartItemQtyController = async (request, response) => {
             })
         }
 
-        const updateCartitem = await CartProductModel.updateOne({
+        const updateCartitem = await CartModel.updateOne({
             _id: _id,
             userId: userId
         }, {
@@ -129,7 +129,7 @@ export const deleteCartItemQtyController = async (request, response) => {
             })
         }
 
-        const deleteCartItem = await CartProductModel.deleteOne({ _id: _id, userId: userId })
+        const deleteCartItem = await CartModel.deleteOne({ _id: _id, userId: userId })
 
         // Cũng cần xóa reference từ User.shopping_cart
         await UserModel.updateOne(
@@ -163,14 +163,14 @@ export const clearCartController = async (request, response) => {
 
         if (selectedProductIds && selectedProductIds.length > 0) {
             // Tìm cart items cần xóa
-            const cartItemsToDelete = await CartProductModel.find({
+            const cartItemsToDelete = await CartModel.find({
                 userId: userId,
                 productId: { $in: selectedProductIds }
             });
             const cartItemIds = cartItemsToDelete.map(item => item._id);
 
             // Xóa cart items được chọn
-            deleteResult = await CartProductModel.deleteMany({
+            deleteResult = await CartModel.deleteMany({
                 userId: userId,
                 productId: { $in: selectedProductIds }
             });
@@ -182,7 +182,7 @@ export const clearCartController = async (request, response) => {
             );
         } else {
             // Xóa tất cả cart items của user (logic cũ)
-            deleteResult = await CartProductModel.deleteMany({ userId: userId });
+            deleteResult = await CartModel.deleteMany({ userId: userId });
 
             userUpdateResult = await UserModel.updateOne(
                 { _id: userId },

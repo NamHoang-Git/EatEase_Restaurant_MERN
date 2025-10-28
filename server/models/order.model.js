@@ -1,176 +1,161 @@
 import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.ObjectId,
-        ref: "user"
-    },
-    orderId: {
-        type: String,
-        required: [true, "Provide orderId"],
-        unique: true,
-    },
+const orderItemSchema = new mongoose.Schema({
     productId: {
         type: mongoose.Schema.ObjectId,
         ref: "product",
+        required: true,
     },
-    product_details: {
-        name: String,
-        image: Array,
+    name: {
+        type: String,
+        required: true,
     },
     quantity: {
         type: Number,
         required: true,
-        default: 1,
-        min: 1
+        min: 1,
     },
-    paymentId: {
+    price: {
+        type: Number,
+        required: true,
+        min: 0,
+    },
+    note: {
         type: String,
         default: "",
     },
-    payment_status: {
-        type: String,
-        default: "",
-    },
-    delivery_address: {
+}, { _id: false });
+
+const orderSchema = new mongoose.Schema({
+    // 👤 Người dùng đặt bàn hoặc order
+    userId: {
         type: mongoose.Schema.ObjectId,
-        ref: "address",
+        ref: "user",
+        required: true,
     },
-    is_deleted: {
-        type: Boolean,
-        default: false
+
+    // 🧑‍🍳 Nhân viên liên quan
+    waiterId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "user", // phục vụ
+        default: null,
     },
-    deleted_at: {
-        type: Date,
-        default: null
+    chefId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "user", // đầu bếp
+        default: null,
     },
-    deleted_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-        default: null
+    cashierId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "user", // thu ngân
+        default: null,
     },
-    points_used: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    points_value: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    points_earned: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    points_rate: {
-        type: Number,
-        default: 100, // 1 point = 100 VND
-        min: 1
-    },
-    points_expiry_date: {
-        type: Date,
-        default: function () {
-            // Points expire after 1 year by default
-            const expiryDate = new Date();
-            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-            return expiryDate;
-        }
-    },
-    subTotalAmt: {
-        type: Number,
-        default: 0,
-        required: false
-    },
-    totalAmt: {
-        type: Number,
-        default: 0,
-        required: false
-    },
-    invoice_receipt: {
+
+    // 🍽️ Loại đơn hàng (ăn tại bàn / mang đi)
+    orderType: {
         type: String,
-        default: "",
+        enum: ["DINE_IN", "TAKE_AWAY"],
+        default: "DINE_IN",
     },
-    status: {
+
+    // 🪑 Đặt bàn (liên kết với Reservation nếu có)
+    tableNumber: {
         type: String,
-        enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
-        default: "pending"
+        default: null,
     },
-    earnedPoints: {
+    reservationId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "reservation",
+        default: null,
+    },
+
+    // 🧾 Danh sách món ăn
+    items: [orderItemSchema],
+
+    // 💰 Tổng tiền
+    subtotal: {
         type: Number,
-        default: 0
+        required: true,
+        min: 0,
     },
-    usedPoints: {
+    discount: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0,
     },
-    isPaid: {
-        type: Boolean,
-        default: false
+    total: {
+        type: Number,
+        required: true,
+        min: 0,
     },
-    paidAt: {
-        type: Date
+
+    // 🎟️ Voucher (nếu áp dụng)
+    voucherId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "voucher",
+        default: null,
     },
-    isDelivered: {
-        type: Boolean,
-        default: false
-    },
-    deliveredAt: {
-        type: Date
-    },
-    cancelReason: {
-        type: String,
-        default: ""
-    },
-    cancelledAt: {
-        type: Date
-    },
-    // Voucher information
     voucherCode: {
         type: String,
-        default: null
+        default: null,
     },
-    voucherDiscount: {
-        type: Number,
-        default: 0
-    },
-    voucherType: {
+
+    // 💳 Thanh toán
+    paymentMethod: {
         type: String,
-        enum: [null, 'percentage', 'fixed', 'free_shipping'],
-        default: null
+        enum: ["CASH", "CARD", "MOMO", "ZALOPAY"],
+        default: "CASH",
     },
-    voucherId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'voucher',
-        default: null
-    }
-}, {
-    timestamps: true
-})
+    paymentStatus: {
+        type: String,
+        enum: ["UNPAID", "PAID", "REFUNDED"],
+        default: "UNPAID",
+    },
 
-// Add a post-save hook to update user's points when an order is saved/updated
-orderSchema.post('save', async function (doc) {
-    try {
-        // Only process if the order has earnedPoints and is a new or updated document
-        if (doc.earnedPoints > 0) {
-            // Find the user and update their rewards points
-            await mongoose.model('user').findByIdAndUpdate(
-                doc.userId,
-                {
-                    $inc: { rewardsPoint: doc.earnedPoints },
-                    $push: {
-                        orderHistory: doc._id
-                    }
-                },
-                { new: true, useFindAndModify: false }
-            );
+    // 🧩 Trạng thái xử lý món ăn
+    orderStatus: {
+        type: String,
+        enum: ["PENDING", "COOKING", "READY", "SERVED", "COMPLETED", "CANCELLED"],
+        default: "PENDING",
+    },
 
-            console.log(`Added ${doc.earnedPoints} points to user ${doc.userId} for order ${doc._id}`);
-        }
-    } catch (error) {
-        console.error('Error updating user points from order:', error);
+    // 💎 Tích điểm thưởng
+    earnedPoints: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    redeemedPoints: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+
+    // ⏰ Thời gian xử lý
+    orderTime: {
+        type: Date,
+        default: Date.now,
+    },
+    completedTime: {
+        type: Date,
+        default: null,
+    },
+
+    // 📝 Ghi chú từ khách hoặc nhân viên
+    note: {
+        type: String,
+        default: "",
+    },
+
+}, { timestamps: true });
+
+
+// 🧮 Tự động tính điểm thưởng (1% tổng tiền)
+orderSchema.pre('save', function (next) {
+    if (this.isNew && this.total > 0) {
+        this.earnedPoints = Math.floor(this.total * 0.01);
     }
+    next();
 });
 
 const OrderModel = mongoose.model("order", orderSchema);

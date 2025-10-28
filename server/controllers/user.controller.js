@@ -12,9 +12,9 @@ import jwt from 'jsonwebtoken'
 // Register Controller
 export async function registerUserController(req, res) {
     try {
-        const { name, email, password } = req.body
+        const { name, email, password, mobile } = req.body
 
-        if (!name || !email || !password) {
+        if (!name || !email || !password || !mobile) {
             return res.status(400).json({
                 message: "Vui lòng nhập các trường bắt buộc",
                 error: true,
@@ -65,7 +65,8 @@ export async function registerUserController(req, res) {
         const payload = {
             name,
             email,
-            password: hashPassword
+            password: hashPassword,
+            mobile
         }
 
         const newUser = new UserModel(payload)
@@ -244,30 +245,49 @@ export async function logoutController(req, res) {
 // Upload User Avatar
 export async function uploadAvatar(req, res) {
     try {
-        const userId = req.userId // auth middleware
-        const image = req.file // multer middleware
+        const userId = req.userId; // auth middleware
+        const image = req.file; // multer middleware
 
-        const upload = await uploadImageCloudinary(image)
+        if (!image) {
+            return res.status(400).json({
+                message: "Không có file ảnh được tải lên",
+                success: false,
+                error: true
+            });
+        }
 
-        const updateUser = await UserModel.findByIdAndUpdate(userId, {
-            avatar: upload.url
-        })
+        const upload = await uploadImageCloudinary(image);
+
+        if (!upload.success) {
+            return res.status(400).json({
+                message: upload.error || "Lỗi khi tải ảnh lên",
+                success: false,
+                error: true
+            });
+        }
+
+        const updateUser = await UserModel.findByIdAndUpdate(
+            userId,
+            { avatar: upload.data.url },
+            { new: true, select: '-password -refreshToken -otp -otpExpires' }
+        );
 
         return res.json({
-            message: "Upload avatar thành công",
+            message: "Cập nhật ảnh đại diện thành công",
             success: true,
             error: false,
             data: {
                 _id: userId,
-                avatar: upload.url
+                avatar: upload.data.url
             }
-        })
+        });
     } catch (error) {
+        console.error('Lỗi khi cập nhật ảnh đại diện:', error);
         return res.status(500).json({
-            message: error.message || error,
+            message: error.message || "Đã xảy ra lỗi khi cập nhật ảnh đại diện",
             error: true,
             success: false
-        })
+        });
     }
 }
 
@@ -469,7 +489,7 @@ export async function verifyPassword(req, res) {
 // Change Password
 export async function changePassword(req, res) {
     try {
-        const { newPassword, confirmPassword, userId } = req.body;
+        const { newPassword, confirmNewPassword, userId } = req.body;
 
         if (!userId) {
             return res.status(400).json({
@@ -495,7 +515,7 @@ export async function changePassword(req, res) {
             body: {
                 email: user.email,
                 newPassword,
-                confirmPassword
+                confirmNewPassword
             }
         }, res);
 
@@ -511,9 +531,9 @@ export async function changePassword(req, res) {
 // Reset the Password
 export async function resetPassword(req, res) {
     try {
-        const { email, newPassword, confirmPassword } = req.body
+        const { email, newPassword, confirmNewPassword } = req.body
 
-        if (!email || !newPassword || !confirmPassword) {
+        if (!email || !newPassword || !confirmNewPassword) {
             return res.status(400).json({
                 message: "Vui lòng nhập các trường bắt buộc",
                 error: true,
@@ -531,7 +551,7 @@ export async function resetPassword(req, res) {
             })
         }
 
-        if (newPassword !== confirmPassword) {
+        if (newPassword !== confirmNewPassword) {
             return res.status(400).json({
                 message: "Mật khẩu mới và mật khẩu xác nhận phải giống nhau.",
                 error: true,

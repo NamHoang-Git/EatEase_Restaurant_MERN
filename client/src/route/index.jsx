@@ -1,19 +1,18 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
-import Home from '../pages/Home';
+import Home from '@/pages/Home';
 import SearchPage from '../pages/SearchPage';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import RegistrationSuccess from '../pages/RegistrationSuccess';
-import VerifyEmail from '../pages/VerifyEmail';
-import ForgotPassword from '../pages/ForgotPassword';
-import OtpVerification from '../pages/OtpVerification';
-import ResetPassword from '../pages/ResetPassword';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import RegistrationSuccess from '@/pages/RegistrationSuccess';
+import VerifyEmail from '@/pages/VerifyEmail';
+import ForgotPassword from '@/pages/ForgotPassword';
+import OtpVerification from '@/pages/OtpVerification';
+import ResetPassword from '@/pages/ResetPassword';
 import UserMenuMobile from '../pages/UserMenuMobile';
 import Dashboard from '../layouts/Dashboard';
 import Profile from '../pages/Profile';
 import MyOrders from '../pages/MyOrders';
-import Address from '../pages/Address';
 import CategoryPage from './../pages/CategoryPage';
 import ProductAdmin from '../pages/ProductAdmin';
 import AdminPermission from '../layouts/AdminPermission';
@@ -28,6 +27,7 @@ import CartPage from '../pages/CartPage';
 import BillPage from './../pages/BillPage';
 import ReportPage from './../pages/ReportPage';
 import VoucherPage from '../pages/VoucherPage';
+import AdminDashboard from '@/layouts/AdminDashboard';
 
 const router = createBrowserRouter([
     {
@@ -49,6 +49,25 @@ const router = createBrowserRouter([
                         <Login />
                     </PublicRoute>
                 ),
+            },
+            {
+                path: 'admin',
+                element: (
+                    <ProtectedRoute>
+                        <AdminDashboard />
+                    </ProtectedRoute>
+                ),
+                children: [
+                    {
+                        path: 'dashboards',
+                        element: <ReportPage />
+                    },
+                    {
+                        path: 'profile',
+                        element: <Profile />
+                    },
+                    // Add more admin routes here
+                ]
             },
             {
                 path: 'register',
@@ -102,7 +121,7 @@ const router = createBrowserRouter([
                 path: 'dashboard',
                 element: (
                     <ProtectedRoute>
-                        <Dashboard />
+                        <AdminDashboard />
                     </ProtectedRoute>
                 ),
                 children: [
@@ -149,10 +168,6 @@ const router = createBrowserRouter([
                                 <VoucherPage />
                             </AdminPermission>
                         ),
-                    },
-                    {
-                        path: 'address',
-                        element: <Address />,
                     },
                     {
                         path: 'my-orders',

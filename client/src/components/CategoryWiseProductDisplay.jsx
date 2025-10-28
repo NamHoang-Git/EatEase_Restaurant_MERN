@@ -8,6 +8,8 @@ import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from './../utils/AxiosToastError';
 import CardProduct from './CardProduct';
 import CardLoading from './CardLoading';
+import { ProductCard } from './product/product-card';
+import GradientText from './GradientText';
 
 const CategoryWiseProductDisplay = ({ id, name }) => {
     const [data, setData] = useState([]);
@@ -57,77 +59,78 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
     const redirectURL = `/${valideURLConvert(name)}-${id}`;
 
     return (
-        <div
-            className="container mx-auto px-4 sm:px-8 sm:py-6 py-4 bg-primary-100 shadow-md shadow-secondary-100
-        sm:rounded-xl rounded-[20px]"
-        >
-            <div className="container mx-auto pb-1 flex items-center justify-between gap-4 text-sm sm:text-lg">
-                <h3 className="font-bold">{name}</h3>
+        <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-4">
+                <GradientText
+                    colors={[
+                        '#84CC16',
+                        '#A3E635',
+                        '#D9F99D',
+                        '#A7F3D0',
+                        '#BBF7D0',
+                        '#D4F6C7',
+                        '#B9F1B7',
+                        '#C4E023',
+                        '#A1E91D',
+                        '#A9F97F',
+                    ]}
+                    animationSpeed={5.5}
+                    showBorder={false}
+                    className="custom-class text-2xl font-bold"
+                >
+                    {name}
+                </GradientText>
+                {/* <h2 className="text-2xl font-bold text-emerald-400">{name}</h2> */}
                 <Link
                     to={redirectURL}
                     onClick={scrollToTop}
-                    className="flex items-center gap-1 text-secondary-200 hover:text-secondary-100 font-bold text-[10px] sm:text-base"
+                    className="hover:bg-zinc-800 hover:border-emerald-500
+                    transition-all duration-300 text-white border-2 border-zinc-300 px-4 py-2 rounded-md"
                 >
                     Xem tất cả
-                    <span>
-                        <FaCaretRight size={16} />
-                    </span>
                 </Link>
             </div>
-            <div className="container mx-auto">
-                <div className="relative flex items-center">
-                    <div
-                        ref={containerRef}
-                        className="grid grid-flow-col auto-cols-[minmax(150px,150px)] sm:auto-cols-[minmax(12rem,12rem)] md:auto-cols-[minmax(13rem,13rem)]
-                    lg:auto-cols-[minmax(14rem,14rem)] gap-3 md:gap-6 lg:gap-8 container mx-auto py-2 overflow-x-auto scroll-smooth scrollbar-hide"
-                    >
-                        {loading &&
-                            loadingCardNumber.map((_, index) => {
-                                return (
-                                    <CardLoading
-                                        key={
-                                            'CategorywiseProductDisplay123' +
-                                            index
-                                        }
-                                    />
-                                );
-                            })}
 
-                        {data.map((p, index) => {
-                            return (
-                                <CardProduct
-                                    data={p}
-                                    key={
-                                        p._id +
-                                        'CategorywiseProductDisplay' +
-                                        index
-                                    }
-                                />
-                            );
-                        })}
-                    </div>
+            <div className="relative">
+                <div
+                    ref={containerRef}
+                    className="grid grid-flow-col auto-cols-[minmax(220px,1fr)] lg:auto-cols-[minmax(240px,1fr)] xl:auto-cols-[minmax(260px,1fr)]
+                gap-4 md:gap-6 overflow-x-auto scroll-smooth scrollbar-hide pb-6"
+                >
+                    {loading
+                        ? loadingCardNumber.map((_, index) => (
+                              <CardLoading key={`loading-${index}`} />
+                          ))
+                        : data.map((product) => (
+                              <ProductCard key={product._id} data={product} />
+                          ))}
+                </div>
 
-                    {/* Arrow */}
-                    <div className="ml-[-15px] left-0 absolute hidden lg:block cursor-pointer">
+                {/* Left Arrow */}
+                {data.length > 0 && !loading && (
+                    <div className="absolute hidden md:block left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10">
                         <button
                             onClick={handleScrollLeft}
-                            className="z-10 bg-white hover:bg-gray-100 shadow-md shadow-primary-200 text-lg
-                        p-2 rounded-full "
+                            className="bg-white/20 text-white backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition-colors"
+                            aria-label="Previous products"
                         >
-                            <FaAngleLeft size={16} />
+                            <FaAngleLeft size={20} />
                         </button>
                     </div>
+                )}
 
-                    <div className="mr-[-15px] right-0 absolute hidden lg:block cursor-pointer">
+                {/* Right Arrow */}
+                {data.length > 0 && !loading && (
+                    <div className="absolute hidden md:block right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10">
                         <button
                             onClick={handleScrollRight}
-                            className="z-10 bg-white hover:bg-gray-100 shadow-md shadow-primary-200 text-lg
-                        p-2 rounded-full "
+                            className="bg-white/20 text-white backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition-colors"
+                            aria-label="Next products"
                         >
-                            <FaAngleRight size={16} />
+                            <FaAngleRight size={20} />
                         </button>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

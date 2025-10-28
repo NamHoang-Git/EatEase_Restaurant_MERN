@@ -21,6 +21,7 @@ const Search = () => {
 
     const redirectToSearchPage = () => {
         navigate('/search');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleOnChange = (e) => {
@@ -34,78 +35,76 @@ const Search = () => {
     };
 
     return (
-        <div
-            className={`${
-                !isSearchPage ? 'my-0' : 'my-2'
-            } w-full sm:my-0 h-8 sm:h-12 rounded-3xl border-[3px] border-inset overflow-hidden
-        flex items-center text-neutral-500 bg-base-100 group focus-within:border-secondary-100`}
-        >
-            <div>
-                {isMobile && isSearchPage ? (
-                    <Link
-                        to={'/'}
-                        className="flex justify-center items-center h-full p-1 m-2 group-focus-within:text-secondary-200
-                    bg-white shadow-sm shadow-secondary-100 group-focus-within:shadow-secondary-100 rounded-full"
-                    >
-                        <GiReturnArrow size={14} />
-                    </Link>
-                ) : (
-                    <button
-                        className="flex justify-center items-center h-full p-4
-                    group-focus-within:text-secondary-200 font-bold text-secondary-200"
-                    >
-                        <IoSearch size={18} />
-                    </button>
-                )}
+        <search className="cursor-pointer liquid-glass-menu max-w-2xl container mx-auto rounded-3xl">
+            <div
+                className="md:px-8 px-2 sm:my-0 h-8 sm:h-12 rounded-3xl border-[3px] overflow-hidden
+                flex items-center text-sm text-red-600 liquid-glass group focus-within:border-purple-400"
+            >
+                <div>
+                    {isMobile && isSearchPage ? (
+                        <Link
+                            to={'/'}
+                            className="flex justify-center items-center h-full p-1 m-2 group-focus-within:text-purple-400
+                        shadow-sm shadow-purple-400 group-focus-within:shadow-purple-400 rounded-full"
+                        >
+                            <GiReturnArrow size={14} />
+                        </Link>
+                    ) : (
+                        <button
+                            className="flex justify-center items-center h-full p-4
+                    group-focus-within:text-purple-400 font-bold mb-[2px]"
+                        >
+                            <IoSearch size={18} />
+                        </button>
+                    )}
+                </div>
+                <div className="w-full h-full outline-none z-10">
+                    {!isSearchPage ? (
+                        // Not in Search Page
+                        <div
+                            onClick={redirectToSearchPage}
+                            className="w-full h-full flex items-center font-medium"
+                        >
+                            <TypeAnimation
+                                sequence={[
+                                    'Tìm kiếm "điện thoại"',
+                                    1000,
+                                    'Tìm kiếm "iPad"',
+                                    1000,
+                                    'Tìm kiếm "máy tính xách tay"',
+                                    1000,
+                                    'Tìm kiếm "bàn phím"',
+                                    1000,
+                                    'Tìm kiếm "bộ xử lý"',
+                                    1000,
+                                ]}
+                                wrapper="span"
+                                speed={60}
+                                repeat={Infinity}
+                            />
+                        </div>
+                    ) : (
+                        // Search Page
+                        <div className="relative w-full h-full outline-none">
+                            <input
+                                type="text"
+                                placeholder="Bạn muốn mua gì hôm nay?"
+                                autoFocus={true}
+                                className="w-full h-full bg-transparent text-white outline-none"
+                                defaultValue={searchText}
+                                onChange={handleOnChange}
+                                spellCheck={false}
+                            />
+                            {isTyping && (
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
-            <div className="w-full h-full">
-                {!isSearchPage ? (
-                    // Not in Search Page
-                    <div
-                        onClick={redirectToSearchPage}
-                        className="w-full h-full flex items-center sm:text-base text-xs sm:pt-0 pt-[4px]
-                    text-secondary-200 font-medium"
-                    >
-                        <TypeAnimation
-                            sequence={[
-                                'Tìm kiếm "điện thoại"',
-                                1000,
-                                'Tìm kiếm "iPad"',
-                                1000,
-                                'Tìm kiếm "laptop"',
-                                1000,
-                                'Tìm kiếm "bàn phím"',
-                                1000,
-                                'Tìm kiếm "vi xử lý"',
-                                1000,
-                            ]}
-                            wrapper="span"
-                            speed={60}
-                            repeat={Infinity}
-                        />
-                    </div>
-                ) : (
-                    // Search Page
-                    <div className="relative w-full h-full">
-                        <input
-                            type="text"
-                            placeholder="Bạn muốn mua gì hôm nay?"
-                            autoFocus={true}
-                            className="bg-transparent w-full h-full sm:text-base text-xs sm:pt-0 pt-[1px] outline-none
-                            text-secondary-200"
-                            defaultValue={searchText}
-                            onChange={handleOnChange}
-                            spellCheck={false}
-                        />
-                        {isTyping && (
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary-200"></div>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
+        </search>
     );
 };
 

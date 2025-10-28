@@ -10,6 +10,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
     const [data, setData] = useState({
         name: '',
         image: '',
+        description: '',
     });
 
     const [loading, setLoading] = useState(false);
@@ -25,24 +26,39 @@ const UploadCategoryModel = ({ close, fetchData }) => {
         });
     };
 
-    const handleUploadCategoryImage = async (e) => {
+    const handleUploadFile = async (e) => {
         const file = e.target.files[0];
-
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
         setLoading(true);
-        const response = await uploadImage(file);
-        const { data: ImageResponse } = response;
-        setLoading(false);
+        try {
+            const response = await uploadImage(file);
+            console.log('Upload response:', response);
 
-        setData((prev) => {
-            return {
-                ...prev,
-                image: ImageResponse.data.url,
-            };
-        });
+            // Check if response is an error
+            if (response?.response?.data) {
+                console.error('Upload error:', response.response.data);
+                return;
+            }
+
+            // Check for successful response
+            if (response?.data?.success) {
+                const imageUrl =
+                    response.data.data?.url || response.data.data?.imageUrl;
+                console.log('Image URL:', imageUrl);
+
+                setData((prev) => ({
+                    ...prev,
+                    image: imageUrl,
+                }));
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+        } finally {
+            setLoading(false);
+            // Reset the file input to allow selecting the same file again
+            e.target.value = '';
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -116,59 +132,81 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                         />
                     </div>
 
+                    {/* Category Description */}
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="description"
+                            className="block font-medium text-sm text-gray-700"
+                        >
+                            Mô tả danh mục
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="3"
+                            value={data.description}
+                            onChange={handleOnChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            placeholder="Nhập mô tả danh mục"
+                        />
+                    </div>
+
                     {/* Image Upload */}
                     <div className="space-y-2">
                         <label className="block font-semibold text-gray-700">
                             Hình ảnh <span className="text-red-500">*</span>
                         </label>
-                        <label
-                            htmlFor="image"
-                            className={`block border-2 border-dashed rounded-xl sm:p-6 p-4 text-center cursor-pointer
-                            transition-all duration-200 group ${
-                                data.image
-                                    ? 'border-green-200 bg-green-50'
-                                    : 'border-gray-300 hover:border-rose-400'
-                            }`}
-                        >
-                            {data.image ? (
-                                <div className="relative">
-                                    <img
-                                        src={data.image}
-                                        alt="Preview"
-                                        className="sm:h-40 h-32 mx-auto object-contain rounded-lg"
-                                    />
-                                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 rounded-lg transition-all flex items-center justify-center">
-                                        <span className="text-white bg-black/70 text-xs px-2 py-1 rounded">
-                                            Thay đổi ảnh
-                                        </span>
+                        <div className="relative">
+                            <label
+                                htmlFor="image-upload"
+                                className={`block border-2 border-dashed rounded-xl sm:p-6 p-4 text-center cursor-pointer
+                                transition-all duration-200 group ${
+                                    data.image
+                                        ? 'border-green-200 bg-green-50'
+                                        : 'border-gray-300 hover:border-rose-400'
+                                }`}
+                            >
+                                {data.image ? (
+                                    <div className="relative">
+                                        <img
+                                            src={data.image}
+                                            alt="Preview"
+                                            className="sm:h-40 h-32 mx-auto object-contain rounded-lg"
+                                        />
+                                        <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 rounded-lg transition-all flex items-center justify-center">
+                                            <span className="text-white bg-black/70 text-xs px-2 py-1 rounded">
+                                                Thay đổi ảnh
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    <div
-                                        className="mx-auto w-12 h-12 bg-gray-100 text-gray-400 group-hover:text-rose-400 group-hover:bg-rose-50 rounded-full
-                                    flex items-center justify-center"
-                                    >
-                                        <IoAddSharp size={24} />
+                                ) : (
+                                    <div className="flex flex-col items-center">
+                                        <div
+                                            className="mx-auto w-12 h-12 bg-gray-100 text-gray-400 group-hover:text-rose-400 group-hover:bg-rose-50 rounded-full
+                                            flex items-center justify-center"
+                                        >
+                                            <IoAddSharp size={24} />
+                                        </div>
+                                        <div className="sm:text-sm text-xs text-rose-500 text-center">
+                                            <p className="font-medium">
+                                                Tải ảnh lên
+                                            </p>
+                                            <p className="sm:text-xs text-[10px] text-rose-300">
+                                                PNG, JPG (tối đa 5MB)
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="sm:text-sm text-xs text-rose-500">
-                                        <p className="font-medium">
-                                            Tải ảnh lên
-                                        </p>
-                                        <p className="sm:text-xs text-[10px] text-rose-300">
-                                            PNG, JPG (tối đa 5MB)
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+                                )}
+                            </label>
                             <input
                                 type="file"
-                                id="image"
-                                className="hidden"
-                                onChange={handleUploadCategoryImage}
+                                id="image-upload"
+                                name="image-upload"
+                                className="sr-only"
                                 accept="image/*"
+                                onChange={(e) => handleUploadFile(e, 'image')}
                             />
-                        </label>
+                        </div>
                     </div>
 
                     {/* Actions */}
@@ -177,7 +215,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                             type="button"
                             onClick={close}
                             className="px-6 py-[6px] border-2 border-secondary-100 rounded-lg text-secondary-200 hover:bg-secondary-100
-                            focus:outline-none focus:ring-2 focus:ring-offset-2 hover:text-white font-semibold focus:ring-secondary-200"
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 hover:text-white font-semibold focus:ring-secondary-200"
                             disabled={loading}
                         >
                             Hủy
@@ -185,7 +223,7 @@ const UploadCategoryModel = ({ close, fetchData }) => {
                         <button
                             type="submit"
                             className="px-4 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-80
-                            focus:outline-none flex items-center disabled:opacity-50 font-semibold"
+                        focus:outline-none flex items-center disabled:opacity-50 font-semibold"
                             disabled={!data.name || !data.image || loading}
                         >
                             {loading ? (
