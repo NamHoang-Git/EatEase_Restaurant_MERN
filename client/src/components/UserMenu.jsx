@@ -247,6 +247,18 @@ const UserMenu = ({ close }) => {
                 >
                     <span className="font-medium text-sm">Tài khoản</span>
                 </Link>
+                <Link
+                    onClick={handleClose}
+                    to={'/dashboard/category'}
+                    className={`flex items-center text-bl gap-4 px-4 py-2 rounded-xl transition-all duration-300 ease-out cursor-pointer
+                        hover:bg-amber-400/10 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${
+                            isActive('/dashboard/category')
+                                ? 'bg-white/20 shadow-md'
+                                : ''
+                        }`}
+                >
+                    <span className="font-medium text-sm">Danh mục</span>
+                </Link>
                 <Divider />
                 <button
                     onClick={handleLogout}
