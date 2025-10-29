@@ -12,7 +12,7 @@ import CartMobileLink from './components/CartMobile';
 import AxiosToastError from './utils/AxiosToastError';
 import fetchUserDetails from './utils/fetchUserDetails';
 import { Footer } from './components/footer';
-import Header from '@/components/Header';
+import { Header } from '@/components/Header';
 
 function App() {
     const dispatch = useDispatch();
