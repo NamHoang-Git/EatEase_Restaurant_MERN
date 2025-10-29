@@ -27,8 +27,8 @@ import DisplayCartItem from './DisplayCartItem';
 import defaultAvatar from '../assets/defaultAvatar.png';
 import Search from './Search';
 import { valideURLConvert } from '@/utils/valideURLConvert';
-import UserMenu from './UserMenu';
 import { RootState } from '@/store/store';
+import UserMenu from './UserMenu';
 
 // Define types for the link items
 interface NavLink {
@@ -476,7 +476,7 @@ export function Header() {
                     </div>
                 </div>
             </header>
-            <div className="hidden md:block z-10">
+            <div className="hidden md:block z-10 relative">
                 <Search />
             </div>
             {openCartSection && (

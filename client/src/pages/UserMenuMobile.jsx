@@ -1,5 +1,5 @@
+import UserMenu from '@/components/UserMenu';
 import React from 'react';
-import UserMenu from '../components/UserMenu';
 import { FaLongArrowAltLeft } from 'react-icons/fa';
 
 const UserMenuMobile = () => {

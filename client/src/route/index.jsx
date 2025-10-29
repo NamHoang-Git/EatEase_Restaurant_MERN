@@ -59,14 +59,33 @@ const router = createBrowserRouter([
                 ),
                 children: [
                     {
-                        path: 'dashboards',
-                        element: <ReportPage />
+                        path: 'dashboard',
+                        element: <Profile />
                     },
                     {
                         path: 'profile',
                         element: <Profile />
                     },
-                    // Add more admin routes here
+                    {
+                        path: 'users',
+                        element: <Profile />
+                    },
+                    {
+                        path: 'products',
+                        element: <Profile />
+                    },
+                    {
+                        path: 'categories',
+                        element: <CategoryPage />
+                    },
+                    {
+                        path: 'vouchers',
+                        element: <Profile />
+                    },
+                    {
+                        path: 'reports',
+                        element: <Profile />
+                    },
                 ]
             },
             {
