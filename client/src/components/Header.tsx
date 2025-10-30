@@ -203,7 +203,7 @@ export function Header() {
                                             aria-label="User menu"
                                             type="button"
                                         >
-                                            <div className="relative p-0.5 overflow-hidden rounded-full liquid-glass">
+                                            <div className="relative p-0.5 overflow-hidden rounded-full border bg-amber-50/50">
                                                 <img
                                                     src={
                                                         user.avatar ||
@@ -218,12 +218,12 @@ export function Header() {
                                             <div className="flex flex-col items-start flex-1 min-w-0">
                                                 <span
                                                     title={user.name}
-                                                    className="text-sm font-medium text-white truncate max-w-16 lg:max-w-20 xl:max-w-max"
+                                                    className="text-sm font-bold text-white truncate max-w-16 lg:max-w-20 xl:max-w-max"
                                                 >
                                                     {user.name}
                                                 </span>
                                                 {user.role === 'ADMIN' && (
-                                                    <span className="text-xs text-purple-400">
+                                                    <span className="text-xs text-orange-100">
                                                         Quản trị viên
                                                     </span>
                                                 )}

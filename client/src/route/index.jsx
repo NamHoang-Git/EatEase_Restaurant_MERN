@@ -9,24 +9,23 @@ import VerifyEmail from '@/pages/VerifyEmail';
 import ForgotPassword from '@/pages/ForgotPassword';
 import OtpVerification from '@/pages/OtpVerification';
 import ResetPassword from '@/pages/ResetPassword';
-import UserMenuMobile from '../pages/UserMenuMobile';
 import Dashboard from '../layouts/Dashboard';
 import Profile from '../pages/Profile';
-import MyOrders from '../pages/MyOrders';
-import CategoryPage from './../pages/CategoryPage';
-import ProductAdmin from '../pages/ProductAdmin';
+// import MyOrders from '../pages/MyOrders';
+// import CategoryPage from './../pages/CategoryPage';
+// import ProductAdmin from '../pages/ProductAdmin';
 import AdminPermission from '../layouts/AdminPermission';
 import ProductListPage from '../pages/ProductListPage';
 import ProductDisplayPage from '../pages/ProductDisplayPage';
-import CheckoutPage from './../pages/CheckoutPage';
+// import CheckoutPage from './../pages/CheckoutPage';
 import Success from './../pages/Success';
 import Cancel from './../pages/Cancel';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
-import CartPage from '../pages/CartPage';
-import BillPage from './../pages/BillPage';
-import ReportPage from './../pages/ReportPage';
-import VoucherPage from '../pages/VoucherPage';
+// import CartPage from '../pages/CartPage';
+// import BillPage from './../pages/BillPage';
+// import ReportPage from './../pages/ReportPage';
+// import VoucherPage from '../pages/VoucherPage';
 import AdminDashboard from '@/layouts/AdminDashboard';
 
 const router = createBrowserRouter([
@@ -76,7 +75,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'categories',
-                        element: <CategoryPage />
+                        element: <Profile />
                     },
                     {
                         path: 'vouchers',
@@ -133,10 +132,6 @@ const router = createBrowserRouter([
                 element: <ResetPassword />,
             },
             {
-                path: 'user',
-                element: <UserMenuMobile />,
-            },
-            {
                 path: 'dashboard',
                 element: (
                     <ProtectedRoute>
@@ -148,50 +143,6 @@ const router = createBrowserRouter([
                         path: 'profile',
                         element: <Profile />,
                     },
-                    {
-                        path: 'category',
-                        element: (
-                            <AdminPermission>
-                                <CategoryPage />
-                            </AdminPermission>
-                        ),
-                    },
-                    {
-                        path: 'product',
-                        element: (
-                            <AdminPermission>
-                                <ProductAdmin />
-                            </AdminPermission>
-                        ),
-                    },
-                    {
-                        path: 'bill',
-                        element: (
-                            <AdminPermission>
-                                <BillPage />
-                            </AdminPermission>
-                        ),
-                    },
-                    {
-                        path: 'report',
-                        element: (
-                            <AdminPermission>
-                                <ReportPage />
-                            </AdminPermission>
-                        ),
-                    },
-                    {
-                        path: 'voucher',
-                        element: (
-                            <AdminPermission>
-                                <VoucherPage />
-                            </AdminPermission>
-                        ),
-                    },
-                    {
-                        path: 'my-orders',
-                        element: <MyOrders />,
-                    },
                 ],
             },
             {
@@ -202,18 +153,18 @@ const router = createBrowserRouter([
                 path: 'product/:product',
                 element: <ProductDisplayPage />,
             },
-            {
-                path: 'cart',
-                element: <CartPage />,
-            },
-            {
-                path: 'checkout',
-                element: (
-                    <ProtectedRoute>
-                        <CheckoutPage />
-                    </ProtectedRoute>
-                ),
-            },
+            // {
+            //     path: 'cart',
+            //     element: <CartPage />,
+            // },
+            // {
+            //     path: 'checkout',
+            //     element: (
+            //         <ProtectedRoute>
+            //             <CheckoutPage />
+            //         </ProtectedRoute>
+            //     ),
+            // },
             {
                 path: 'success',
                 element: (
