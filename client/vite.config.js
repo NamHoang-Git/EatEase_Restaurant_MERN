@@ -34,9 +34,9 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
           });
         },
-      }
+      },
     },
-    cors: true
+    cors: true,
   },
   optimizeDeps: {
     exclude: [
@@ -45,4 +45,5 @@ export default defineConfig({
       'react-icons',
     ],
   },
+  cacheDir: path.resolve(__dirname, '.vite_cache'),
 });
