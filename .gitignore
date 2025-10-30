@@ -7,10 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build outputs
 node_modules
 dist
 dist-ssr
 *.local
+
+# Vite cache (chuyển ra ngoài node_modules)
+.vite_cache/
+client/.vite_cache/
+server/.vite_cache/
 
 # Editor directories and files
 .vscode/*
@@ -23,7 +29,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# manual changes
+# Manual changes / environment
 client/node_modules
 server/node_modules
 .env
