@@ -11,7 +11,7 @@ import { setUserDetails } from '../store/userSlice';
 import defaultAvatar from '../assets/defaultAvatar.png';
 import { FaEdit, FaLock, FaUser, FaEnvelope, FaPhone } from 'react-icons/fa';
 
-const Profile = () => {
+const ProfileTest = () => {
     const user = useSelector((state) => state.user);
     const [openProfileAvatarEdit, setOpenProfileAvatarEdit] = useState(false);
     const [userData, setUserData] = useState({
@@ -318,4 +318,4 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default ProfileTest;

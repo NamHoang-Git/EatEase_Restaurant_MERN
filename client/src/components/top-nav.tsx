@@ -15,6 +15,8 @@ import React from 'react';
 import { ThemeToggle } from './theme-toggle';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import defaultAvatar from '../assets/defaultAvatar.png';
+import UserMenu from './UserMenu';
 
 export function TopNav() {
     const pathname = usePathname() || '';
@@ -52,7 +54,7 @@ export function TopNav() {
 
     // Get safe values from settings
     const safeSettings = {
-        fullName: settings?.fullName || 'User',
+        name: settings?.name || 'User',
         email: settings?.email || 'No email',
         avatar: settings?.avatar || undefined,
     };
@@ -89,7 +91,7 @@ export function TopNav() {
                                 <Avatar className="h-8 w-8">
                                     {user?.avatar ? (
                                         <AvatarImage
-                                            src={user.avatar}
+                                            src={user.avatar || defaultAvatar}
                                             alt={user.name || 'User'}
                                         />
                                     ) : null}
@@ -98,7 +100,7 @@ export function TopNav() {
                                     </AvatarFallback>
                                 </Avatar>
                                 <img
-                                    src={user.avatar}
+                                    src={user.avatar || defaultAvatar}
                                     alt={user.name}
                                     className="w-8 h-8 rounded-full object-cover"
                                     width={32}
@@ -106,29 +108,8 @@ export function TopNav() {
                                 />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            className="w-56"
-                            align="end"
-                            forceMount
-                        >
-                            <DropdownMenuLabel className="font-normal">
-                                <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none">
-                                        {user.name}
-                                    </p>
-                                    <p className="text-xs leading-none text-muted-foreground">
-                                        {user.email}
-                                    </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <Link to="/settings">Profile</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link to="/settings">Settings</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Log out</DropdownMenuItem>
+                        <DropdownMenuContent className='mr-4'>
+                            <UserMenu close={close} />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

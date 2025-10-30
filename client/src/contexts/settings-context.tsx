@@ -4,9 +4,9 @@ import { createContext, useContext, useEffect, useState } from "react"
 
 export interface UserSettings {
   avatar: string
-  fullName: string
+  name: string
   email: string
-  phone: string
+  mobile: string
   timezone: string
   language: string
   currency: string
@@ -14,30 +14,13 @@ export interface UserSettings {
   fontSize: number
   theme: "light" | "dark" | "system"
   layout: "default" | "compact" | "expanded"
-  notifications: {
-    email: boolean
-    push: boolean
-    sms: boolean
-    accountActivity: boolean
-    newFeatures: boolean
-    marketing: boolean
-    frequency: "real-time" | "daily" | "weekly"
-    quietHoursStart: string
-    quietHoursEnd: string
-  }
-  privacy: {
-    analyticsSharing: boolean
-    personalizedAds: boolean
-    visibility: "public" | "private"
-    dataRetention: "6-months" | "1-year" | "2-years" | "indefinite"
-  }
 }
 
 const defaultSettings: UserSettings = {
   avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/38184074.jpg-M4vCjTSSWVw5RwWvvmrxXBcNVU8MBU.jpeg",
-  fullName: "Dollar Singh",
+  name: "Dollar Singh",
   email: "dollar.singh@example.com",
-  phone: "+1 (555) 123-4567",
+  mobile: "+1 (555) 123-4567",
   timezone: "utc-8",
   language: "en",
   currency: "usd",
@@ -45,31 +28,12 @@ const defaultSettings: UserSettings = {
   fontSize: 16,
   theme: "system",
   layout: "default",
-  notifications: {
-    email: true,
-    push: true,
-    sms: false,
-    accountActivity: true,
-    newFeatures: true,
-    marketing: false,
-    frequency: "real-time",
-    quietHoursStart: "22:00",
-    quietHoursEnd: "07:00",
-  },
-  privacy: {
-    analyticsSharing: true,
-    personalizedAds: false,
-    visibility: "public",
-    dataRetention: "1-year",
-  },
 }
 
 interface SettingsContextType {
   settings: UserSettings | null
   isLoading: boolean
   updateSettings: (newSettings: Partial<UserSettings>) => void
-  updateNotificationSettings: (settings: Partial<UserSettings["notifications"]>) => void
-  updatePrivacySettings: (settings: Partial<UserSettings["privacy"]>) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
@@ -117,18 +81,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         ...newSettings
       }));
     },
-    updateNotificationSettings: (notificationSettings: Partial<UserSettings["notifications"]>) => {
-      setSettings(prev => ({
-        ...(prev || defaultSettings),
-        notifications: { ...(prev?.notifications || defaultSettings.notifications), ...notificationSettings }
-      }));
-    },
-    updatePrivacySettings: (privacySettings: Partial<UserSettings["privacy"]>) => {
-      setSettings(prev => ({
-        ...(prev || defaultSettings),
-        privacy: { ...(prev?.privacy || defaultSettings.privacy), ...privacySettings }
-      }));
-    }
   };
 
   return (

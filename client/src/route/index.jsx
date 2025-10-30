@@ -9,24 +9,15 @@ import VerifyEmail from '@/pages/VerifyEmail';
 import ForgotPassword from '@/pages/ForgotPassword';
 import OtpVerification from '@/pages/OtpVerification';
 import ResetPassword from '@/pages/ResetPassword';
-import Dashboard from '../layouts/Dashboard';
-import Profile from '../pages/Profile';
-// import MyOrders from '../pages/MyOrders';
-// import CategoryPage from './../pages/CategoryPage';
-// import ProductAdmin from '../pages/ProductAdmin';
 import AdminPermission from '../layouts/AdminPermission';
 import ProductListPage from '../pages/ProductListPage';
 import ProductDisplayPage from '../pages/ProductDisplayPage';
-// import CheckoutPage from './../pages/CheckoutPage';
 import Success from './../pages/Success';
 import Cancel from './../pages/Cancel';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
-// import CartPage from '../pages/CartPage';
-// import BillPage from './../pages/BillPage';
-// import ReportPage from './../pages/ReportPage';
-// import VoucherPage from '../pages/VoucherPage';
 import AdminDashboard from '@/layouts/AdminDashboard';
+import Profile from '@/pages/Profile';
 
 const router = createBrowserRouter([
     {

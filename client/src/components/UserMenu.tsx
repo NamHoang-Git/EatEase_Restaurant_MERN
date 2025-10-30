@@ -156,7 +156,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ close, menuTriggerRef }) => {
                         <img
                             src={user?.avatar || defaultAvatar}
                             alt={user?.name}
-                            className="w-full h-full p-0.5 rounded-full object-cover border-2 border-red-600"
+                            className="w-16 h-16 p-0.5 rounded-full object-cover border-2 border-red-600"
                         />
                         {isAdmin && (
                             <span

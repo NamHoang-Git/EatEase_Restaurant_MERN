@@ -245,49 +245,30 @@ export async function logoutController(req, res) {
 // Upload User Avatar
 export async function uploadAvatar(req, res) {
     try {
-        const userId = req.userId; // auth middleware
-        const image = req.file; // multer middleware
+        const userId = req.userId // auth middleware
+        const image = req.file // multer middleware
 
-        if (!image) {
-            return res.status(400).json({
-                message: "Không có file ảnh được tải lên",
-                success: false,
-                error: true
-            });
-        }
+        const upload = await uploadImageCloudinary(image)
 
-        const upload = await uploadImageCloudinary(image);
-
-        if (!upload.success) {
-            return res.status(400).json({
-                message: upload.error || "Lỗi khi tải ảnh lên",
-                success: false,
-                error: true
-            });
-        }
-
-        const updateUser = await UserModel.findByIdAndUpdate(
-            userId,
-            { avatar: upload.data.url },
-            { new: true, select: '-password -refreshToken -otp -otpExpires' }
-        );
+        const updateUser = await UserModel.findByIdAndUpdate(userId, {
+            avatar: upload.url
+        })
 
         return res.json({
-            message: "Cập nhật ảnh đại diện thành công",
+            message: "Upload avatar thành công",
             success: true,
             error: false,
             data: {
                 _id: userId,
-                avatar: upload.data.url
+                avatar: upload.url
             }
-        });
+        })
     } catch (error) {
-        console.error('Lỗi khi cập nhật ảnh đại diện:', error);
         return res.status(500).json({
-            message: error.message || "Đã xảy ra lỗi khi cập nhật ảnh đại diện",
+            message: error.message || error,
             error: true,
             success: false
-        });
+        })
     }
 }
 
