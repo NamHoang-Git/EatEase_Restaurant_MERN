@@ -146,7 +146,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ close, menuTriggerRef }) => {
     const isAdmin = user?.role === 'ADMIN';
 
     return (
-        <div className="bg-amber-50 text-red-950 rounded-lg shadow-lg overflow-hidden w-full">
+        <div className="bg-background text-muted-foreground rounded-lg shadow-lg overflow-hidden w-full">
             <div className="p-4 pb-1">
                 <div className="flex items-center gap-3">
                     <Link
@@ -171,7 +171,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ close, menuTriggerRef }) => {
                         <Link
                             to={'/dashboard/profile'}
                             className="flex items-center gap-1 text-sm font-bold truncate
-                        text-red-600 hover:text-red-400"
+                        text-foreground hover:opacity-80"
                             title="Tài khoản"
                         >
                             {user?.name}
@@ -223,9 +223,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ close, menuTriggerRef }) => {
                         key={l.href}
                         to={l.href}
                         onClick={close}
-                        className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-amber-100 rounded-md hover:scale-[1.02]"
+                        className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-secondary rounded-md hover:scale-[1.02] transition-all duration-300 ease-out"
                     >
-                        <p className="text-slate-800">{l.icon}</p>
+                        <p className="text-foreground">{l.icon}</p>
                         {l.label}
                     </Link>
                 ))}
@@ -235,8 +235,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ close, menuTriggerRef }) => {
             <div className="pb-2">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium
-                    text-red-600 hover:bg-red-50 rounded-md hover:scale-[1.02] transition-all duration-300 ease-out"
+                    className="w-full flex items-center justify-center px-4 py-1 text-sm font-medium
+                    text-foreground hover:bg-secondary rounded-md hover:scale-[1.02] transition-all duration-300 ease-out"
                 >
                     Đăng xuất
                 </button>

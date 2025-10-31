@@ -21,6 +21,9 @@ import SummaryApi from '@/common/SummaryApi';
 import fetchUserDetails from '@/utils/fetchUserDetails';
 import { setUserDetails, updatedAvatar } from '@/store/userSlice';
 import AxiosToastError from '@/utils/AxiosToastError';
+import LiquidEther from '@/components/LiquidEther';
+import GlareHover from '@/components/GlareHover';
+import Loading from '@/components/Loading';
 
 const Profile = () => {
     const user = useSelector((state: RootState) => state?.user);
@@ -136,143 +139,131 @@ const Profile = () => {
     };
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="container mx-auto py-10 grid gap-2"
-        >
-            <Card className="">
-                <CardHeader>
-                    <CardTitle>Account Settings</CardTitle>
-                    <CardDescription>
-                        Manage your account information
-                    </CardDescription>
-                </CardHeader>
-            </Card>
-            <Tabs defaultValue="account" className="space-y-4">
-                <TabsContent value="account">
-                    <Card>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-4">
-                                <Label>Current Avatar</Label>
-                                <div className="flex items-center space-x-4">
-                                    <Avatar className="h-20 w-20">
-                                        <AvatarImage
-                                            src={user?.avatar || defaultAvatar}
-                                            alt={user?.name || 'User'}
-                                        />
-                                        <AvatarFallback>
-                                            {(user?.name || 'U')
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </div>
-                                <div>
-                                    <Label htmlFor="uploadProfile">
-                                        {loading
-                                            ? 'Đang tải lên...'
-                                            : 'Chọn ảnh'}
-                                    </Label>
-                                    <Input
-                                        onChange={handleUploadAvatar}
-                                        type="file"
-                                        accept="image/*"
-                                        id="uploadProfile"
-                                        className="hidden"
-                                        disabled={loading}
+        <div className="relative min-h-screen">
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <LiquidEther
+                    colors={['#CBB3A7', '#A6B1E1', '#B7CADB']}
+                    isViscous={false}
+                    iterationsViscous={8}
+                    iterationsPoisson={8}
+                    resolution={0.2}
+                    autoDemo={true}
+                    autoSpeed={0.2}
+                    autoRampDuration={1}
+                    style={{ width: '100%', height: '100%' }}
+                />
+            </div>
+            <form
+                onSubmit={handleSubmit}
+                className="container mx-auto grid gap-2 z-10 relative"
+            >
+                <Card className="border-2">
+                    <CardHeader className="py-4">
+                        <CardTitle className="font-bold uppercase">
+                            Tài khoản
+                        </CardTitle>
+                        <CardDescription>
+                            Quản lý thông tin tài khoản
+                        </CardDescription>
+                    </CardHeader>
+                </Card>
+                <Card className="space-y-4 py-4">
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4">
+                            <Label>Current Avatar</Label>
+                            <div className="flex items-center space-x-4">
+                                <Avatar className="h-20 w-20">
+                                    <AvatarImage
+                                        src={user?.avatar || defaultAvatar}
+                                        alt={user?.name || 'User'}
                                     />
-                                </div>
+                                    <AvatarFallback>
+                                        {(user?.name || 'U')
+                                            .split(' ')
+                                            .map((n) => n[0])
+                                            .join('')}
+                                    </AvatarFallback>
+                                </Avatar>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="full-name">Full Name</Label>
+                            <div>
+                                <Label htmlFor="uploadProfile">
+                                    {loading ? 'Đang tải lên...' : 'Chọn ảnh'}
+                                </Label>
                                 <Input
-                                    type="text"
-                                    placeholder="Nhập họ và tên"
-                                    value={userData.name}
-                                    name="name"
-                                    onChange={handleOnChange}
-                                    required
-                                    spellCheck={false}
+                                    onChange={handleUploadAvatar}
+                                    type="file"
+                                    accept="image/*"
+                                    id="uploadProfile"
+                                    className="hidden"
+                                    disabled={loading}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    type="email"
-                                    value={userData.email}
-                                    name="email"
-                                    onChange={handleOnChange}
-                                    required
-                                    disabled
-                                    spellCheck={false}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Phone Number</Label>
-                                <Input
-                                    type="tel"
-                                    placeholder="Nhập số điện thoại"
-                                    value={userData.mobile}
-                                    name="mobile"
-                                    onChange={(e) => {
-                                        handleOnChange(e);
-                                        // Clear error when user starts typing
-                                        if (mobileError) {
-                                            validateMobile(e.target.value);
-                                        }
-                                    }}
-                                    onBlur={(e) =>
-                                        validateMobile(e.target.value)
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="full-name">Full Name</Label>
+                            <Input
+                                type="text"
+                                placeholder="Nhập họ và tên"
+                                value={userData.name}
+                                name="name"
+                                onChange={handleOnChange}
+                                required
+                                spellCheck={false}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                type="email"
+                                value={userData.email}
+                                name="email"
+                                onChange={handleOnChange}
+                                required
+                                disabled
+                                spellCheck={false}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="phone">Phone Number</Label>
+                            <Input
+                                type="tel"
+                                placeholder="Nhập số điện thoại"
+                                value={userData.mobile}
+                                name="mobile"
+                                onChange={(e) => {
+                                    handleOnChange(e);
+                                    // Clear error when user starts typing
+                                    if (mobileError) {
+                                        validateMobile(e.target.value);
                                     }
-                                    required
-                                    spellCheck={false}
-                                />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
+                                }}
+                                onBlur={(e) => validateMobile(e.target.value)}
+                                required
+                                spellCheck={false}
+                            />
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <GlareHover
+                            background="transparent"
+                            glareOpacity={0.3}
+                            glareAngle={-30}
+                            glareSize={300}
+                            transitionDuration={800}
+                            playOnce={false}
+                        >
                             <Button
                                 type="submit"
-                                className={`px-6 py-2 ${
-                                    !mobileError && isModified
-                                        ? 'bg-primary-3 hover:opacity-80'
-                                        : 'bg-gray-300 cursor-not-allowed'
-                                } text-secondary-200 font-bold rounded-lg focus:outline-none
-                                    focus:ring-2 focus:ring-offset-2 focus:ring-secondary-100 disabled:opacity-50 flex items-center`}
+                                disabled={!mobileError && !isModified}
+                                className="w-full h-12 text-sm font-bold text-foreground shadow-none cursor-pointer hover:bg-transparent border-border"
                             >
-                                {loading ? (
-                                    <>
-                                        <svg
-                                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <circle
-                                                className="opacity-25"
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                                stroke="currentColor"
-                                                strokeWidth="4"
-                                            ></circle>
-                                            <path
-                                                className="opacity-75"
-                                                fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                            ></path>
-                                        </svg>
-                                        Lưu thay đổi...
-                                    </>
-                                ) : (
-                                    'Lưu thay đổi'
-                                )}
+                                {loading ? <Loading /> : 'Lưu thay đổi'}
                             </Button>
-                        </CardFooter>
-                    </Card>
-                </TabsContent>
-            </Tabs>
-        </form>
+                        </GlareHover>
+                    </CardFooter>
+                </Card>
+            </form>
+        </div>
     );
 };
 

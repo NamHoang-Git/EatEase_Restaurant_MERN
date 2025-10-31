@@ -1,30 +1,18 @@
-'use client';
-import { usePathname } from 'next/navigation';
-import { useSettings } from '@/contexts/settings-context';
+'use client'
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import React from 'react';
 import { ThemeToggle } from './theme-toggle';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import defaultAvatar from '../assets/defaultAvatar.png';
 import UserMenu from './UserMenu';
 
 export function TopNav() {
-    const pathname = usePathname() || '';
-    const { settings, isLoading } = useSettings();
     const user = useSelector((state: any) => state.user);
-
-    // Get path segments safely
-    const pathSegments = pathname ? pathname.split('/').filter(Boolean) : [];
 
     // Safely get initials from fullName
     const getInitials = (name: string | null | undefined) => {
@@ -40,46 +28,9 @@ export function TopNav() {
         );
     };
 
-    // Show loading state if settings are not yet loaded
-    if (isLoading || !settings) {
-        return (
-            <header className="sticky top-0 z-40 border-b bg-background">
-                <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-                    <div className="h-8 w-8" />
-                    <div className="h-8 w-8 rounded-full bg-muted" />
-                </div>
-            </header>
-        );
-    }
-
-    // Get safe values from settings
-    const safeSettings = {
-        name: settings?.name || 'User',
-        email: settings?.email || 'No email',
-        avatar: settings?.avatar || undefined,
-    };
-
     return (
-        <header className="sticky top-0 z-40 border-b bg-background">
-            <div className="flex h-16 items-center md:justify-between justify-end px-4 md:px-6 w-full">
-                <div className="hidden md:block">
-                    <nav className="flex items-center space-x-2">
-                        {pathSegments.map((segment, index) => (
-                            <React.Fragment key={segment}>
-                                <span className="text-muted-foreground">/</span>
-                                <Link
-                                    to={`/${pathSegments
-                                        .slice(0, index + 1)
-                                        .join('/')}`}
-                                    className="text-sm font-medium"
-                                >
-                                    {segment.charAt(0).toUpperCase() +
-                                        segment.slice(1)}
-                                </Link>
-                            </React.Fragment>
-                        ))}
-                    </nav>
-                </div>
+        <header className="sticky top-0 z-40 border-b-2 bg-background">
+            <div className="flex h-16 justify-end px-4 md:px-6 w-full">
                 <div className="flex items-center gap-4">
                     <ThemeToggle />
                     <DropdownMenu>
@@ -99,13 +50,6 @@ export function TopNav() {
                                         {getInitials(user?.name)}
                                     </AvatarFallback>
                                 </Avatar>
-                                <img
-                                    src={user.avatar || defaultAvatar}
-                                    alt={user.name}
-                                    className="w-8 h-8 rounded-full object-cover"
-                                    width={32}
-                                    height={32}
-                                />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className='mr-4'>
