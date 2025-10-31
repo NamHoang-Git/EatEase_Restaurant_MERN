@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Divider from './Divider';
@@ -8,12 +8,18 @@ import { logout, updateUserPoints } from '../store/userSlice';
 import { clearCart } from '../store/cartProduct';
 import { toast } from 'react-hot-toast';
 import AxiosToastError from './../utils/AxiosToastError';
-import { BiLinkExternal, BiRefresh } from 'react-icons/bi';
+import { BiRefresh } from 'react-icons/bi';
 import GradientText from './GradientText';
 import { RootState } from '@/store/store';
-import { Briefcase, Tag, HelpCircle, FileText, Info } from 'lucide-react';
+import {
+    Home,
+    Users,
+    Package,
+    Layers,
+    TicketPercent,
+    BarChart2,
+} from 'lucide-react';
 import defaultAvatar from '@/assets/defaultAvatar.png';
-import { FaBoxOpen, FaHome } from 'react-icons/fa';
 import { RiExternalLinkFill } from 'react-icons/ri';
 
 interface UserMenuProps {
@@ -37,32 +43,32 @@ const UserMenu: React.FC<UserMenuProps> = ({ close, menuTriggerRef }) => {
     const links: NavLink[] = [
         {
             href: '/admin/dashboard',
-            icon: <FaHome size={12} className="mb-0.5" />,
+            icon: <Home size={14} className="mb-0.5" />,
             label: 'Trang quản trị',
         },
         {
             href: '/admin/users',
-            icon: <FaBoxOpen size={12} className="mb-0.5" />,
+            icon: <Users size={14} className="mb-0.5" />,
             label: 'Quản lý người dùng',
         },
         {
             href: '/admin/products',
-            icon: <FaBoxOpen size={12} className="mb-0.5" />,
+            icon: <Package size={14} className="mb-0.5" />,
             label: 'Quản lý sản phẩm',
         },
         {
             href: '/admin/categories',
-            icon: <FaBoxOpen size={12} className="mb-0.5" />,
+            icon: <Layers size={14} className="mb-0.5" />,
             label: 'Quản lý danh mục',
         },
         {
             href: '/admin/vouchers',
-            icon: <FaBoxOpen size={12} className="mb-0.5" />,
+            icon: <TicketPercent size={14} className="mb-0.5" />,
             label: 'Mã giảm giá',
         },
         {
             href: '/admin/reports',
-            icon: <FaBoxOpen size={12} className="mb-0.5" />,
+            icon: <BarChart2 size={14} className="mb-0.5" />,
             label: 'Báo cáo thống kê',
         },
     ];

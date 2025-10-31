@@ -18,6 +18,7 @@
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
+    --color-active: var(--active);
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
     --color-popover: var(--popover);
@@ -64,8 +65,8 @@
     :root {
         /* --background: 48 100% 96%; */
         --background: 0 0% 100%;
-
         --foreground: 260 10% 20%;
+        --active: 0 0% 89.8%;
         --card: 0 0% 100%;
         --card-foreground: 260 10% 20%;
         --popover: 0 0% 100%;
@@ -93,7 +94,7 @@
     .dark {
         --background: 224 71% 4%;
         --foreground: 213 31% 91%;
-
+        --active: 0 0% 14.9%;
         --card: 224 71% 4%;
         --card-foreground: 213 31% 91%;
 

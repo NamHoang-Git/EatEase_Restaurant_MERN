@@ -35,8 +35,8 @@ const Home: React.FC = () => {
                     iterationsPoisson={8}
                     resolution={0.3}
                     autoDemo={true}
-                    autoSpeed={0.5}
-                    autoRampDuration={1.2}
+                    autoSpeed={0.2}
+                    autoRampDuration={0.8}
                     style={{ width: '100%', height: '100%' }}
                 />
             </div>

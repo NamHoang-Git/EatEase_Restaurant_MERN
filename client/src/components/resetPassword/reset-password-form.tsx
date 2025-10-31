@@ -19,10 +19,8 @@ export function ResetPasswordForm({
     ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
     const [data, setData] = useState({
-        email: '',
         newPassword: '',
         confirmNewPassword: '',
-        mobile: '',
     });
 
     const location = useLocation();
@@ -95,7 +93,6 @@ export function ResetPasswordForm({
                       confirmNewPassword: data.confirmNewPassword,
                   }
                 : {
-                      email: data.email || '',
                       newPassword: data.newPassword,
                       confirmNewPassword: data.confirmNewPassword,
                   };
@@ -122,10 +119,8 @@ export function ResetPasswordForm({
                 }
 
                 setData({
-                    email: '',
                     newPassword: '',
                     confirmNewPassword: '',
-                    mobile: '',
                 });
             }
         } catch (error) {
@@ -138,14 +133,14 @@ export function ResetPasswordForm({
     return (
         <form
             className={cn(
-                'flex flex-col gap-6 font-bold text-red-950',
+                'flex flex-col gap-6 font-semibold text-foreground',
                 className
             )}
             {...props}
             onSubmit={handleSubmit}
         >
             <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Đổi mật khẩu</h1>
+                <h1 className="text-2xl font-semibold">Đổi mật khẩu</h1>
                 <p className="text-balance text-sm">
                     Nhập mật khẩu mới của bạn và xác nhận để cập nhật mật khẩu
                     tài khoản.
@@ -216,20 +211,20 @@ export function ResetPasswordForm({
                 </div>
 
                 <GlareHover
-                    glareColor="#b91c1c"
-                    background="#fff"
-                    borderColor="#fff"
+                    background="transparent"
                     glareOpacity={0.3}
                     glareAngle={-30}
                     glareSize={300}
                     transitionDuration={800}
                     playOnce={false}
+                    className={`${
+                        !valideValue ? 'cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                 >
                     <Button
                         disabled={!valideValue}
                         type="submit"
-                        className="w-full h-12 text-sm font-bold text-red-700 hover:opacity-90 shadow-none cursor-pointer
-                        bg-amber-50 border-amber-50"
+                        className="bg-foreground w-full"
                     >
                         {loading ? <Loading /> : 'Xác nhận'}
                     </Button>
@@ -239,7 +234,7 @@ export function ResetPasswordForm({
                 <IoIosArrowRoundBack size={28} />
                 <Link
                     to={'/login'}
-                    className="p-0 h-auto text-sm hover:text-opacity-80 font-medium cursor-pointer text-red-700"
+                    className="p-0 h-auto text-sm hover:text-opacity-80 font-medium cursor-pointer"
                 >
                     Quay lại đăng nhập.
                 </Link>

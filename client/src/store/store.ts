@@ -7,7 +7,7 @@ import addressReducer from './addressSlice';
 import orderReducer from './orderSlice';
 
 // Define the shape of your state
-interface UserState {
+export interface UserState {
     _id: string;
     name: string;
     email: string;
