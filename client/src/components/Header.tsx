@@ -476,9 +476,9 @@ export function Header() {
                     </div>
                 </div>
             </header>
-            <div className="hidden md:block z-10 relative">
+            {/* <div className="hidden md:block z-10 relative">
                 <Search />
-            </div>
+            </div> */}
             {openCartSection && (
                 <DisplayCartItem close={() => setOpenCartSection(false)} />
             )}

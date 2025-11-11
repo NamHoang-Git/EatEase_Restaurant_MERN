@@ -71,8 +71,8 @@
     :root {
         /* --background: 48 100% 96%; */
         --background: 0 0% 100%;
-        --base-color: 22 78% 26%;
-        --highlight: 0 72% 51%;
+        --base-color: 0 0% 25%;
+        --highlight: 210 100% 35%;
         --highlight-2: 0 0% 100%;
         --foreground: 260 10% 20%;
         --active: 0 0% 89.8%;
@@ -100,9 +100,9 @@
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
 
-        --ether-1: #fff7ed;
-        --ether-2: #ffd6a5;
-        --ether-3: #ffead0;
+        --ether-1: #7cc5fc;
+        --ether-2: #85daf9;
+        --ether-3: #b7cadb;
     }
     .dark {
         --background: 224 71% 4%;
@@ -224,7 +224,7 @@ body {
 
 .liquid-glass-header {
     backdrop-filter: blur(20px) saturate(180%);
-    background: rgba(120, 53, 15, 0.6);
+    background: rgba(15, 82, 120, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2),
         inset 0 1px rgba(255, 255, 255, 0.15);
