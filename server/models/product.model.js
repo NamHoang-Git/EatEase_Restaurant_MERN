@@ -2,118 +2,125 @@ import mongoose from "mongoose";
 import slugify from "slugify";
 
 const productSchema = new mongoose.Schema({
-    // 🍽️ Tên món ăn
+    // Tên món ăn
     name: {
         type: String,
-        required: true,
+        required: [true, "Vui lòng nhập tên sản phẩm"],
         trim: true,
     },
 
-    // 🔗 Slug cho URL thân thiện
+    // Slug cho URL thân thiện
     slug: {
         type: String,
         unique: true,
         trim: true,
     },
 
-    // 🖼️ Hình ảnh món ăn
-    image: {
-        type: [String],
-        default: [],
+    // Hình ảnh
+    images: [{
+        type: String,
+        default: []
+    }],
+
+    // Danh mục chính
+    category: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Category",
+        required: [true, "Vui lòng chọn danh mục"]
     },
 
-    // 📂 Danh mục món ăn (Khai vị, Món chính, Nước uống,...)
-    category: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: "menuCategory",
-        }
-    ],
-
+    // Danh mục phụ (nếu có)
     subCategory: {
         type: mongoose.Schema.ObjectId,
-        ref: "subMenuCategory",
-        default: null,
+        ref: "SubCategory"
     },
 
-    // 🧾 Đơn vị tính (ví dụ: phần, ly, tô,…)
-    unit: {
-        type: String,
-        default: "phần",
-    },
-
-    // 💰 Giá món ăn
+    // Giá bán
     price: {
         type: Number,
-        required: true,
-        min: 0,
+        required: [true, "Vui lòng nhập giá bán"],
+        min: [0, "Giá bán không được âm"]
     },
 
-    // 🔖 Giảm giá (nếu có)
-    discount: {
+    // Giá gốc (để hiển thị giảm giá)
+    originalPrice: {
         type: Number,
-        default: 0,
-        min: 0,
+        default: 0
     },
 
-    // 📝 Mô tả ngắn
+    // Mô tả
     description: {
         type: String,
-        default: "",
+        trim: true
     },
 
-    // 📋 Thông tin chi tiết (nguyên liệu, khối lượng,…)
+    // Đơn vị tính
+    unit: {
+        type: String,
+        default: "phần"
+    },
+
+    // Trạng thái (còn hàng/hết hàng)
+    inStock: {
+        type: Boolean,
+        default: true
+    },
+
+    // Có hiển thị trên menu không
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+
+    // Thông tin bổ sung
     more_details: {
         type: Object,
         default: {},
     },
 
-    // ⭐ Điểm thưởng (reward points) người dùng nhận được khi mua món này
+    // Điểm thưởng khi mua sản phẩm
     rewardPoints: {
         type: Number,
         default: 0,
-        min: 0,
-    },
-
-    // 👁️ Trạng thái hiển thị trong menu
-    publish: {
-        type: Boolean,
-        default: true,
-    },
-
-    // 📊 Đánh giá trung bình (nếu sau này có phần review)
-    ratingAvg: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 5,
-    },
-
-    // 🔢 Số lượng đánh giá
-    ratingCount: {
-        type: Number,
-        default: 0,
-        min: 0,
-    },
+        min: 0
+    }
 
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-// 🔧 Tự động tạo slug từ tên món ăn
+// Tự động tạo slug từ tên sản phẩm
 productSchema.pre("save", function (next) {
     if (this.isModified("name") || !this.slug) {
         this.slug = slugify(this.name, { lower: true, strict: true });
     }
+
+    // Tự động điền originalPrice nếu chưa có
+    if (this.isNew && !this.originalPrice) {
+        this.originalPrice = this.price;
+    }
+
     next();
 });
 
-// 🔍 Index hỗ trợ tìm kiếm nhanh theo tên và mô tả
-productSchema.index(
-    { name: "text", description: "text" },
-    { weights: { name: 10, description: 5 } }
-);
+// Index cho tìm kiếm nhanh
+productSchema.index({ name: "text", description: "text" }, {
+    weights: {
+        name: 10,
+        description: 5
+    }
+});
 
-const ProductModel = mongoose.model("product", productSchema);
+// Tạo virtual field cho giá giảm
+productSchema.virtual('discount').get(function () {
+    if (this.originalPrice > this.price) {
+        return Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+    }
+    return 0;
+});
 
-export default ProductModel;
+const Product = mongoose.model("Product", productSchema);
+
+export default Product;

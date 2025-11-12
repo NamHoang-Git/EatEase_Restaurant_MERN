@@ -1,80 +1,100 @@
 import mongoose from "mongoose";
 
 const tableSchema = new mongoose.Schema({
-    // 🪑 Mã / số bàn (ví dụ: "B01", "VIP-02")
-    tableNumber: {
+    // Số bàn (VD: "B01", "VIP-02")
+    number: {
         type: String,
-        required: true,
+        required: [true, "Vui lòng nhập số bàn"],
         unique: true,
         trim: true,
+        uppercase: true
     },
 
-    // 📍 Khu vực (ví dụ: “Tầng 1”, “Sân vườn”, “VIP Room”)
+    // Tên hiển thị (VD: "Bàn 01 - Tầng 1")
+    name: {
+        type: String,
+        required: [true, "Vui lòng nhập tên bàn"],
+        trim: true
+    },
+
+    // Khu vực (VD: "Tầng 1", "Sân vườn", "Khu VIP")
     area: {
         type: String,
-        default: "Main Hall",
-        trim: true,
+        required: [true, "Vui lòng chọn khu vực"],
+        default: "Tầng 1"
     },
 
-    // 👥 Sức chứa tối đa của bàn
+    // Sức chứa tối đa
     capacity: {
         type: Number,
-        required: true,
-        min: 1,
+        required: [true, "Vui lòng nhập sức chứa"],
+        min: [1, "Sức chứa tối thiểu là 1 người"],
+        max: [20, "Sức chứa tối đa là 20 người"]
     },
 
-    // ⚙️ Trạng thái hiện tại của bàn
+    // Trạng thái hiện tại
     status: {
         type: String,
-        enum: ["AVAILABLE", "RESERVED", "OCCUPIED", "CLEANING", "OUT_OF_SERVICE"],
-        default: "AVAILABLE",
+        enum: {
+            values: ["AVAILABLE", "OCCUPIED", "RESERVED", "MAINTENANCE"],
+            message: "Trạng thái không hợp lệ"
+        },
+        default: "AVAILABLE"
     },
 
-    // 🔗 Đặt bàn hiện tại (nếu có)
+    // Đặt bàn hiện tại (nếu có)
     currentReservation: {
         type: mongoose.Schema.ObjectId,
-        ref: "reservation",
-        default: null,
+        ref: "Reservation"
     },
 
-    // 🧑‍🍳 Nhân viên phục vụ chính cho bàn
-    assignedWaiter: {
+    // Nhân viên phụ trách
+    staff: {
         type: mongoose.Schema.ObjectId,
-        ref: "user",
-        default: null,
+        ref: "User"
     },
 
-    // 🛒 Các đơn hàng hiện tại của bàn
-    currentOrders: [{
-        type: mongoose.Schema.ObjectId,
-        ref: "order"
-    }],
-
-    // 📅 Lịch sử đặt bàn
-    reservations: [{
-        type: mongoose.Schema.ObjectId,
-        ref: "reservation"
-    }],
-
-    // 🗺️ Vị trí trên sơ đồ (nếu có UI layout)
-    position: {
-        x: { type: Number, default: 0 },
-        y: { type: Number, default: 0 },
-    },
-
-    // 💬 Ghi chú nội bộ (ví dụ: “Gần cửa sổ”, “Dành cho khách VIP”)
+    // Ghi chú
     note: {
         type: String,
-        default: "",
+        trim: true,
+        maxlength: [200, "Ghi chú không được vượt quá 200 ký tự"]
     },
 
+    // Vị trí (cho sắp xếp bàn)
+    position: {
+        x: { type: Number, default: 0 },
+        y: { type: Number, default: 0 }
+    },
+
+    // Cờ xác định bàn có đang hoạt động không
+    isActive: {
+        type: Boolean,
+        default: true
+    }
+
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-// Index giúp lọc nhanh theo trạng thái & khu vực
+// Index cho tìm kiếm nhanh
+tableSchema.index({ number: 1 }, { unique: true });
 tableSchema.index({ area: 1, status: 1 });
+tableSchema.index({ status: 1 });
 
-const TableModel = mongoose.model("table", tableSchema);
+// Virtual để lấy thông tin đơn hàng hiện tại
+// Sử dụng populate('currentOrder') khi cần
 
-export default TableModel;
+tableSchema.virtual('currentOrder', {
+    ref: 'Order',
+    localField: '_id',
+    foreignField: 'table',
+    justOne: true,
+    match: { status: { $in: ['PENDING', 'PROCESSING'] } }
+});
+
+const Table = mongoose.model("Table", tableSchema);
+
+export default Table;

@@ -1,164 +1,142 @@
 import mongoose from "mongoose";
 
 const reservationSchema = new mongoose.Schema({
-    // 👤 Người đặt bàn
-    userId: {
+    // Thông tin khách hàng
+    customer: {
         type: mongoose.Schema.ObjectId,
-        ref: "user",
-        required: true,
+        ref: "User",
+        required: [true, "Vui lòng chọn khách hàng"]
     },
 
-    // 🪑 Tham chiếu tới bàn
-    tableId: {
+    // Thông tin bàn
+    table: {
         type: mongoose.Schema.ObjectId,
-        ref: "table",
-        required: true,
-        index: true,
+        ref: "Table",
+        required: [true, "Vui lòng chọn bàn"]
     },
 
-    // 🏷️ Tên bàn (để hiển thị)
+    // Tên bàn (để hiển thị)
     tableNumber: {
         type: String,
-        required: true,
-        trim: true,
+        required: [true, "Vui lòng nhập số bàn"],
+        trim: true
     },
 
-    // 👥 Số lượng khách
+    // Thông tin đặt bàn
     guestCount: {
         type: Number,
-        required: true,
-        min: 1,
+        required: [true, "Vui lòng nhập số lượng khách"],
+        min: [1, "Số lượng khách tối thiểu là 1"]
     },
 
-    // ⏰ Thời gian đặt
     reservationDate: {
         type: Date,
-        required: true,
+        required: [true, "Vui lòng chọn thời gian đặt bàn"]
     },
 
-    // 💬 Ghi chú thêm (ví dụ: “ngồi gần cửa sổ”)
+    // Thời gian dự kiến kết thúc
+    endDate: {
+        type: Date,
+        required: [true, "Vui lòng chọn thời gian kết thúc"]
+    },
+
+    // Ghi chú
     note: {
         type: String,
-        default: "",
+        trim: true
     },
 
-    // 🧑‍🍳 Nhân viên phục vụ
-    waiterId: {
+    // Nhân viên phục vụ
+    staff: {
         type: mongoose.Schema.ObjectId,
-        ref: "user",
-        default: null,
+        ref: "User"
     },
 
-    // 🔗 Liên kết đơn hàng
-    orders: [{
-        type: mongoose.Schema.ObjectId,
-        ref: "order"
-    }],
-
-    // 📝 Ghi chú nội bộ
-    internalNotes: {
-        type: String,
-        default: "",
-    },
-
-    // 🔄 Trạng thái đặt bàn
-    // PENDING: Chờ xác nhận
-    // CONFIRMED: Đã xác nhận
-    // SEATED: Đã đến nhà hàng
-    // COMPLETED: Hoàn thành
-    // CANCELLED: Đã hủy
-    // NO_SHOW: Không đến
+    // Trạng thái đặt bàn
     status: {
         type: String,
-        enum: ["PENDING", "CONFIRMED", "SEATED", "COMPLETED", "CANCELLED", "NO_SHOW"],
-        default: "PENDING",
-        index: true
+        enum: ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"],
+        default: "PENDING"
     },
 
-    // 📱 Thông tin khách vãng lai
-    customerName: {
-        type: String,
-        default: "",
-    },
-    customerPhone: {
-        type: String,
-        default: "",
-    },
-    customerEmail: {
-        type: String,
-        default: "",
-    },
-
-    // 💰 Đặt cọc
+    // Thông tin thanh toán
     deposit: {
-        type: Number,
-        default: 0,
-        min: 0,
-    },
-
+        amount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        status: {
+            type: String,
+            enum: ["PENDING", "PAID", "REFUNDED"],
+            default: "PENDING"
+        }
+    }
 }, {
     timestamps: true
 });
 
-// 🔍 Index giúp truy vấn nhanh theo ngày & trạng thái
+// Index cho tìm kiếm nhanh
 reservationSchema.index({ reservationDate: 1, status: 1 });
-reservationSchema.index({ tableNumber: 1, reservationDate: 1 }, { unique: false });
+reservationSchema.index({ tableNumber: 1, reservationDate: 1 });
+reservationSchema.index({ customer: 1, reservationDate: 1 });
 
-/* 🧠 Middleware logic */
-
-// 1️⃣ Trước khi lưu: kiểm tra trùng lịch bàn
+// Middleware kiểm tra trùng lịch đặt bàn
 reservationSchema.pre("save", async function (next) {
-    const Reservation = mongoose.model("reservation");
+    if (this.isNew || this.isModified(["reservationDate", "tableNumber"])) {
+        const Reservation = mongoose.model("Reservation");
 
-    if (this.isNew || this.isModified("reservationDate") || this.isModified("tableNumber")) {
-        const overlapping = await Reservation.findOne({
+        const existingReservation = await Reservation.findOne({
             tableNumber: this.tableNumber,
-            reservationDate: this.reservationDate,
+            $or: [
+                {
+                    reservationDate: { $lt: this.endDate },
+                    endDate: { $gt: this.reservationDate }
+                }
+            ],
             status: { $in: ["PENDING", "CONFIRMED"] },
-            _id: { $ne: this._id },
+            _id: { $ne: this._id }
         });
 
-        if (overlapping) {
-            const err = new Error(`Bàn ${this.tableNumber} đã được đặt vào thời điểm này.`);
+        if (existingReservation) {
+            const err = new Error(`Bàn ${this.tableNumber} đã được đặt trong khoảng thời gian này.`);
             return next(err);
         }
     }
-
     next();
 });
 
-// 2️⃣ Trước khi cập nhật: nếu đã quá giờ mà chưa CONFIRMED => chuyển NO_SHOW
-reservationSchema.pre("findOneAndUpdate", async function (next) {
-    const update = this.getUpdate();
-    if (!update.status) {
-        const docToUpdate = await this.model.findOne(this.getQuery());
-        if (docToUpdate && docToUpdate.status === "PENDING") {
-            const now = new Date();
-            if (docToUpdate.reservationDate < now) {
-                update.status = "NO_SHOW";
-            }
+// Tự động cập nhật trạng thái nếu quá hạn
+reservationSchema.pre("find", function () {
+    this.start = Date.now();
+});
+
+reservationSchema.post("find", async function (docs) {
+    if (this._conditions.status === "PENDING") {
+        const now = new Date();
+        const expiredReservations = docs.filter(doc =>
+            doc.reservationDate < now && doc.status === "PENDING"
+        );
+
+        if (expiredReservations.length > 0) {
+            const Reservation = mongoose.model("Reservation");
+            const ids = expiredReservations.map(doc => doc._id);
+
+            await Reservation.updateMany(
+                { _id: { $in: ids } },
+                { $set: { status: "CANCELLED" } }
+            );
+
+            // Cập nhật lại docs để trả về
+            docs.forEach(doc => {
+                if (expiredReservations.some(r => r._id.equals(doc._id))) {
+                    doc.status = "CANCELLED";
+                }
+            });
         }
     }
-    next();
 });
 
-// 3️⃣ Sau khi cập nhật trạng thái: đồng bộ với Order nếu có
-reservationSchema.post("findOneAndUpdate", async function (doc) {
-    if (!doc || !doc.orderId) return;
+const Reservation = mongoose.model("Reservation", reservationSchema);
 
-    const Order = mongoose.model("order");
-    const order = await Order.findById(doc.orderId);
-    if (!order) return;
-
-    if (doc.status === "CANCELLED") {
-        order.status = "CANCELLED";
-    } else if (doc.status === "COMPLETED") {
-        order.status = "COMPLETED";
-    }
-
-    await order.save();
-});
-
-const ReservationModel = mongoose.model("reservation", reservationSchema);
-
-export default ReservationModel;
+export default Reservation;

@@ -1,107 +1,239 @@
 import mongoose from "mongoose";
 
-// 🧺 Schema cho từng món trong giỏ
+// Schema cho từng sản phẩm trong giỏ hàng
 const cartItemSchema = new mongoose.Schema({
-    productId: {
+    // ID sản phẩm
+    product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "product",
-        required: true,
+        ref: "Product",
+        required: [true, "Vui lòng chọn sản phẩm"],
     },
+    // Số lượng sản phẩm
     quantity: {
         type: Number,
-        default: 1,
-        min: 1,
+        required: [true, "Vui lòng nhập số lượng"],
+        min: [1, "Số lượng tối thiểu là 1"],
+        max: [100, "Số lượng tối đa là 100"],
     },
+    // Giá sản phẩm
+    price: {
+        type: Number,
+        required: [true, "Vui lòng nhập giá sản phẩm"],
+        min: [0, "Giá sản phẩm không được âm"],
+    },
+    // Tên sản phẩm
+    name: {
+        type: String,
+        required: [true, "Vui lòng nhập tên sản phẩm"],
+        trim: true,
+    },
+    // Ảnh đại diện sản phẩm
+    image: {
+        type: String,
+        default: "",
+    },
+    // Ghi chú cho sản phẩm (ví dụ: ít đá, không đường)
     note: {
         type: String,
-        default: "", // ví dụ: “ít cay”, “không đá”
-    }
-}, { _id: false });
+        trim: true,
+        maxlength: [200, "Ghi chú không vượt quá 200 ký tự"],
+    },
+}, { _id: false, timestamps: true });
 
-// 🛒 Schema chính cho giỏ hàng
+// Schema chính cho giỏ hàng
 const cartSchema = new mongoose.Schema({
-    userId: {
+    // Tham chiếu đến người dùng (null cho khách vãng lai)
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
-        required: true,
+        ref: "User",
+        index: true,
     },
 
+    // Dành cho khách vãng lai
+    sessionId: {
+        type: String,
+        index: true,
+    },
+
+    // Danh sách sản phẩm trong giỏ
     items: [cartItemSchema],
 
-    // 🎟️ Áp dụng voucher
-    voucherId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "voucher",
-        default: null,
-    },
-    voucherCode: {
-        type: String,
-        default: null,
+    // Thông tin voucher
+    voucher: {
+        // Mã voucher
+        code: {
+            type: String,
+            trim: true,
+        },
+        // Số tiền giảm giá
+        discount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+        // Giá trị đơn hàng tối thiểu
+        minOrderValue: {
+            type: Number,
+            default: 0,
+        },
     },
 
-    // 💎 Tích điểm thưởng (nếu có dùng điểm khi thanh toán)
-    redeemedPoints: {
-        type: Number,
-        default: 0,
-        min: 0,
+    // Thông tin điểm tích lũy
+    points: {
+        // Số điểm đã sử dụng
+        used: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+        // Số tiền giảm từ điểm
+        discount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
     },
 
-    // 💰 Tổng tiền tạm tính (chưa giảm)
+    // Các tổng tiền
+    // Tổng tiền tạm tính
     subtotal: {
         type: Number,
         default: 0,
         min: 0,
     },
-
-    // 💸 Tổng sau khi áp dụng giảm giá
+    // Tổng tiền giảm giá
+    discountTotal: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    // Tổng tiền thanh toán cuối cùng
     total: {
         type: Number,
         default: 0,
         min: 0,
     },
 
-    // ⚙️ Trạng thái giỏ (ACTIVE, CHECKED_OUT, EXPIRED)
-    status: {
-        type: String,
-        enum: ["ACTIVE", "CHECKED_OUT", "EXPIRED"],
-        default: "ACTIVE",
-    }
+    // Thời gian hết hạn (tự động xóa giỏ hàng cũ)
+    expiresAt: {
+        type: Date,
+        default: () => new Date(+new Date() + 30 * 24 * 60 * 60 * 1000), // 30 ngày
+        index: { expires: 0 }, // TTL index
+    },
 
-}, { timestamps: true });
+    // Thông tin bổ sung
+    metadata: {
+        type: Map,
+        of: String,
+        default: {},
+    },
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+});
 
+// Tạo index cho các trường thường dùng để tìm kiếm
+cartSchema.index({ user: 1, sessionId: 1 }); // Tìm giỏ hàng theo user hoặc session
+cartSchema.index({ updatedAt: 1 }); // Sắp xếp hoặc tìm kiếm theo thời gian cập nhật
 
-// 🧮 Middleware tự động tính subtotal & total
-cartSchema.pre("save", async function (next) {
-    if (!this.isModified("items") && !this.isModified("voucherId")) return next();
+// Ảo tính tổng số lượng sản phẩm trong giỏ
+cartSchema.virtual('itemCount').get(function () {
+    return this.items.reduce((total, item) => total + item.quantity, 0);
+});
 
-    // Lấy dữ liệu sản phẩm để tính tổng tiền
-    const Product = mongoose.model("product");
-    const itemsWithPrice = await Promise.all(
-        this.items.map(async item => {
-            const product = await Product.findById(item.productId).select("price");
-            return product ? product.price * item.quantity : 0;
-        })
+// Tính toán lại tất cả các giá trị tổng
+cartSchema.methods.calculateTotals = function () {
+    // Tính tổng tiền tạm tính
+    this.subtotal = this.items.reduce(
+        (sum, item) => sum + (item.price * item.quantity),
+        0
     );
 
-    this.subtotal = itemsWithPrice.reduce((sum, val) => sum + val, 0);
+    // Áp dụng giảm giá voucher nếu đủ điều kiện
+    const voucherDiscount = this.subtotal >= this.voucher.minOrderValue
+        ? this.voucher.discount
+        : 0;
 
-    // Nếu có voucher, tính giảm giá
-    if (this.voucherId) {
-        const Voucher = mongoose.model("voucher");
-        const voucher = await Voucher.findById(this.voucherId);
-        if (voucher && voucher.isActive) {
-            const discount = voucher.calculateDiscount(this.subtotal);
-            this.total = Math.max(0, this.subtotal - discount);
-        } else {
-            this.total = this.subtotal;
-        }
+    // Áp dụng giảm giá từ điểm (không vượt quá giá trị đơn hàng)
+    const pointsDiscount = Math.min(
+        this.points.discount,
+        this.subtotal - voucherDiscount
+    );
+
+    // Tổng tiền giảm giá
+    this.discountTotal = voucherDiscount + pointsDiscount;
+    // Tổng tiền thanh toán cuối cùng (không âm)
+    this.total = Math.max(0, this.subtotal - this.discountTotal);
+
+    return this.save();
+};
+
+// Thêm sản phẩm vào giỏ hàng
+cartSchema.methods.addItem = async function (item) {
+    // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+    const existingItem = this.items.find(
+        i => i.product.toString() === item.product.toString()
+    );
+
+    // Nếu đã có thì cộng thêm số lượng
+    if (existingItem) {
+        existingItem.quantity += item.quantity;
     } else {
-        this.total = this.subtotal;
+        // Nếu chưa có thì thêm mới
+        this.items.push(item);
     }
 
+    // Tính toán lại tổng tiền
+    return this.calculateTotals();
+};
+
+// Xóa sản phẩm khỏi giỏ hàng
+cartSchema.methods.removeItem = async function (productId) {
+    // Tìm vị trí sản phẩm trong mảng
+    const index = this.items.findIndex(
+        item => item.product.toString() === productId.toString()
+    );
+
+    // Nếu tìm thấy thì xóa
+    if (index > -1) {
+        this.items.splice(index, 1);
+        return this.calculateTotals();
+    }
+
+    return this;
+};
+
+// Áp dụng voucher
+cartSchema.methods.applyVoucher = async function (voucher) {
+    // Cập nhật thông tin voucher
+    this.voucher = {
+        code: voucher.code,
+        discount: voucher.calculateDiscount(this.subtotal),
+        minOrderValue: voucher.minOrderValue || 0,
+    };
+
+    // Tính toán lại tổng tiền
+    return this.calculateTotals();
+};
+
+// Xóa toàn bộ giỏ hàng
+cartSchema.methods.clear = function () {
+    this.items = []; // Xóa tất cả sản phẩm
+    this.voucher = {}; // Xóa voucher
+    this.points = { used: 0, discount: 0 }; // Reset điểm
+    return this.calculateTotals(); // Tính toán lại tổng tiền
+};
+
+// Kiểm tra trước khi lưu: phải có ít nhất user hoặc sessionId
+cartSchema.pre('save', function (next) {
+    if (!this.user && !this.sessionId) {
+        const err = new Error('Giỏ hàng phải có ít nhất user hoặc sessionId');
+        return next(err);
+    }
     next();
 });
 
-const CartModel = mongoose.model("cart", cartSchema);
+const Cart = mongoose.model('Cart', cartSchema);
 
-export default CartModel;
+export default Cart;

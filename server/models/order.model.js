@@ -1,163 +1,152 @@
 import mongoose from "mongoose";
 
 const orderItemSchema = new mongoose.Schema({
-    productId: {
+    product: {
         type: mongoose.Schema.ObjectId,
-        ref: "product",
-        required: true,
+        ref: "Product",
+        required: [true, "Vui lòng chọn sản phẩm"]
     },
     name: {
         type: String,
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-        min: 1,
+        required: [true, "Vui lòng nhập tên sản phẩm"]
     },
     price: {
         type: Number,
-        required: true,
-        min: 0,
+        required: [true, "Vui lòng nhập giá sản phẩm"],
+        min: [0, "Giá sản phẩm không được âm"]
+    },
+    quantity: {
+        type: Number,
+        required: [true, "Vui lòng nhập số lượng"],
+        min: [1, "Số lượng tối thiểu là 1"]
     },
     note: {
         type: String,
-        default: "",
-    },
+        trim: true
+    }
 }, { _id: false });
 
 const orderSchema = new mongoose.Schema({
-    // 👤 Người dùng đặt bàn hoặc order
-    userId: {
+    // Thông tin khách hàng
+    customer: {
         type: mongoose.Schema.ObjectId,
-        ref: "user",
-        required: true,
+        ref: "User",
+        required: [true, "Vui lòng chọn khách hàng"]
     },
 
-    // 🧑‍🍳 Nhân viên liên quan
-    waiterId: {
+    // Thông tin nhân viên
+    staff: {
         type: mongoose.Schema.ObjectId,
-        ref: "user", // phục vụ
-        default: null,
-    },
-    chefId: {
-        type: mongoose.Schema.ObjectId,
-        ref: "user", // đầu bếp
-        default: null,
-    },
-    cashierId: {
-        type: mongoose.Schema.ObjectId,
-        ref: "user", // thu ngân
-        default: null,
+        ref: "User"
     },
 
-    // 🍽️ Loại đơn hàng (ăn tại bàn / mang đi)
+    // Thông tin đơn hàng
     orderType: {
         type: String,
         enum: ["DINE_IN", "TAKE_AWAY"],
-        default: "DINE_IN",
+        default: "DINE_IN"
     },
 
-    // 🪑 Đặt bàn (liên kết với Reservation nếu có)
-    tableNumber: {
-        type: String,
-        default: null,
-    },
-    reservationId: {
+    // Thông tin bàn (nếu là đơn tại bàn)
+    table: {
         type: mongoose.Schema.ObjectId,
-        ref: "reservation",
-        default: null,
+        ref: "Table"
     },
+    tableNumber: String,
 
-    // 🧾 Danh sách món ăn
+    // Chi tiết đơn hàng
     items: [orderItemSchema],
 
-    // 💰 Tổng tiền
+    // Thông tin thanh toán
     subtotal: {
         type: Number,
-        required: true,
-        min: 0,
+        required: [true, "Vui lòng nhập tổng tiền"],
+        min: [0, "Tổng tiền không được âm"]
     },
+
     discount: {
-        type: Number,
-        default: 0,
-        min: 0,
+        amount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        voucher: {
+            type: mongoose.Schema.ObjectId,
+            ref: "Voucher"
+        }
     },
+
     total: {
         type: Number,
-        required: true,
-        min: 0,
+        required: [true, "Vui lòng nhập tổng thanh toán"],
+        min: [0, "Tổng thanh toán không được âm"]
     },
 
-    // 🎟️ Voucher (nếu áp dụng)
-    voucherId: {
-        type: mongoose.Schema.ObjectId,
-        ref: "voucher",
-        default: null,
-    },
-    voucherCode: {
+    // Trạng thái đơn hàng
+    status: {
         type: String,
-        default: null,
+        enum: ["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"],
+        default: "PENDING"
     },
 
-    // 💳 Thanh toán
-    paymentMethod: {
-        type: String,
-        enum: ["CASH", "CARD", "MOMO", "ZALOPAY"],
-        default: "CASH",
-    },
-    paymentStatus: {
-        type: String,
-        enum: ["UNPAID", "PAID", "REFUNDED"],
-        default: "UNPAID",
-    },
-
-    // 🧩 Trạng thái xử lý món ăn
-    orderStatus: {
-        type: String,
-        enum: ["PENDING", "COOKING", "READY", "SERVED", "COMPLETED", "CANCELLED"],
-        default: "PENDING",
+    // Thông tin thanh toán
+    payment: {
+        method: {
+            type: String,
+            enum: ["CASH", "CARD", "MOMO", "ZALOPAY"],
+            default: "CASH"
+        },
+        status: {
+            type: String,
+            enum: ["PENDING", "PAID", "REFUNDED"],
+            default: "PENDING"
+        },
+        transactionId: String
     },
 
-    // 💎 Tích điểm thưởng
-    earnedPoints: {
-        type: Number,
-        default: 0,
-        min: 0,
-    },
-    redeemedPoints: {
-        type: Number,
-        default: 0,
-        min: 0,
-    },
-
-    // ⏰ Thời gian xử lý
-    orderTime: {
-        type: Date,
-        default: Date.now,
-    },
-    completedTime: {
-        type: Date,
-        default: null,
+    // Điểm thưởng
+    points: {
+        earned: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        used: {
+            type: Number,
+            default: 0,
+            min: 0
+        }
     },
 
-    // 📝 Ghi chú từ khách hoặc nhân viên
+    // Ghi chú
     note: {
         type: String,
-        default: "",
-    },
+        trim: true
+    }
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
 
-}, { timestamps: true });
-
-
-// 🧮 Tự động tính điểm thưởng (1% tổng tiền)
+// Tính điểm thưởng (1% tổng tiền)
 orderSchema.pre('save', function (next) {
-    if (this.isNew && this.total > 0) {
-        this.earnedPoints = Math.floor(this.total * 0.01);
+    if (this.isNew || this.isModified('total')) {
+        this.points.earned = Math.floor(this.total * 0.01);
     }
     next();
 });
 
-const OrderModel = mongoose.model("order", orderSchema);
+// Index cho tìm kiếm nhanh
+orderSchema.index({ customer: 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ 'payment.status': 1, createdAt: -1 });
 
-export default OrderModel;
+// Virtual để lấy thông tin giảm giá
+orderSchema.virtual('discountAmount').get(function () {
+    return this.subtotal - this.total + (this.discount?.amount || 0);
+});
+
+const Order = mongoose.model("Order", orderSchema);
+
+export default Order;
