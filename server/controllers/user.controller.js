@@ -22,10 +22,19 @@ export async function registerUserController(req, res) {
             })
         }
 
-        // Validate email format more strictly
+        // 🔒 Kiểm tra độ dài mật khẩu trước khi hash
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: "Mật khẩu phải có ít nhất 6 ký tự",
+                error: true,
+                success: false
+            });
+        }
+
+        // Xác thực định dạng email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-        // List of valid TLDs (you can extend this list as needed)
+        // Danh sách các TLD hợp lệ
         const validTLDs = ['com', 'net', 'org', 'io', 'co', 'ai', 'vn', 'com.vn', 'edu.vn', 'gov.vn'];
 
         if (!emailRegex.test(email)) {
@@ -155,7 +164,7 @@ export async function loginController(req, res) {
             });
         }
 
-        if (user.status !== "Active") {
+        if (user.status !== "ACTIVE") {
             return res.status(400).json({
                 message: "Liên hệ Admin",
                 error: true,
