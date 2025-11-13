@@ -213,7 +213,6 @@ const UploadSubMenuCategoryModel = ({ close, fetchData }) => {
                                 onChange={handleOnChange}
                                 className="text-sm h-12 capitalize"
                                 placeholder="Nhập mô tả"
-                                required
                             />
                         </div>
 

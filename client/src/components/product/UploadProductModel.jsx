@@ -8,13 +8,31 @@ import SummaryApi from '@/common/SummaryApi';
 import AxiosToastError from '@/utils/AxiosToastError';
 import Axios from '@/utils/Axios';
 import ViewImage from '@/components/ViewImage';
-// import AddFieldComponent from '@/components/AddFieldComponent';
+import AddField from '@/components/product/AddField';
 import successAlert from '@/utils/successAlert';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '../ui/card';
 import { Button } from '../ui/button';
 import { Label } from '@radix-ui/react-label';
 import { Input } from '../ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from '../ui/select';
 import Loading from '../Loading';
+import { Textarea } from '../ui/textarea';
+import GlareHover from '../animation/GlareHover';
+import Divider from '../Divider';
 
 const UploadProductModel = ({ close, fetchData }) => {
     const [data, setData] = useState({
@@ -229,7 +247,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                             </Label>
 
                             {/* Upload Area */}
-                            <div className="space-y-3">
+                            <div className="space-y-2">
                                 <input
                                     type="file"
                                     id="uploadProductImage"
@@ -245,7 +263,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                                     className={`block border-2 border-dashed rounded-xl p-6 text-center
                                 transition-all duration-200 group ${
                                     data.image.length
-                                        ? 'border-green-300 bg-green-50'
+                                        ? 'border-green-300 bg-green-50/90'
                                         : 'border-gray-300 hover:border-red-500'
                                 } ${
                                         !data.name || loading
@@ -284,10 +302,10 @@ const UploadProductModel = ({ close, fetchData }) => {
 
                             {/* Image Preview */}
                             {data.image.length > 0 && (
-                                <div className="mt-3">
-                                    <p className="sm:text-sm text-xs font-semibold text-secondary-200 mb-2">
+                                <div className="space-y-2">
+                                    <Label className="text-sm">
                                         Đã chọn {data.image.length} ảnh
-                                    </p>
+                                    </Label>
                                     <div className="flex flex-wrap gap-3">
                                         {data.image.map((img, index) => (
                                             <div
@@ -354,111 +372,90 @@ const UploadProductModel = ({ close, fetchData }) => {
                             )}
 
                             {/* Category Selector */}
-                            <div className="relative">
-                                <select
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                                focus:border-secondary-100 focus:outline-none appearance-none bg-white cursor-pointer"
-                                    value={selectCategoryValue}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!value) return;
+                            <Select
+                                value={selectCategoryValue}
+                                onValueChange={(value) => {
+                                    if (!value) return;
 
-                                        const categoryDetails =
-                                            allCategory.find(
-                                                (el) => el._id === value
-                                            );
+                                    const categoryDetails = allCategory.find(
+                                        (el) => el._id === value
+                                    );
 
-                                        // Check for duplicates
-                                        const alreadySelected =
-                                            data.category.some(
-                                                (cate) => cate._id === value
-                                            );
+                                    // Check for duplicates
+                                    const alreadySelected = data.category.some(
+                                        (cate) => cate._id === value
+                                    );
 
-                                        if (
-                                            !alreadySelected &&
-                                            categoryDetails
-                                        ) {
-                                            setData((prev) => ({
-                                                ...prev,
-                                                category: [
-                                                    ...prev.category,
-                                                    categoryDetails,
-                                                ],
-                                            }));
-                                            setSelectCategoryValue('');
-                                        }
-                                    }}
-                                >
-                                    <option value="">Chọn danh mục</option>
-                                    {allCategory
-                                        .filter(
-                                            (cat) =>
-                                                !data.category.some(
-                                                    (selected) =>
-                                                        selected._id === cat._id
-                                                )
-                                        )
-                                        .map((category) => (
-                                            <option
-                                                key={category._id}
-                                                value={category._id}
-                                            >
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg
-                                        className="fill-current h-4 w-4"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                    >
-                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                    </svg>
-                                </div>
-                            </div>
+                                    if (!alreadySelected && categoryDetails) {
+                                        setData((prev) => ({
+                                            ...prev,
+                                            category: [
+                                                ...prev.category,
+                                                categoryDetails,
+                                            ],
+                                        }));
+                                        setSelectCategoryValue('');
+                                    }
+                                }}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Chọn danh mục" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {allCategory
+                                            .filter(
+                                                (cat) =>
+                                                    !data.category.some(
+                                                        (selected) =>
+                                                            selected._id ===
+                                                            cat._id
+                                                    )
+                                            )
+                                            .map((category) => (
+                                                <SelectItem
+                                                    key={category._id}
+                                                    value={category._id}
+                                                >
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                         </div>
                         {/* Unit */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="unit"
-                                className="block font-semibold text-gray-700"
-                            >
+                            <Label htmlFor="unit">
                                 Đơn vị tính{' '}
                                 <span className="text-red-500">*</span>
-                            </label>
-                            <input
+                            </Label>
+                            <Input
                                 type="text"
                                 id="unit"
                                 name="unit"
+                                autoFocus
                                 value={data.unit}
                                 onChange={handleOnChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1
-                            focus:ring-secondary-100 focus:border-secondary-100 focus:outline-none transition-all"
-                                placeholder="Ví dụ: cái, thiết bị, bộ..."
-                                spellCheck={false}
+                                className="text-sm h-12 capitalize"
+                                placeholder="Nhập đơn vị tính"
                                 required
-                                onKeyDown={handleKeyDown}
                             />
                         </div>
                         {/* Stock */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="stock"
-                                className="block font-semibold text-gray-700"
-                            >
+                            <Label htmlFor="stock">
                                 Số lượng tồn kho{' '}
                                 <span className="text-red-500">*</span>
-                            </label>
-                            <input
+                            </Label>
+                            <Input
                                 type="number"
                                 id="stock"
                                 name="stock"
                                 min="0"
                                 value={data.stock || ''}
                                 onChange={handleOnChange}
-                                className="w-full no-spinner px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                            focus:border-secondary-100 focus:outline-none"
+                                className="text-sm h-12 capitalize no-spinner"
                                 placeholder="Nhập số lượng tồn kho"
                                 required
                                 onKeyDown={handleKeyDown}
@@ -466,25 +463,21 @@ const UploadProductModel = ({ close, fetchData }) => {
                         </div>
                         {/* Price */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="price"
-                                className="block font-semibold text-gray-700"
-                            >
+                            <Label htmlFor="price">
                                 Giá bán <span className="text-red-500">*</span>
-                            </label>
+                            </Label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-200 font-sem">
                                     VND
                                 </span>
-                                <input
+                                <Input
                                     type="number"
                                     id="price"
                                     name="price"
                                     min="0"
                                     value={data.price || ''}
                                     onChange={handleOnChange}
-                                    className="w-full no-spinner pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                                focus:border-secondary-100 focus:outline-none"
+                                    className="text-sm h-12 capitalize no-spinner pl-12"
                                     placeholder="Nhập giá bán"
                                     required
                                     onKeyDown={handleKeyDown}
@@ -492,17 +485,10 @@ const UploadProductModel = ({ close, fetchData }) => {
                             </div>
                         </div>
                         <div className="grid gap-2">
-                            <label
-                                id="discount"
-                                htmlFor="discount"
-                                className="block font-semibold text-gray-700"
-                            >
-                                Giảm giá
-                            </label>
-                            <input
+                            <Label htmlFor="discount">Giảm giá</Label>
+                            <Input
                                 type="number"
-                                className="w-full no-spinner px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                            focus:border-secondary-100 focus:outline-none"
+                                className="text-sm h-12 capitalize no-spinner"
                                 id="discount"
                                 placeholder="Nhập % giảm giá (nếu có)"
                                 value={data.discount}
@@ -513,21 +499,15 @@ const UploadProductModel = ({ close, fetchData }) => {
                         </div>
                         {/* Description */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="description"
-                                className="block font-semibold text-gray-700"
-                            >
-                                Mô tả sản phẩm
-                            </label>
-                            <textarea
+                            <Label htmlFor="description">Mô tả sản phẩm</Label>
+                            <Textarea
                                 id="description"
                                 name="description"
                                 value={data.description}
                                 onChange={handleOnChange}
                                 rows={4}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                            focus:border-secondary-100 focus:outline-none resize-none"
-                                placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                                className="text-sm h-12 capitalize"
+                                placeholder="Nhập mô tả"
                                 spellCheck={false}
                                 onKeyDown={handleKeyDown}
                             />
@@ -594,52 +574,54 @@ const UploadProductModel = ({ close, fetchData }) => {
                         )}
 
                         {/* Add Field Button */}
-                        <button
-                            type="button"
-                            onClick={() => setOpenAddField(true)}
-                            className="flex items-center gap-2 font-semibold text-primary-600
-                        hover:text-primary-700 transition-colors bg-white w-full
-                        px-3 py-2 rounded-lg border shadow-md"
+                        <GlareHover
+                            background="transparent"
+                            glareOpacity={0.3}
+                            glareAngle={-30}
+                            glareSize={300}
+                            transitionDuration={800}
+                            playOnce={false}
                         >
-                            <IoAddCircleOutline size={20} />
-                            <p className="mt-[3px]">Thêm trường tùy chỉnh</p>
-                        </button>
-
-                        {/* Submit Button */}
-                        <div className="pt-4 border-t border-gray-200">
-                            <button
-                                type="submit"
-                                disabled={
-                                    !data.name ||
-                                    !data.image[0] ||
-                                    !data.category[0] ||
-                                    !data.unit ||
-                                    !data.stock ||
-                                    !data.price ||
-                                    loading
-                                }
-                                className={`w-full py-2 px-4 rounded-lg sm:text-base text-sm font-semibold transition-colors ${
-                                    data.name &&
-                                    data.image[0] &&
-                                    data.category[0] &&
-                                    data.unit &&
-                                    data.stock &&
-                                    data.price &&
-                                    !loading
-                                        ? 'bg-primary-4 text-secondary-200 hover:opacity-80 shadow-lg'
-                                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                }`}
+                            <Button
+                                type="button"
+                                onClick={() => setOpenAddField(true)}
+                                className="flex items-center gap-2 font-semibold text-primary-600
+                        hover:text-primary-700 transition-colors w-full
+                        px-3 py-2 rounded-lg border shadow-md hover:bg-transparent"
                             >
-                                {loading ? (
-                                    <div className="flex items-center justify-center">
-                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                        Đang xử lý...
-                                    </div>
-                                ) : (
-                                    'Lưu sản phẩm'
-                                )}
-                            </button>
-                        </div>
+                                <IoAddCircleOutline />
+                                Thêm trường tùy chỉnh
+                            </Button>
+                        </GlareHover>
+
+                        <Divider />
+                        {/* Submit Button */}
+                        <CardFooter className="px-0 text-sm flex justify-end">
+                            <GlareHover
+                                background="transparent"
+                                glareOpacity={0.3}
+                                glareAngle={-30}
+                                glareSize={300}
+                                transitionDuration={800}
+                                playOnce={false}
+                            >
+                                <Button
+                                    disabled={
+                                        !data.name ||
+                                        !data.image[0] ||
+                                        !data.category[0] ||
+                                        !data.unit ||
+                                        !data.stock ||
+                                        !data.price ||
+                                        loading
+                                    }
+                                    type="submit"
+                                    className="bg-foreground"
+                                >
+                                    {loading ? <Loading /> : 'Thêm Mới'}
+                                </Button>
+                            </GlareHover>
+                        </CardFooter>
                     </CardContent>
                 </form>
             </Card>
@@ -651,7 +633,7 @@ const UploadProductModel = ({ close, fetchData }) => {
 
             {/* Add Custom Field Modal */}
             {openAddField && (
-                <AddFieldComponent
+                <AddField
                     value={fieldName}
                     onChange={(e) => setFieldName(e.target.value)}
                     onSubmit={() => {

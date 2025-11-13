@@ -134,7 +134,7 @@ const UploadMenuCategory = ({ close, fetchData }) => {
                 <CardHeader className="pt-4">
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-lg text-highlight font-bold uppercase">
-                            Thêm danh mục mới
+                            Thêm danh mục
                         </CardTitle>
                         <Button
                             onClick={close}
@@ -186,7 +186,7 @@ const UploadMenuCategory = ({ close, fetchData }) => {
                             <Label htmlFor="image">
                                 Hình ảnh <span className="text-red-500">*</span>
                             </Label>
-                            <label
+                            <Label
                                 htmlFor="image"
                                 className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
                             transition-all duration-200 group ${
@@ -212,7 +212,7 @@ const UploadMenuCategory = ({ close, fetchData }) => {
                                     <div className="space-y-2">
                                         <div
                                             className="mx-auto w-12 h-12 bg-gray-100 text-gray-400 group-hover:text-red-400 group-hover:bg-red-50 rounded-full
-                                    flex items-center justify-center"
+                                        flex items-center justify-center"
                                         >
                                             <IoAddSharp size={24} />
                                         </div>
@@ -233,7 +233,7 @@ const UploadMenuCategory = ({ close, fetchData }) => {
                                     onChange={handleUploadCategoryImage}
                                     accept="image/*"
                                 />
-                            </label>
+                            </Label>
                         </div>
 
                         <Divider />

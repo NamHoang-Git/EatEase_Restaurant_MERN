@@ -20,6 +20,7 @@ import AdminDashboard from '@/layouts/AdminDashboard';
 import Profile from '@/pages/Profile';
 import MenuCategoryPage from '@/pages/MenuCategoryPage';
 import SubMenuCategoryPage from '@/pages/SubMenuCategoryPage';
+import ProductPage from '@/pages/ProductPage';
 
 const router = createBrowserRouter([
     {
@@ -64,7 +65,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'products',
-                        element: <Profile />
+                        element: <ProductPage />
                     },
                     {
                         path: 'categories',
