@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import SummaryApi from '@/common/SummaryApi';
 import Axios from '@/utils/Axios';
 import AxiosToastError from '@/utils/AxiosToastError';
 import Loading from '@/components/Loading';
 import NoData from '@/components/NoData';
-// import ProductCartAdmin from '@/components/ProductCartAdmin';
 import {
     IoArrowBack,
     IoArrowForward,
@@ -23,6 +22,7 @@ import {
 import GlareHover from '@/components/animation/GlareHover';
 import { Button } from '@/components/ui/button';
 import UploadProductModel from '@/components/product/UploadProductModel';
+import ProductCard from '@/components/product/ProductCard';
 
 const ProductPage = () => {
     const [productData, setProductData] = useState([]);
@@ -55,81 +55,63 @@ const ProductPage = () => {
         }
     }, []);
 
-    const fetchProduct = useCallback(async () => {
-        const accessToken = localStorage.getItem('accesstoken');
-        if (!accessToken) return;
+    const fetchProducts = useCallback(
+        async (
+            searchTerm = search,
+            filterValues = filters,
+            currentPage = page
+        ) => {
+            const accessToken = localStorage.getItem('accesstoken');
+            if (!accessToken) return;
 
-        try {
-            setLoading(true);
+            try {
+                setLoading(true);
 
-            // Prepare request data with proper parameter names
-            const requestData = {
-                page,
-                limit: 15,
-                search: search.trim(),
-                minPrice: filters.minPrice
-                    ? Number(filters.minPrice)
-                    : undefined,
-                maxPrice: filters.maxPrice
-                    ? Number(filters.maxPrice)
-                    : undefined,
-                sort: filters.sortBy,
-                category:
-                    filters.category !== 'all' ? filters.category : undefined,
-            };
+                // Prepare request data with proper parameter names
+                const requestData = {
+                    page: currentPage,
+                    limit: 15,
+                    search: searchTerm.trim(),
+                    minPrice: filterValues.minPrice
+                        ? Number(filterValues.minPrice)
+                        : undefined,
+                    maxPrice: filterValues.maxPrice
+                        ? Number(filterValues.maxPrice)
+                        : undefined,
+                    sort: filterValues.sortBy,
+                    category:
+                        filterValues.category !== 'all'
+                            ? filterValues.category
+                            : undefined,
+                };
 
-            // Remove undefined values
-            Object.keys(requestData).forEach((key) => {
-                if (requestData[key] === undefined || requestData[key] === '') {
-                    delete requestData[key];
+                // Clean up undefined values
+                Object.keys(requestData).forEach((key) => {
+                    if (
+                        requestData[key] === undefined ||
+                        requestData[key] === ''
+                    ) {
+                        delete requestData[key];
+                    }
+                });
+
+                const response = await Axios({
+                    ...SummaryApi.get_product,
+                    data: requestData,
+                });
+
+                if (response.data.success) {
+                    setTotalPageCount(response.data.totalNoPage);
+                    setProductData(response.data.data);
                 }
-            });
-
-            const response = await Axios({
-                ...SummaryApi.get_product,
-                data: requestData,
-            });
-
-            const { data: responseData } = response;
-
-            if (responseData.success) {
-                setTotalPageCount(responseData.totalNoPage);
-                setProductData(responseData.data);
+            } catch (error) {
+                AxiosToastError(error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            AxiosToastError(error);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, search, filters]);
-
-    useEffect(() => {
-        fetchCategories();
-    }, [fetchCategories]);
-
-    useEffect(() => {
-        fetchProduct();
-    }, [fetchProduct]);
-
-    // Handle filter changes
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-
-        // Only allow numbers or empty string for price inputs
-        if (
-            (name === 'minPrice' || name === 'maxPrice') &&
-            value !== '' &&
-            !/^\d*$/.test(value)
-        ) {
-            return;
-        }
-
-        setFilters((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-        setPage(1);
-    };
+        },
+        []
+    );
 
     // Reset all filters
     const resetFilters = () => {
@@ -142,44 +124,65 @@ const ProductPage = () => {
         setPage(1);
     };
 
-    // Add debounce for filters
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            fetchProduct();
-        }, 300);
+    const handleOnChange = (e) => {
+        const { value } = e.target;
+        setSearch(value);
+        setPage(1);
+        debouncedSearch(value, filters, 1);
+    };
 
-        return () => clearTimeout(timer);
-    }, [filters, search, page]);
+    // Debounced search function
+    const debouncedSearch = useRef(
+        debounce((searchTerm, filterValues, currentPage) => {
+            fetchProducts(searchTerm, filterValues, currentPage);
+        }, 500)
+    ).current;
+
+    // Handle filter changes
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+
+        if (
+            (name === 'minPrice' || name === 'maxPrice') &&
+            value !== '' &&
+            !/^\d*$/.test(value)
+        ) {
+            return;
+        }
+
+        const newFilters = {
+            ...filters,
+            [name]: value,
+        };
+
+        setFilters(newFilters);
+        setPage(1);
+        debouncedSearch(search, newFilters, 1);
+    };
+
+    // Handle page changes
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        fetchProducts(search, filters, newPage);
+    };
+
+    // Initial data fetch
+    useEffect(() => {
+        fetchCategories();
+        fetchProducts();
+    }, []);
 
     const handleNextPage = () => {
-        if (page !== totalPageCount) {
-            setPage((prev) => prev + 1);
+        if (page < totalPageCount) {
+            handlePageChange(page + 1);
         }
     };
 
     const handlePreviousPage = () => {
         if (page > 1) {
-            setPage((prev) => prev - 1);
+            handlePageChange(page - 1);
         }
     };
-
-    const handleOnChange = (e) => {
-        const { value } = e.target;
-        setSearch(value);
-        setPage(1);
-    };
-
-    const debouncedSearch = React.useCallback(
-        debounce(() => {
-            fetchProduct();
-        }, 500),
-        [filters, search]
-    );
-
-    useEffect(() => {
-        debouncedSearch();
-        return () => debouncedSearch.cancel();
-    }, [search]);
 
     // Render filter controls
     const renderFilterControls = () => (
@@ -331,7 +334,9 @@ const ProductPage = () => {
 
             {showFilters && renderFilterControls()}
 
-            {!productData[0] && !loading && <NoData message="Chưa có sản phẩm nào" />}
+            {!productData[0] && !loading && (
+                <NoData message="Chưa có sản phẩm nào" />
+            )}
 
             {loading ? (
                 <div className="flex justify-center items-center py-2">
@@ -339,48 +344,51 @@ const ProductPage = () => {
                 </div>
             ) : (
                 <div className="">
-                    <div className="min-h-[65vh]">
+                    <div className="">
                         <div className="pt-2 pb-8 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-[10px] sm:gap-6">
                             {productData.map((product, index) => (
-                                <ProductCartAdmin
+                                <ProductCard
                                     key={product._id || index}
                                     data={product}
-                                    fetchProduct={fetchProduct}
+                                    fetchProduct={fetchProducts}
                                 />
                             ))}
                         </div>
                     </div>
-                    <div className="flex justify-between px-4">
-                        <button
-                            onClick={handlePreviousPage}
-                            disabled={page === 1}
-                            className={`flex items-center gap-1 px-3 py-1 rounded ${
-                                page === 1
-                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                    : 'bg-white border-2 border-slate-700 text-slate-600 hover:bg-rose-100 hover:text-rose-600 hover:border-rose-600'
-                            }`}
-                        >
-                            <IoArrowBack size={20} />
-                            <span className="hidden sm:inline">Trước</span>
-                        </button>
 
-                        <div className="flex items-center font-bold sm:text-base text-sm text-secondary-200">
-                            Trang {page} / {totalPageCount}
+                    {productData[0] && (
+                        <div className="flex justify-between px-4">
+                            <button
+                                onClick={handlePreviousPage}
+                                disabled={page === 1}
+                                className={`flex items-center gap-1 px-3 py-1 rounded ${
+                                    page === 1
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        : 'bg-white border-2 border-slate-700 text-slate-600 hover:bg-rose-100 hover:text-rose-600 hover:border-rose-600'
+                                }`}
+                            >
+                                <IoArrowBack size={20} />
+                                <span className="hidden sm:inline">Trước</span>
+                            </button>
+
+                            <div className="flex items-center font-bold sm:text-base text-sm text-secondary-200">
+                                Trang {page} / {totalPageCount}
+                            </div>
+
+                            <button
+                                onClick={handleNextPage}
+                                disabled={page === totalPageCount}
+                                className={`flex items-center gap-1 px-3 py-1 rounded ${
+                                    page === totalPageCount
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        : 'bg-white border-2 border-slate-700 text-slate-600 hover:bg-rose-100 hover:text-rose-600 hover:border-rose-600'
+                                }`}
+                            >
+                                <span className="hidden sm:inline">Tiếp</span>
+                                <IoArrowForward size={20} />
+                            </button>
                         </div>
-
-                        <button
-                            onClick={handleNextPage}
-                            disabled={page === totalPageCount}
-                            className={`flex items-center gap-1 px-3 py-1 rounded ${
-                                page === totalPageCount
-                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                    : 'bg-white border-2 border-slate-700 text-slate-600 hover:bg-rose-100 hover:text-rose-600 hover:border-rose-600'
-                            }`}
-                        >
-                            <span className="hidden sm:inline">Tiếp</span>
-                            <IoArrowForward size={20} />
-                        </button>
-                    </div>
+                    )}
                     <div className="p-[0.5px] bg-slate-300 my-4"></div>
                 </div>
             )}
@@ -388,7 +396,7 @@ const ProductPage = () => {
             {/* Upload Product Modal */}
             {openUploadProduct && (
                 <UploadProductModel
-                    fetchData={fetchProduct}
+                    fetchData={fetchProducts}
                     close={() => setOpenUploadProduct(false)}
                 />
             )}

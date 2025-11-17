@@ -15,7 +15,7 @@ import AddToCartButton from '../AddToCartButton';
 interface Product {
     _id: string;
     name: string;
-    image: string[];
+    images: string[];
     unit: string;
     discount: number;
     price: number;
@@ -74,7 +74,7 @@ export function ProductCard({ data }: ProductCardProps) {
 
                     <div className="relative w-full h-full overflow-hidden">
                         <img
-                            src={data.image[0]}
+                            src={data.images[0]}
                             alt={data.name}
                             className={`w-full p-2 h-44 object-contain bg-white transition-transform duration-700 ${
                                 isHovered ? 'scale-100' : 'scale-100'

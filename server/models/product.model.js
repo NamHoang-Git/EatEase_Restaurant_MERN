@@ -25,7 +25,7 @@ const productSchema = new mongoose.Schema({
     // Danh mục chính
     category: {
         type: mongoose.Schema.ObjectId,
-        ref: "Category",
+        ref: "MenuCategory",
         required: [true, "Vui lòng chọn danh mục"]
     },
 

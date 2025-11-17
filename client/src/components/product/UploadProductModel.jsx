@@ -37,7 +37,7 @@ import Divider from '../Divider';
 const UploadProductModel = ({ close, fetchData }) => {
     const [data, setData] = useState({
         name: '',
-        image: [],
+        images: [],
         category: [],
         unit: '',
         stock: 0,
@@ -93,7 +93,7 @@ const UploadProductModel = ({ close, fetchData }) => {
 
         // Check total images won't exceed limit (e.g., 10 images)
         const maxImages = 10;
-        if (data.image.length + files.length > maxImages) {
+        if (data.images.length + files.length > maxImages) {
             alert(`Bạn chỉ có thể tải lên tối đa ${maxImages} ảnh`);
             return;
         }
@@ -104,26 +104,45 @@ const UploadProductModel = ({ close, fetchData }) => {
             const uploadPromises = files.map((file) => uploadImage(file));
             const responses = await Promise.all(uploadPromises);
 
-            const newImageUrls = responses.map(
-                (response) => response.data.data.url
-            );
+            // Update this part to handle the response correctly
+            const newImageUrls = responses
+                .map((response) => {
+                    // Check different possible response structures
+                    if (response.data && response.data.url) {
+                        return response.data.url;
+                    } else if (
+                        response.data &&
+                        response.data.data &&
+                        response.data.data.url
+                    ) {
+                        return response.data.data.url;
+                    } else if (response.data && response.data.imageUrl) {
+                        return response.data.imageUrl;
+                    }
+                    console.error('Unexpected response format:', response);
+                    return null;
+                })
+                .filter((url) => url !== null); // Filter out any null values
 
             setData((prev) => ({
                 ...prev,
-                image: [...prev.image, ...newImageUrls],
+                images: [...prev.images, ...newImageUrls],
             }));
         } catch (error) {
+            console.error('Error uploading images:', error);
             AxiosToastError(error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleRemoveImage = async (index) => {
-        data.image.splice(index, 1);
+    const handleRemoveImage = (index) => {
         setData((prev) => {
+            const newImages = [...(prev.images || [])]; // Ensure we have an array
+            newImages.splice(index, 1);
             return {
                 ...prev,
+                images: newImages,
             };
         });
     };
@@ -164,9 +183,15 @@ const UploadProductModel = ({ close, fetchData }) => {
         e.preventDefault();
 
         try {
+            // Prepare the data to send, converting category objects to just their IDs
+            const dataToSend = {
+                ...data,
+                category: data.category.map((cat) => cat._id), // Only send the category IDs
+            };
+
             const response = await Axios({
                 ...SummaryApi.add_product,
-                data: data,
+                data: dataToSend,
             });
 
             const { data: responseData } = response;
@@ -179,7 +204,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                 fetchData();
                 setData({
                     name: '',
-                    image: [],
+                    images: [],
                     category: [],
                     unit: '',
                     stock: '',
@@ -256,13 +281,13 @@ const UploadProductModel = ({ close, fetchData }) => {
                                     className="hidden"
                                     multiple
                                     disabled={!data.name || loading}
-                                    required={!data.image.length}
+                                    required={!data.images.length}
                                 />
                                 <Label
                                     htmlFor="uploadProductImage"
                                     className={`block border-2 border-dashed rounded-xl p-6 text-center
                                 transition-all duration-200 group ${
-                                    data.image.length
+                                    data.images.length
                                         ? 'border-green-300 bg-green-50/90'
                                         : 'border-gray-300 hover:border-red-500'
                                 } ${
@@ -301,13 +326,13 @@ const UploadProductModel = ({ close, fetchData }) => {
                             </div>
 
                             {/* Image Preview */}
-                            {data.image.length > 0 && (
+                            {data.images.length > 0 && (
                                 <div className="space-y-2">
                                     <Label className="text-sm">
-                                        Đã chọn {data.image.length} ảnh
+                                        Đã chọn {data.images.length} ảnh
                                     </Label>
                                     <div className="flex flex-wrap gap-3">
-                                        {data.image.map((img, index) => (
+                                        {data.images.map((img, index) => (
                                             <div
                                                 key={img + index}
                                                 className="relative group sm:h-24 sm:w-24 h-16 w-16 rounded-lg overflow-hidden border border-secondary-100"
@@ -391,7 +416,10 @@ const UploadProductModel = ({ close, fetchData }) => {
                                             ...prev,
                                             category: [
                                                 ...prev.category,
-                                                categoryDetails,
+                                                {
+                                                    _id: categoryDetails._id,
+                                                    name: categoryDetails.name,
+                                                },
                                             ],
                                         }));
                                         setSelectCategoryValue('');
@@ -515,62 +543,72 @@ const UploadProductModel = ({ close, fetchData }) => {
 
                         {/* Additional Fields */}
                         {Object.keys(data.more_details).length > 0 && (
-                            <div className="space-y-4 pt-2 border-t border-gray-200">
-                                <h4 className="font-semibold text-secondary-200">
-                                    Thông tin bổ sung
-                                </h4>
-                                {Object.keys(data.more_details).map((field) => (
-                                    <div key={field} className="space-y-2">
-                                        <label
-                                            htmlFor={`field-${field}`}
-                                            className="block font-semibold text-gray-700 capitalize"
-                                        >
-                                            {field.replace(/_/g, ' ')}
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                id={`field-${field}`}
-                                                value={
-                                                    data.more_details[field] ||
-                                                    ''
-                                                }
-                                                onChange={(e) => {
-                                                    const value =
-                                                        e.target.value;
-                                                    setData((prev) => ({
-                                                        ...prev,
-                                                        more_details: {
-                                                            ...prev.more_details,
-                                                            [field]: value,
-                                                        },
-                                                    }));
-                                                }}
-                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                                            focus:border-secondary-100 focus:outline-none"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const newDetails = {
-                                                        ...data.more_details,
-                                                    };
-                                                    delete newDetails[field];
-                                                    setData((prev) => ({
-                                                        ...prev,
-                                                        more_details:
-                                                            newDetails,
-                                                    }));
-                                                }}
-                                                className="px-3 text-red-500 hover:text-red-700"
-                                                title="Xóa trường"
+                            <>
+                                <Divider />
+                                <div className="space-y-4">
+                                    <CardTitle className="text-sm text-highlight font-bold uppercase">
+                                        Thông tin bổ sung
+                                    </CardTitle>
+                                    {Object.keys(data.more_details).map(
+                                        (field) => (
+                                            <div
+                                                key={field}
+                                                className="space-y-2"
                                             >
-                                                <IoClose size={20} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                                <Label
+                                                    htmlFor={`field-${field}`}
+                                                >
+                                                    {field.replace(/_/g, ' ')}
+                                                </Label>
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        type="text"
+                                                        id={`field-${field}`}
+                                                        value={
+                                                            data.more_details[
+                                                                field
+                                                            ] || ''
+                                                        }
+                                                        onChange={(e) => {
+                                                            const value =
+                                                                e.target.value;
+                                                            setData((prev) => ({
+                                                                ...prev,
+                                                                more_details: {
+                                                                    ...prev.more_details,
+                                                                    [field]:
+                                                                        value,
+                                                                },
+                                                            }));
+                                                        }}
+                                                        className="text-sm h-12"
+                                                    />
+                                                    <Button
+                                                        onClick={() => {
+                                                            const newDetails = {
+                                                                ...data.more_details,
+                                                            };
+                                                            delete newDetails[
+                                                                field
+                                                            ];
+                                                            setData((prev) => ({
+                                                                ...prev,
+                                                                more_details:
+                                                                    newDetails,
+                                                            }));
+                                                        }}
+                                                        className="bg-transparent hover:bg-transparent text-red-500
+                                                    hover:text-red-700 h-12"
+                                                        title="Xóa trường"
+                                                    >
+                                                        <IoClose size={20} />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </>
                         )}
 
                         {/* Add Field Button */}
@@ -608,7 +646,7 @@ const UploadProductModel = ({ close, fetchData }) => {
                                 <Button
                                     disabled={
                                         !data.name ||
-                                        !data.image[0] ||
+                                        !data.images[0] ||
                                         !data.category[0] ||
                                         !data.unit ||
                                         !data.stock ||

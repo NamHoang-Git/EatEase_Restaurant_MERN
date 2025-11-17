@@ -4,10 +4,10 @@ import CartModel from './../models/cart.model.js';
 
 export const addProductController = async (req, res) => {
     try {
-        const { name, image, category, unit, stock,
+        const { name, images, category, unit, stock,
             price, discount, description, more_details } = req.body
 
-        if (!name || !image[0] || !category[0] || !unit || !stock || !price) {
+        if (!name || !images[0] || !category[0] || !unit || !stock || !price) {
             return res.status(400).json({
                 message: "Vui lòng nhập các trường bắt buộc",
                 error: true,
@@ -17,7 +17,7 @@ export const addProductController = async (req, res) => {
 
         const addProduct = new ProductModel({
             name,
-            image,
+            images,
             category,
             unit,
             stock,

@@ -1,6 +1,10 @@
 import React from 'react';
 import { IoClose } from 'react-icons/io5';
-import { Card, CardHeader } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Label } from '@radix-ui/react-label';
+import { Input } from '../ui/input';
+import GlareHover from '../animation/GlareHover';
 
 const AddField = ({ close, value, onChange, onSubmit }) => {
     return (
@@ -11,63 +15,77 @@ const AddField = ({ close, value, onChange, onSubmit }) => {
         >
             <Card
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden"
+                className="w-full max-w-md overflow-hidden border-foreground"
             >
                 {/* Header */}
-                <CardHeader className="border-b border-gray-200 px-6 py-4">
+                <CardHeader className="border-b border-gray-200 py-2">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-secondary-200">
+                        <CardTitle className="text-base text-highlight font-bold uppercase">
                             Thêm trường mới
-                        </h3>
-                        <button
+                        </CardTitle>
+                        <Button
                             onClick={close}
-                            className="text-gray-400 hover:text-secondary-200 transition-colors"
+                            className="bg-transparent hover:bg-transparent text-foreground
+                        hover:text-highlight h-12"
                         >
-                            <IoClose size={24} />
-                        </button>
+                            <IoClose />
+                        </Button>
                     </div>
                 </CardHeader>
 
-                <div className="px-6 py-6 space-y-6 text-sm">
+                <CardContent className="py-4 space-y-6 text-sm">
                     <div className="space-y-2">
-                        <label
-                            htmlFor="fieldName"
-                            className="block font-semibold text-gray-700"
-                        >
+                        <Label htmlFor="fieldName">
                             Tên trường <span className="text-red-500">*</span>
-                        </label>
-                        <input
+                        </Label>
+                        <Input
                             type="text"
                             id="fieldName"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-secondary-100
-                            focus:border-secondary-100 focus:outline-none transition-all"
-                            placeholder="Nhập tên trường"
+                            name="fieldName"
+                            autoFocus
                             value={value}
                             onChange={onChange}
-                            autoFocus
+                            className="text-sm h-12"
+                            placeholder="Nhập tên trường"
+                            required
                         />
                     </div>
 
-                    <div className="flex sm:text-sm text-xs justify-end space-x-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={close}
-                            className="px-6 py-[6px] border-2 border-secondary-100 rounded-lg text-secondary-200 hover:bg-secondary-100
-                            focus:outline-none focus:ring-2 focus:ring-offset-2 hover:text-white font-semibold focus:ring-secondary-200"
+                    <div className="flex items-center justify-end gap-2">
+                        <GlareHover
+                            background="transparent"
+                            glareOpacity={0.3}
+                            glareAngle={-30}
+                            glareSize={300}
+                            transitionDuration={800}
+                            playOnce={false}
                         >
-                            Hủy
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onSubmit}
-                            disabled={!value}
-                            className="px-6 py-[6px] bg-primary text-secondary-200 shadow-lg rounded-lg hover:opacity-80
-                            focus:outline-none disabled:opacity-50 font-semibold"
+                            <Button
+                                onClick={close}
+                                className="bg-muted-foreground hover:bg-muted-foreground w-full"
+                            >
+                                Huỷ
+                            </Button>
+                        </GlareHover>
+                        <GlareHover
+                            background="transparent"
+                            glareOpacity={0.3}
+                            glareAngle={-30}
+                            glareSize={300}
+                            transitionDuration={800}
+                            playOnce={false}
+                            title={!value ? 'Vui lòng nhập tên trường' : ''}
                         >
-                            Thêm
-                        </button>
+                            <Button
+                                disabled={!value}
+                                onClick={onSubmit}
+                                className="bg-foreground w-full"
+                            >
+                                Thêm
+                            </Button>
+                        </GlareHover>
                     </div>
-                </div>
+                </CardContent>
             </Card>
         </section>
     );
