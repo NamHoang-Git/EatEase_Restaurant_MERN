@@ -30,29 +30,6 @@ export function LoginForm({
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
 
-    // const handleKeyDown = (e) => {
-    //     if (e.key === 'Enter') {
-    //         e.preventDefault();
-
-    //         // lấy tất cả input hợp lệ trong form
-    //         const form = e.target.form;
-    //         const focusable = Array.from(form.elements).filter(
-    //             (el) =>
-    //                 el.tagName === 'INPUT' ||
-    //                 el.tagName === 'SELECT' ||
-    //                 el.tagName === 'TEXTAREA'
-    //         );
-
-    //         // tìm vị trí hiện tại
-    //         const index = focusable.indexOf(e.target);
-
-    //         // focus phần tử tiếp theo nếu có
-    //         if (index > -1 && index < focusable.length - 1) {
-    //             focusable[index + 1].focus();
-    //         }
-    //     }
-    // };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -64,10 +41,65 @@ export function LoginForm({
         });
     };
 
-    const valideValue = Object.values(data).every((el) => el);
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-    const handleSubmit = async (e) => {
+        const validTLDs = [
+            'com',
+            'net',
+            'org',
+            'io',
+            'co',
+            'ai',
+            'vn',
+            'com.vn',
+            'edu.vn',
+            'gov.vn',
+        ];
+
+        if (!emailRegex.test(email)) {
+            return false;
+        }
+
+        const domain = email.split('@')[1];
+        const tld = domain.split('.').slice(1).join('.');
+
+        if (!validTLDs.includes(tld)) {
+            return false;
+        }
+
+        if (
+            email.includes('..') ||
+            email.startsWith('.') ||
+            email.endsWith('.') ||
+            email.split('@')[0].endsWith('.')
+        ) {
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!data.email && !data.password) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        }
+
+        if (!data.email) {
+            toast.error('Vui lòng nhập email');
+            return;
+        } else if (!validateEmail(data.email)) {
+            toast.error('Vui lòng nhập địa chỉ email hợp lệ');
+            return;
+        }
+
+        if (!data.password) {
+            toast.error('Vui lòng nhập mật khẩu');
+            return;
+        }
 
         try {
             setLoading(true);
@@ -137,7 +169,6 @@ export function LoginForm({
                         onChange={handleChange}
                         value={data.email}
                         className="h-12 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                        required
                     />
                 </div>
                 <div className="grid gap-2">
@@ -151,7 +182,6 @@ export function LoginForm({
                             onChange={handleChange}
                             value={data.password}
                             className="h-12 pr-10 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                            required
                         />
                         <Button
                             type="button"
@@ -197,12 +227,8 @@ export function LoginForm({
                     glareSize={300}
                     transitionDuration={800}
                     playOnce={false}
-                    className={`${
-                        !valideValue ? 'cursor-not-allowed' : 'cursor-pointer'
-                    }`}
                 >
                     <Button
-                        disabled={!valideValue}
                         type="submit"
                         className="bg-foreground w-full h-12 font-bold"
                     >

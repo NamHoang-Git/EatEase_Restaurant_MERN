@@ -56,6 +56,10 @@ const Profile: React.FC = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
 
+    const [selectedAvatar, setSelectedAvatar] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [imageURL, setImageURL] = useState('');
+
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [failedAttempts, setFailedAttempts] = useState(0);
@@ -115,29 +119,85 @@ const Profile: React.FC = () => {
         });
     };
 
-    const handleUploadAvatar = async (e) => {
+    const handleAvatarSelect = (e) => {
         const file = e.target.files[0];
 
         if (!file) {
             return;
         }
 
+        // Validate file type
+        const validTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/webp',
+        ];
+        if (!validTypes.includes(file.type)) {
+            toast.error('Chỉ chấp nhận file ảnh (JPG, PNG, WEBP)');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            toast.error('Kích thước ảnh không được vượt quá 5MB');
+            return;
+        }
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setAvatarPreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+
+        setSelectedAvatar(file);
+    };
+
+    const handleUploadAvatar = async () => {
+        if (!selectedAvatar) {
+            return;
+        }
+
         const formData = new FormData();
-        formData.append('avatar', file);
+        formData.append('avatar', selectedAvatar);
 
         try {
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.upload_avatar,
                 data: formData,
+                headers: {
+                    'Content-Type': undefined, // Remove to let browser set multipart/form-data with boundary
+                },
             });
 
             const { data: responseData } = response;
-            dispatch(updatedAvatar(responseData.data.avatar));
+
+            if (responseData.success) {
+                toast.success(
+                    responseData.message || 'Cập nhật avatar thành công'
+                );
+                dispatch(updatedAvatar(responseData.data.avatar));
+                // Reset states
+                setSelectedAvatar(null);
+                setAvatarPreview(null);
+            }
         } catch (error) {
             AxiosToastError(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCancelAvatarChange = () => {
+        setSelectedAvatar(null);
+        setAvatarPreview(null);
+        // Reset input
+        const input = document.getElementById('uploadProfile');
+        if (input) {
+            input.value = '';
         }
     };
 
@@ -247,22 +307,44 @@ const Profile: React.FC = () => {
                                 <div className="space-y-4">
                                     <Label>Avatar Hiện Tại</Label>
                                     <div className="grid justify-items-center justify-start gap-2.5">
-                                        <div className="flex items-center space-x-4">
-                                            <Avatar className="h-20 w-20">
-                                                <AvatarImage
-                                                    src={
-                                                        user?.avatar ||
-                                                        defaultAvatar
-                                                    }
-                                                    alt={user?.name || 'User'}
-                                                />
-                                                <AvatarFallback>
-                                                    {(user?.name || 'U')
-                                                        .split(' ')
-                                                        .map((n) => n[0])
-                                                        .join('')}
-                                                </AvatarFallback>
-                                            </Avatar>
+                                        <div className="flex items-center space-x-4 relative">
+                                            <div
+                                                className="cursor-pointer"
+                                                onClick={() =>
+                                                    setImageURL(
+                                                        avatarPreview ||
+                                                            user?.avatar ||
+                                                            defaultAvatar
+                                                    )
+                                                }
+                                            >
+                                                <Avatar className="h-20 w-20 hover:opacity-80 transition-opacity">
+                                                    <AvatarImage
+                                                        src={
+                                                            avatarPreview ||
+                                                            user?.avatar ||
+                                                            defaultAvatar
+                                                        }
+                                                        alt={
+                                                            user?.name || 'User'
+                                                        }
+                                                        className="object-cover"
+                                                    />
+                                                    <AvatarFallback>
+                                                        {(user?.name || 'U')
+                                                            .split(' ')
+                                                            .map((n) => n[0])
+                                                            .join('')}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                            </div>
+                                            {avatarPreview && (
+                                                <div className="absolute top-0 right-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                                    <span className="text-white text-xs">
+                                                        *
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                         <div>
                                             <Label

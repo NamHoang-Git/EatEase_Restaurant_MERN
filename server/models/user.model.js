@@ -46,6 +46,22 @@ const userSchema = new mongoose.Schema({
         enum: ["ACTIVE", "INACTIVE"],
         default: "ACTIVE"
     },
+    refresh_token: {
+        type: String,
+        default: "",
+    },
+    verify_email: {
+        type: Boolean,
+        default: false,
+    },
+    forgot_password_otp: {
+        type: String,
+        default: null,
+    },
+    forgot_password_expiry: {
+        type: Date,
+        default: "",
+    },
     refreshToken: String,
     lastLogin: Date,
     resetPasswordToken: String,

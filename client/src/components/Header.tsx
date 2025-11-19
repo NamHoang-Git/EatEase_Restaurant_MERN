@@ -269,7 +269,7 @@ export function Header() {
                                     Đăng nhập
                                 </button>
                             )}
-                            <button
+                            {/* <button
                                 onClick={
                                     user?._id
                                         ? () => setOpenCartSection(true)
@@ -295,7 +295,7 @@ export function Header() {
                                         <p>Giỏ hàng</p>
                                     )}
                                 </div>
-                            </button>
+                            </button> */}
                         </div>
                         {/* Mobile Nav */}
                         <div className="md:hidden">

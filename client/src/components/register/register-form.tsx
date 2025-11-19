@@ -31,23 +31,6 @@ export function RegisterForm({
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
-    // const handleKeyDown = (e) => {
-    //     if (e.key === 'Enter') {
-    //         e.preventDefault();
-    //         const form = e.target.form;
-    //         const focusable = Array.from(form.elements).filter(
-    //             (el) =>
-    //                 el.tagName === 'INPUT' ||
-    //                 el.tagName === 'SELECT' ||
-    //                 el.tagName === 'TEXTAREA'
-    //         );
-    //         const index = focusable.indexOf(e.target);
-    //         if (index > -1 && index < focusable.length - 1) {
-    //             focusable[index + 1].focus();
-    //         }
-    //     }
-    // };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -58,8 +41,6 @@ export function RegisterForm({
             };
         });
     };
-
-    const valideValue = Object.values(data).every((el) => el);
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
@@ -100,15 +81,55 @@ export function RegisterForm({
         return true;
     };
 
+    const validateMobile = (mobile) => {
+        // Vietnamese phone number validation
+        // Starts with 0, followed by 9 or 1-9, then 8 more digits (total 10 digits)
+        const mobileRegex = /^(0[1-9]|0[1-9][0-9]{8})$/;
+        if (!mobile) {
+            return false;
+        }
+        if (!mobileRegex.test(mobile)) {
+            return false;
+        }
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateEmail(data.email)) {
+        if (!data.name && !data.email && !data.mobile && !data.password) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        }
+
+        if (!data.email) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        } else if (!validateEmail(data.email)) {
             toast.error('Vui lòng nhập địa chỉ email hợp lệ');
             return;
         }
 
-        if (data.password !== data.confirmPassword) {
+        if (!data.mobile) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        } else if (!validateMobile(data.mobile)) {
+            toast.error('Số điện thoại không hợp lệ');
+            return;
+        }
+
+        if (!data.password) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        } else if (data.password.length < 6) {
+            toast.error('Mật khẩu phải có ít nhất 6 ký tự');
+            return;
+        }
+
+        if (!data.confirmPassword) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        } else if (data.password !== data.confirmPassword) {
             toast.error('Mật khẩu và mật khẩu xác nhận phải giống nhau');
             return;
         }
@@ -166,7 +187,6 @@ export function RegisterForm({
                         onChange={handleChange}
                         value={data.name}
                         className="h-12 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                        required
                     />
                 </div>
                 <div className="grid gap-2">
@@ -179,7 +199,6 @@ export function RegisterForm({
                         onChange={handleChange}
                         value={data.email}
                         className="h-12 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                        required
                     />
                 </div>
                 <div className="grid gap-2">
@@ -192,7 +211,6 @@ export function RegisterForm({
                         onChange={handleChange}
                         value={data.mobile}
                         className="h-12 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                        required
                     />
                 </div>
                 <div className="grid gap-2">
@@ -206,7 +224,6 @@ export function RegisterForm({
                             onChange={handleChange}
                             value={data.password}
                             className="h-12 pr-10 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                            required
                         />
                         <Button
                             type="button"
@@ -234,7 +251,6 @@ export function RegisterForm({
                             onChange={handleChange}
                             value={data.confirmPassword}
                             className="h-12 pr-10 border-muted-foreground border-2 focus:ring-0 shadow-none rounded-lg bg-white/20 focus:border-[#3F3FF3]"
-                            required
                         />
                         <Button
                             type="button"
@@ -261,12 +277,8 @@ export function RegisterForm({
                     glareSize={300}
                     transitionDuration={800}
                     playOnce={false}
-                    className={`${
-                        !valideValue ? 'cursor-not-allowed' : 'cursor-pointer'
-                    }`}
                 >
                     <Button
-                        disabled={!valideValue}
                         type="submit"
                         className="bg-foreground w-full h-12 font-bold"
                     >

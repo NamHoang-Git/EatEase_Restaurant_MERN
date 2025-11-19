@@ -6,7 +6,7 @@ const verifyEmailTemplate = ({ name, url }) => {
 
                 <p>Xin chào <strong>${name}</strong>,</p>
 
-                <p>Cảm ơn bạn đã đăng ký tài khoản tại EcomSpace. Để hoàn tất đăng ký, vui lòng xác nhận địa chỉ email của bạn bằng cách nhấn vào nút bên dưới:</p>
+                <p>Cảm ơn bạn đã đăng ký tài khoản tại EatEase. Để hoàn tất đăng ký, vui lòng xác nhận địa chỉ email của bạn bằng cách nhấn vào nút bên dưới:</p>
 
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="${url}"
@@ -28,9 +28,9 @@ const verifyEmailTemplate = ({ name, url }) => {
                 </p>
 
                 <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; font-size: 12px; color: #6c757d;">
-                    <p>Trân trọng,<br/>Đội ngũ EcomSpace</p>
-                    <p>📧 support@ecomspace.vn<br/>
-                    🌐 https://ecommerce-shop-full-stack-pvey.vercel.app/</p>
+                    <p>Trân trọng,<br/>Đội ngũ EatEase</p>
+                    <p>📧 support@eatease.vn<br/>
+                    🌐 https://eat-ease-restaurant-mern-7kmb.vercel.app/</p>
                 </div>
             </div>
         </div>
